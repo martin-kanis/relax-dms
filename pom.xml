@@ -11,7 +11,7 @@
     </properties>
   <modules>
     <module>relax-dms-web</module>
-    <module>relax-dms</module>
+    <module>application</module>
     <module>relax-dms-backend</module>
   </modules>
 </project>
