@@ -10,11 +10,16 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java-version>1.8</java-version>
+        <version.relax-dms>0.1</version.relax-dms>
     </properties>
     
     <modules>
         <module>relax-dms-web</module>
         <module>application</module>
         <module>relax-dms-backend</module>
-    </modules>
+        <module>relax-dms-data</module>
+        <module>relax-dms-data-api</module>
+        <module>relax-dms-api</module>
+    <module>relax-dms-rest</module>
+  </modules>
 </project>
