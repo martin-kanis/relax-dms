@@ -28,6 +28,18 @@
         </dependency>
         
         <dependency>
+            <groupId>org.ektorp</groupId>
+            <artifactId>org.ektorp</artifactId>
+            <version>1.4.2</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        
+        <dependency>
             <groupId>org.fit.vutbr</groupId>
             <artifactId>relax-dms-data-api</artifactId>
             <version>${version.relax-dms}</version>
