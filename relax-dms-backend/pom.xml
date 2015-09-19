@@ -32,6 +32,13 @@
             <artifactId>relax-dms-api</artifactId>
             <version>${version.relax-dms}</version>
         </dependency>
+        
+        <dependency>
+            <groupId>org.fit.vutbr</groupId>
+            <artifactId>relax-dms-data-api</artifactId>
+            <version>${version.relax-dms}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>

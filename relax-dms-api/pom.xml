@@ -12,4 +12,12 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
+    
+    <dependencies>
+        <dependency>
+            <groupId>org.fit.vutbr</groupId>
+            <artifactId>relax-dms-data-api</artifactId>
+            <version>${version.relax-dms}</version>
+        </dependency>
+    </dependencies>
 </project>
