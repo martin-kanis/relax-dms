@@ -30,13 +30,7 @@
         <dependency>
             <groupId>org.ektorp</groupId>
             <artifactId>org.ektorp</artifactId>
-            <version>1.4.2</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <scope>provided</scope>
+            <version>${version.ektorp}</version>
         </dependency>
         
         <dependency>

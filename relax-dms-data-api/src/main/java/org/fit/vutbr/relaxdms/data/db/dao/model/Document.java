@@ -1,20 +1,24 @@
 package org.fit.vutbr.relaxdms.data.db.dao.model;
 
-import java.io.Serializable;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import org.ektorp.support.CouchDbDocument;
 
 /**
  *
  * @author Martin Kanis
  */
-@EqualsAndHashCode
-@ToString
-public class Document extends DatabaseEntity implements Serializable {
-    
-    @Getter
-    @Setter
+
+@JsonInclude(Include.NON_NULL)
+public class Document extends CouchDbDocument {
+
     private String author;
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
 }

@@ -1,29 +1,52 @@
 package org.fit.vutbr.relaxdms.data.db.dao.impl;
 
 import javax.annotation.PostConstruct;
-import javax.ejb.Stateless;
+import javax.inject.Inject;
 import org.ektorp.CouchDbConnector;
+import org.ektorp.support.CouchDbDocument;
 import org.fit.vutbr.relaxdms.data.db.connector.DBConnectorFactory;
 import org.fit.vutbr.relaxdms.data.db.dao.api.GenericDAO;
-import org.fit.vutbr.relaxdms.data.db.dao.model.DatabaseEntity;
 
 /**
  *
  * @author Martin Kanis
  * @param <T>
  */
-@Stateless
-public class GenericDAOImpl<T extends DatabaseEntity> implements GenericDAO<T> {
+public abstract class GenericDAOImpl<T extends CouchDbDocument> implements GenericDAO<T> {
     
     protected CouchDbConnector db;
     
+    private final Class<T> type;
+    
+    @Inject
+    private DBConnectorFactory dbFactory;
+    
     @PostConstruct
     private void init() {
-        db = DBConnectorFactory.build();
+        db = dbFactory.get();
     }
-
+    
+    public GenericDAOImpl(Class<T> type) {
+        this.type = type;
+    }
+    
+    @Override
+    public T read(String id) {
+        return db.find(type, id);
+    }
+    
     @Override
     public void create(T entity) {
         db.create(entity);
     } 
+
+    @Override
+    public void delete(T entity) {
+        db.delete(entity);
+    }  
+    
+    @Override
+    public void delete(String id, String rev) {
+        db.delete(id, rev);
+    }
 }

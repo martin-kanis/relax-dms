@@ -1,5 +1,6 @@
 package org.fit.vutbr.relaxdms.data.db.connector;
 
+import javax.annotation.PostConstruct;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import org.ektorp.CouchDbConnector;
@@ -15,11 +16,17 @@ import org.ektorp.impl.StdCouchDbInstance;
 @Singleton
 @Startup
 public class DBConnectorFactory {
+   
+    private CouchDbConnector couchDBConnector;
     
-    public static CouchDbConnector build() {
+    @PostConstruct
+    private void init() {
         HttpClient httpClient = new StdHttpClient.Builder().build();
         CouchDbInstance dbInstance = new StdCouchDbInstance(httpClient);
-
-        return dbInstance.createConnector("relax-dms", true);
+        couchDBConnector = dbInstance.createConnector("relax-dms", true);
+    }
+    
+    public CouchDbConnector get() {
+        return couchDBConnector;
     }
 }
