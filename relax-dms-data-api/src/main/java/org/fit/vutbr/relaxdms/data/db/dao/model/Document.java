@@ -1,5 +1,7 @@
 package org.fit.vutbr.relaxdms.data.db.dao.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import java.sql.Timestamp;
@@ -14,19 +16,22 @@ import org.ektorp.support.CouchDbDocument;
 @JsonInclude(Include.NON_NULL)
 public class Document extends CouchDbDocument {
 
-    private final String name;
+    private String name;
     
-    private final String author;
+    private String author;
     
-    private final Category category;
+    private Category category;
     
-    private final String description;
+    private String description;
     
-    private final List<String> keywords;
+    private List<String> keywords;
     
-    private final Timestamp timestamp;
+    private Timestamp timestamp;
+
+    public Document() {}
     
     // Builder
+    @JsonIgnoreType
     public static class Builder {
         // required parameters
         private String name;
@@ -64,6 +69,7 @@ public class Document extends CouchDbDocument {
         }
     }
 
+    @JsonIgnore
     private Document(Builder builder) {
         author = builder.author;
         name = builder.name;
@@ -74,7 +80,6 @@ public class Document extends CouchDbDocument {
     }
     
     // getters
-    
     public String getName() {
         return name;
     }

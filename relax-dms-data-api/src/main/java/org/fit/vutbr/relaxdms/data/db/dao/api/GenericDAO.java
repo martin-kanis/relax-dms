@@ -1,13 +1,13 @@
 package org.fit.vutbr.relaxdms.data.db.dao.api;
 
-import org.ektorp.support.CouchDbDocument;
+import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 
 /**
  *
  * @author Martin Kanis
  * @param <T>
  */
-public interface GenericDAO<T extends CouchDbDocument> {
+public interface GenericDAO<T extends Document> {
     
     /**
      * Finds document in the database specified by id. If no document is find, returns null.

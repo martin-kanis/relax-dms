@@ -1,18 +1,19 @@
 package org.fit.vutbr.relaxdms.data.db.dao.impl;
 
+import static java.util.Objects.requireNonNull;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import org.ektorp.CouchDbConnector;
-import org.ektorp.support.CouchDbDocument;
 import org.fit.vutbr.relaxdms.data.db.connector.DBConnectorFactory;
 import org.fit.vutbr.relaxdms.data.db.dao.api.GenericDAO;
+import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 
 /**
  *
  * @author Martin Kanis
  * @param <T>
  */
-public abstract class GenericDAOImpl<T extends CouchDbDocument> implements GenericDAO<T> {
+public abstract class GenericDAOImpl<T extends Document> implements GenericDAO<T> {
     
     protected CouchDbConnector db;
     
@@ -42,6 +43,8 @@ public abstract class GenericDAOImpl<T extends CouchDbDocument> implements Gener
 
     @Override
     public void delete(T entity) {
+        requireNonNull(entity.getId(), "Provided entity must have non-null ID!");
+        requireNonNull(entity.getRevision(), "Provided entity must have non-null revision!");
         db.delete(entity);
     }  
     
