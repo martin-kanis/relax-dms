@@ -9,4 +9,6 @@ import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 public interface DocumentService {
     
     public void storeDocument(Document document);
+    
+    public Document getDocumentById(String id);
 }

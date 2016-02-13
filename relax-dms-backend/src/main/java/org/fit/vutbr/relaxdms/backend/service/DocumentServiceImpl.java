@@ -20,5 +20,10 @@ public class DocumentServiceImpl implements DocumentService {
     public void storeDocument(Document document) {
         documentDAO.create(document);
     }
+
+    @Override
+    public Document getDocumentById(String id) {
+        return documentDAO.read(id);
+    }
     
 }
