@@ -5,8 +5,9 @@ import javax.naming.InitialContext;
 import org.apache.wicket.cdi.CdiConfiguration;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.fit.vutbr.relaxdms.web.admin.Admin;
-import org.fit.vutbr.relaxdms.web.user.User;
+import org.fit.vutbr.relaxdms.web.documents.DocumentCreate;
 import org.fit.vutbr.relaxdms.web.documents.DocumentPage;
+import org.fit.vutbr.relaxdms.web.user.User;
 import org.jboss.logging.Logger;
 
 /**
@@ -37,7 +38,8 @@ public class WicketApplication extends WebApplication {
         
         mountPage("/user", User.class);
         mountPage("/admin", Admin.class);
-        mountPage("/document", DocumentPage.class);
+        mountPage("/create-document", DocumentCreate.class);
+        mountPage("/find-document", DocumentPage.class);
         
         getMarkupSettings().setStripWicketTags(true);
     }

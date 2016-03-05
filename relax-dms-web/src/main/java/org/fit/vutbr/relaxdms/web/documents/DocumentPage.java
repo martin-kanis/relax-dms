@@ -37,8 +37,7 @@ public class DocumentPage extends BasePage {
         id = "0b499d185d3da91fd3d71f4b46000010";
         Document d = documentService.getDocumentById(id);
         
-        System.out.println(repo.findByName("My_bill"));
-        
+        System.out.println(repo.findByName("My_bill"));        
         
         Label label = new Label("label", repo.firstShow(id));
         label.setEscapeModelStrings(false);

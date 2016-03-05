@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" media="screen" href="data/css/bootstrap.css" />
+        
+    </head>
+    <body>
+        <wicket:extend>
+            <script src="data/js/json-editor.js"></script>
+         <script>
+            // Set the default CSS theme and icon library globally
+            JSONEditor.defaults.theme = 'bootstrap2';
+            JSONEditor.defaults.iconlib = 'bootstrap2';
+        </script>
+            <div class='row'>
+            <div class='medium-12-columns'>
+              <button id='submit' class='tiny'>Save</button>
+              <button id='clear' class='secondary tiny'>Clear</button>
+              <span id='valid_indicator' class='label'></span>
+            </div>
+          </div>
+          <div class='row'>
+            <div id='editor_holder' class='medium-12 columns'></div>
+          </div>
+
+            <script type="text/javascript" wicket:id="jsonEditor">/* script will be rendered here */</script>
+        </wicket:extend> 
+        
+  </body>
+</html>

@@ -6,9 +6,9 @@ import java.util.List;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
+import org.fit.vutbr.relaxdms.api.system.Convert;
 import org.fit.vutbr.relaxdms.data.db.dao.api.DocumentDAO;
 import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
-import org.fit.vutbr.relaxdms.rest.Convert;
 import org.fit.vutbr.relaxdms.rest.api.DocumentRest;
 
 /**

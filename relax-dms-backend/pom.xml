@@ -39,6 +39,12 @@
             <version>${version.relax-dms}</version>
             <scope>provided</scope>
         </dependency>
+        
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-jsonSchema</artifactId>
+            <version>${version.jackson}</version>
+        </dependency>
     </dependencies>
 
     <build>

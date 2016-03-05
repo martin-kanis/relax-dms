@@ -1,11 +1,13 @@
 package org.fit.vutbr.relaxdms.data.db.dao.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonIgnoreType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import java.sql.Timestamp;
 import java.util.List;
+import lombok.ToString;
 import org.ektorp.support.CouchDbDocument;
 
 /**
@@ -13,7 +15,9 @@ import org.ektorp.support.CouchDbDocument;
  * @author Martin Kanis
  */
 
+@ToString
 @JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties({"_id", "_rev", "_attachments"})
 public class Document extends CouchDbDocument {
 
     private String name;
