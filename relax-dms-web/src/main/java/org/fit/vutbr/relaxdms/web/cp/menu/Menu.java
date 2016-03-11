@@ -2,7 +2,7 @@ package org.fit.vutbr.relaxdms.web.cp.menu;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.wicket.Page;
@@ -27,7 +27,7 @@ public class Menu extends Panel {
         
         RepeatingView repeatingView = new RepeatingView("menuItems");
         
-        for (MenuItemEnum item : builder.linksMap.keySet()) {
+        builder.linksMap.keySet().stream().forEach((item) -> {
             boolean shouldBeActive = item.equals(builder.activeMenuItem);
 
             List<BookmarkablePageLink<?>> pageLinks = builder.linksMap.get(item);
@@ -40,7 +40,7 @@ public class Menu extends Panel {
                 repeatingView.add(new MenuDropdownItem(repeatingView.newChildId(), item, pageLinks,
                         shouldBeActive));
             }
-        }
+        });
 
         add(repeatingView);
     }
@@ -55,7 +55,7 @@ public class Menu extends Panel {
         
         private final MenuItemEnum activeMenuItem;
 
-        private final Map<MenuItemEnum, List<BookmarkablePageLink<?>>> linksMap = new HashMap<>();
+        private final Map<MenuItemEnum, List<BookmarkablePageLink<?>>> linksMap = new LinkedHashMap<>();
 
         public Builder(String id, Class<? extends Page> homePage, MenuItemEnum activeMenuItem) {
             this.id = id;

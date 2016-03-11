@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.ejb.Stateless;
-import javax.inject.Inject;
 import org.ektorp.Revision;
 import org.fit.vutbr.relaxdms.api.system.Convert;
 import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
@@ -17,9 +16,8 @@ import org.jboss.logging.Logger;
  */
 @Stateless
 public class ConverImpl implements Convert {
-//    
-//    @Inject
-//    private Logger logger;
+
+    private Logger logger;
     
     @Override
     public List<String> revisionToString(List<Revision> revs) {
@@ -31,7 +29,7 @@ public class ConverImpl implements Convert {
         try {
             return (T) new ObjectMapper().readValue(json, clazz);
         } catch (IOException ex) {
-//            logger.error(ex);
+            logger.error(ex);
             return null;
         }
     }
