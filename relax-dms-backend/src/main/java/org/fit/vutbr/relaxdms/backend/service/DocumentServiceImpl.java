@@ -2,12 +2,18 @@ package org.fit.vutbr.relaxdms.backend.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
 import com.fasterxml.jackson.module.jsonSchema.factories.SchemaFactoryWrapper;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import org.fit.vutbr.relaxdms.api.service.DocumentService;
+import org.fit.vutbr.relaxdms.data.db.dao.api.CouchDbRepository;
 import org.fit.vutbr.relaxdms.data.db.dao.api.DocumentDAO;
 import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 import org.jboss.logging.Logger;
@@ -21,6 +27,9 @@ public class DocumentServiceImpl implements DocumentService {
     
     @Inject
     private DocumentDAO documentDAO;
+    
+    @Inject 
+    private CouchDbRepository repo;
     
     private Logger logger;
 
@@ -43,14 +52,35 @@ public class DocumentServiceImpl implements DocumentService {
         try {
             mapper.acceptJsonFormatVisitor(mapper.constructType(clazz), visitor);
             JsonSchema jsonSchema = visitor.finalSchema(); 
-            result = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonSchema);
+  
+            String schema = mapper.writeValueAsString(jsonSchema);
+            ObjectNode node = (ObjectNode) mapper.readTree(schema);
+            
+            // add title property to schema to create form title
+            node.put("title", clazz.getSimpleName());
+            
+            // iterate over nodes to find Object node
+            for (JsonNode n: node) {
+                // remove id, rev, attachments
+                if (n instanceof ObjectNode) {
+                    ObjectNode on = (ObjectNode) n;
+                    on.remove(Arrays.asList("_id", "_rev", "_attachments"));
+                }
+            }
+            result = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(node);
         } catch (JsonMappingException ex) {
             logger.error(ex);
         } catch (JsonProcessingException ex) {
+            logger.error(ex);
+        } catch (IOException ex) {
             logger.error(ex);
         }
         
         return result;
     }
-    
+
+    @Override
+    public List<Document> getAll() {
+        return repo.getAll();
+    }
 }

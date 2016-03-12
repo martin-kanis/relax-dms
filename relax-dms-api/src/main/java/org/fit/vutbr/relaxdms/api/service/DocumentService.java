@@ -1,5 +1,6 @@
 package org.fit.vutbr.relaxdms.api.service;
 
+import java.util.List;
 import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 
 /**
@@ -21,5 +22,16 @@ public interface DocumentService {
      */
     public Document getDocumentById(String id);
     
+    /**
+     * Creates JSON schema from provided entity
+     * @param clazz Class
+     * @return String JSON schema
+     */
     public String createJSONSchema(Class clazz);
+    
+    /**
+     * Return all documents with real data (no metadata documents) from database.
+     * @return List of documents
+     */
+    public List<Document> getAll();
 }

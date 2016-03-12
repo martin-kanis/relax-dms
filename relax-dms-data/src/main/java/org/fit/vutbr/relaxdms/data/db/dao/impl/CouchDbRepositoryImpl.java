@@ -8,6 +8,7 @@ import org.ektorp.http.HttpResponse;
 import org.ektorp.support.CouchDbRepositorySupport;
 import org.ektorp.support.GenerateView;
 import org.ektorp.support.ShowFunction;
+import org.ektorp.support.View;
 import org.fit.vutbr.relaxdms.data.db.connector.DBConnectorFactory;
 import org.fit.vutbr.relaxdms.data.db.dao.api.CouchDbRepository;
 import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
@@ -35,6 +36,12 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<Document> im
     @GenerateView
     public List<Document> findByName(String name) {
         return queryView("by_name", name);
+    }
+    
+    @Override
+    @View(name = "all", map = "function(doc) { if (doc.author && doc.name ) emit(doc.author, doc.name)}")
+    public List<Document> getAll() {
+        return queryView("all");
     }
 
     @Override

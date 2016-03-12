@@ -1,13 +1,10 @@
 package org.fit.vutbr.relaxdms.data.db.dao.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonIgnoreType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import java.sql.Timestamp;
 import java.util.List;
-import lombok.ToString;
 import org.ektorp.support.CouchDbDocument;
 
 /**
@@ -15,9 +12,7 @@ import org.ektorp.support.CouchDbDocument;
  * @author Martin Kanis
  */
 
-@ToString
 @JsonInclude(Include.NON_NULL)
-@JsonIgnoreProperties({"_id", "_rev", "_attachments"})
 public class Document extends CouchDbDocument {
 
     private String name;
@@ -29,8 +24,6 @@ public class Document extends CouchDbDocument {
     private String description;
     
     private List<String> keywords;
-    
-    private Timestamp timestamp;
 
     public Document() {}
     
@@ -45,7 +38,6 @@ public class Document extends CouchDbDocument {
         // optional parameters
         private String description;
         private List<String> keywords;
-        private Timestamp timestamp;
         
         public Builder(String name, String author, Category category) {
             this.name = name;
@@ -63,11 +55,6 @@ public class Document extends CouchDbDocument {
             return this;
         }
         
-        public Builder timestamp(Timestamp val) {
-            timestamp = val;
-            return this;
-        }
-        
         public Document build() {
             return new Document(this);
         }
@@ -80,7 +67,6 @@ public class Document extends CouchDbDocument {
         description = builder.description;
         keywords = builder.keywords;
         category = builder.category;
-        timestamp = builder.timestamp;
     }
     
     // getters
@@ -103,8 +89,10 @@ public class Document extends CouchDbDocument {
     public List<String> getKeywords() {
         return keywords;
     }
-
-    public Timestamp getTimestamp() {
-        return timestamp;
+    
+    @Override
+    public String toString() {
+        return "Document(_id=" + getId() + " _rev=" + getRevision() +  " author=" +
+                author + " name=" + name + " category= " + category + " )";
     }
 }
