@@ -51,7 +51,7 @@ public class DocumentServiceImpl implements DocumentService {
         
         try {
             mapper.acceptJsonFormatVisitor(mapper.constructType(clazz), visitor);
-            JsonSchema jsonSchema = visitor.finalSchema(); 
+            JsonSchema jsonSchema = visitor.finalSchema();
   
             String schema = mapper.writeValueAsString(jsonSchema);
             ObjectNode node = (ObjectNode) mapper.readTree(schema);
@@ -75,7 +75,7 @@ public class DocumentServiceImpl implements DocumentService {
         } catch (IOException ex) {
             logger.error(ex);
         }
-        
+
         return result;
     }
 

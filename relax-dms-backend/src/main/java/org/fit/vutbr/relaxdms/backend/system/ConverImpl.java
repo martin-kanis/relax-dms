@@ -1,5 +1,6 @@
 package org.fit.vutbr.relaxdms.backend.system;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.List;
@@ -31,6 +32,27 @@ public class ConverImpl implements Convert {
         } catch (IOException ex) {
             logger.error(ex);
             return null;
+        }
+    }
+
+    @Override
+    public boolean isValidJson(String json) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.readTree(json);
+            return true;
+        } catch (IOException ex) {
+           return false;
+        }
+    }
+
+    @Override
+    public JsonNode stringToJsonNode(String json) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readTree(json);
+        } catch (IOException ex) {
+           return null;
         }
     }
 }

@@ -1,5 +1,6 @@
 package org.fit.vutbr.relaxdms.data.db.dao.impl;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import java.util.List;
 import java.util.Scanner;
 import javax.enterprise.context.RequestScoped;
@@ -13,6 +14,7 @@ import org.fit.vutbr.relaxdms.data.db.connector.DBConnectorFactory;
 import org.fit.vutbr.relaxdms.data.db.dao.api.CouchDbRepository;
 import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 import org.fit.vutbr.relaxdms.data.system.configuration.ConfigurationService;
+import org.ektorp.http.RestTemplate;
 
 /**
  *
@@ -24,12 +26,16 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<Document> im
     @Inject
     private ConfigurationService config;
     
+    private final RestTemplate restTemplate;
+    
     @Inject
     public CouchDbRepositoryImpl(DBConnectorFactory dbFactory) {
         super(Document.class, dbFactory.get());
         
         // generates standart views
         initStandardDesignDocument();
+
+        restTemplate = dbFactory.getRestTemplate();
     }
 
     @Override
@@ -57,12 +63,17 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<Document> im
      * @return String 
      */
     private String getHttpRequest(String showName, String docid) {
-        HttpResponse response = db.getConnection().get(createUri(showName, docid));
+        HttpResponse response = db.getConnection().get(createShowUri(showName, docid));
         String result = new Scanner(response.getContent()).useDelimiter("\\A").next();
         return result;
     }
     
-    private String createUri(String showName, String docid) {
-        return config.getDbHost() + config.getDbShowPath() + showName + "/" + docid;
+    private String createShowUri(String showName, String docid) {
+        return config.getDbHost() + config.getDbName() + config.getDbShowPath() + showName + "/" + docid;
+    }
+
+    @Override
+    public void storeJsonNode(JsonNode json) {
+        db.create(json);
     }
 }

@@ -1,5 +1,6 @@
 package org.fit.vutbr.relaxdms.data.db.dao.api;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import java.util.List;
 
 /**
@@ -28,4 +29,11 @@ public interface CouchDbRepository<Document> {
      * @return List of documents
      */
     public List<Document> getAll();
+    
+        
+    /**
+     * Stores json node as document.
+     * @param json JsonNode
+     */
+    public void storeJsonNode(JsonNode json);
 }

@@ -2,7 +2,7 @@ package org.fit.vutbr.relaxdms.web;
 
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.fit.vutbr.relaxdms.web.admin.Admin;
+import org.fit.vutbr.relaxdms.web.admin.Schema;
 import org.fit.vutbr.relaxdms.web.cp.menu.Menu;
 import org.fit.vutbr.relaxdms.web.cp.menu.MenuItemEnum;
 import org.fit.vutbr.relaxdms.web.documents.DocumentCreate;
@@ -19,7 +19,8 @@ public abstract class BasePage extends WebPage {
         super(parameters);
         
         add(new Menu.Builder("navBar", HomePage.class, getActiveMenu())
-            .addMenuItem(MenuItemEnum.ADMIN, Admin.class)
+            .addMenuItemAsDropdown(MenuItemEnum.ADMIN, Schema.class, "Add Document type")
+            .addMenuItemAsDropdown(MenuItemEnum.ADMIN, Schema.class, "Add")
             .addMenuItem(MenuItemEnum.USER, User.class)
             .addMenuItemAsDropdown(MenuItemEnum.DOCUMENT, DocumentCreate.class, "Create Document")
             .addMenuItemAsDropdown(MenuItemEnum.DOCUMENT, DocumentList.class, "Find Document")

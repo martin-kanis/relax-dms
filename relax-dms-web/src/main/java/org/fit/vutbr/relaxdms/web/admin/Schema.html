@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:wicket="http://wicket.apache.org">
+<head>
+    <title>Admin Page</title>
+</head>
+<body>
+<wicket:extend>
+    <h3>Add document template</h3>
+    <form wicket:id="userForm" role="form">
+        <div class="form-group">
+            <label for="textarea">JSON Schema:</label>
+            <textarea wicket:id="area" id="textarea" class="field span8" rows="20"></textarea>
+        </div>
+        
+        <div wicket:id="feedback"></div>
+        
+        <input wicket:id="save" type="submit" class="btn btn-default" value="Save" />
+    </form>
+</wicket:extend>
+</body>
+</html>

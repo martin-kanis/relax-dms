@@ -27,7 +27,7 @@ public interface DocumentService {
      * @param clazz Class
      * @return String JSON schema
      */
-    public String createJSONSchema(Class clazz);
+    public String createJSONSchema(Class clazz); 
     
     /**
      * Return all documents with real data (no metadata documents) from database.

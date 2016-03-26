@@ -8,5 +8,7 @@ public interface ConfigurationService {
     
     public String getDbHost();
     
+    public String getDbName();
+    
     public String getDbShowPath();
 }

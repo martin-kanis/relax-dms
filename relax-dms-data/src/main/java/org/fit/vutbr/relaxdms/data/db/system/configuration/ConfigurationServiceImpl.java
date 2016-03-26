@@ -20,6 +20,12 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Properties p = config.getProperties();
         return p.getProperty("dbHost");
     }
+    
+    @Override
+    public String getDbName() {
+        Properties p = config.getProperties();
+        return p.getProperty("dbName");
+    }
 
     @Override
     public String getDbShowPath() {
