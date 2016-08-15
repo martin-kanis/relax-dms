@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jboss-deployment-structure>
+    <deployment>
+    </deployment>
+    <sub-deployment name="relax-dms-backend.jar">
+        <dependencies>
+            <module name="org.keycloak.keycloak-core"/> 
+            <module name="org.keycloak.keycloak-common"/>
+            <module name="org.keycloak.keycloak-adapter-core"/>
+            <module name="org.keycloak.keycloak-adapter-spi"/>
+        </dependencies>
+    </sub-deployment>
+</jboss-deployment-structure>

@@ -1,0 +1,8 @@
+{
+  "realm": "RelaxDMS",
+  "realm-public-key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAhiVRZgr5vBQyZ6oWdu0UJeXZZNURyg0oV/7BqvDHmqA0oJP34jZLsKEttNfb0Svcl3m35vMrOrLecabioPnUcJFNn6SHozD5ubREL0fevAmm3OF5inT0YeUBLIUqe373LjXpkHEgRjiIZrS0M/gdW83DY0LIKbZOV7lcvKpPxZnizp6+dcwrPQtoyx+mdpOPWhQwG8xw+9ORTtwM1JErVLBiInpylayKs351O/KpH9ff+eBGBcav2duW/RK8H4y970EJRgNT2jOlx3u7odOAFX1VCyybBxvUBx4NAH5C1Z4N4NuwFyCHJG39PScHkwbuG0KT+mjE37LWeElUKxiNiQIDAQAB",
+  "auth-server-url": "http://localhost:8180/auth",
+  "ssl-required": "external",
+  "resource": "relax-dms",
+  "public-client": true
+}
