@@ -1,8 +1,10 @@
 package org.fit.vutbr.relaxdms.web.documents;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -16,6 +18,7 @@ import org.apache.wicket.request.http.WebRequest;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.StringValue;
 import org.apache.wicket.util.template.PackageTextTemplate;
+import org.fit.vutbr.relaxdms.api.security.AuthController;
 import org.fit.vutbr.relaxdms.api.service.DocumentService;
 import org.fit.vutbr.relaxdms.api.system.Convert;
 import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
@@ -26,10 +29,13 @@ import org.fit.vutbr.relaxdms.web.cp.menu.MenuItemEnum;
  *
  * @author Martin Kanis
  */
-public class DocumentCreate extends BasePage {
+public class DocumentCreate extends BasePage implements Serializable {
     
     @Inject
     private DocumentService documentService;
+    
+    @Inject
+    private AuthController authController;
     
     @Inject 
     private Convert convert;
@@ -75,7 +81,8 @@ public class DocumentCreate extends BasePage {
         // render json-editor script
         Map<String, Object> map = new HashMap<>();
         map.put("schema", getSchema());
-        
+        map.put("author", authController.getUserName((HttpServletRequest) getRequest().getContainerRequest()));
+
         PackageTextTemplate ptt = new PackageTextTemplate(DocumentCreate.class, "../../../../../../editor.js");
         Label myScript = new Label("jsonEditor", ptt.asString(map));
         myScript.setEscapeModelStrings(false);

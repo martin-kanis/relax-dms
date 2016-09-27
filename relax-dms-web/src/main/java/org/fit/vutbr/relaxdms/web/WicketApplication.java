@@ -1,5 +1,6 @@
 package org.fit.vutbr.relaxdms.web;
 
+import java.io.Serializable;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.naming.InitialContext;
 import org.apache.wicket.cdi.CdiConfiguration;
@@ -15,7 +16,7 @@ import org.jboss.logging.Logger;
  *
  * @author Martin Kanis
  */
-public class WicketApplication extends WebApplication {
+public class WicketApplication extends WebApplication implements Serializable {
     
     private final Logger logger = Logger.getLogger(getClass());
 

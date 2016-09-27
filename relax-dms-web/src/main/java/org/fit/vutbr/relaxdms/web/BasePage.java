@@ -1,5 +1,6 @@
 package org.fit.vutbr.relaxdms.web;
 
+import java.io.Serializable;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.fit.vutbr.relaxdms.web.admin.Schema;
@@ -13,7 +14,7 @@ import org.fit.vutbr.relaxdms.web.user.User;
  *
  * @author Martin Kanis
  */
-public abstract class BasePage extends WebPage {
+public abstract class BasePage extends WebPage implements Serializable {
     
     public BasePage(final PageParameters parameters) {
         super(parameters);

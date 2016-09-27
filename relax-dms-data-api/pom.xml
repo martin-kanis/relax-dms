@@ -18,18 +18,15 @@
             <groupId>org.ektorp</groupId>
             <artifactId>org.ektorp</artifactId>
             <version>${version.ektorp}</version>
-        </dependency>
-        
+        </dependency>        
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
             <scope>provided</scope>
-        </dependency>
-        
+        </dependency>       
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>${version.lombok}</version>
         </dependency>
     </dependencies>
 </project>

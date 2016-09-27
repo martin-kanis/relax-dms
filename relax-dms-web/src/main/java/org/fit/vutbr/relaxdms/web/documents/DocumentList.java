@@ -1,5 +1,6 @@
 package org.fit.vutbr.relaxdms.web.documents;
 
+import java.io.Serializable;
 import java.util.List;
 import javax.inject.Inject;
 import org.apache.wicket.markup.html.basic.Label;
@@ -16,7 +17,7 @@ import org.fit.vutbr.relaxdms.web.cp.menu.MenuItemEnum;
  *
  * @author Martin Kanis
  */
-public class DocumentList extends BasePage {
+public class DocumentList extends BasePage implements Serializable {
     
     @Inject
     private DocumentService documentService;

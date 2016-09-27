@@ -1,10 +1,7 @@
 package org.fit.vutbr.relaxdms.web.admin;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.io.Serializable;
 import javax.inject.Inject;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
@@ -22,7 +19,7 @@ import org.fit.vutbr.relaxdms.web.cp.menu.MenuItemEnum;
  *
  * @author Martin Kanis
  */
-public class Schema extends BasePage {
+public class Schema extends BasePage implements Serializable {
     
     @Inject
     private Convert convert;

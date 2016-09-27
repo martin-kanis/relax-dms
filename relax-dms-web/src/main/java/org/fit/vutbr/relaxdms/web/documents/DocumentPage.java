@@ -1,5 +1,6 @@
 package org.fit.vutbr.relaxdms.web.documents;
 
+import java.io.Serializable;
 import javax.inject.Inject;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -13,7 +14,7 @@ import org.jboss.logging.Logger;
  *
  * @author Martin Kanis
  */
-public class DocumentPage extends BasePage {
+public class DocumentPage extends BasePage implements Serializable {
     
     private final Logger log = Logger.getLogger(getClass());
     

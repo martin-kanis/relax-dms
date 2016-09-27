@@ -95,6 +95,14 @@
                 <version>2.6</version>
                 <configuration>
                     <failOnMissingWebXml>false</failOnMissingWebXml>
+                    <!-- Added as workaroud because of some bug in wicket or WF.
+                    Problem is with deserialization of cached page for example .../?6 -> .../?5 caused runtime exception 
+                    see https://issues.jboss.org/browse/WFLY-988 -->
+                    <archive>
+                        <manifestEntries>
+                           <Dependencies>org.jboss.msc</Dependencies>
+                        </manifestEntries>  
+                    </archive>
                 </configuration>
             </plugin>
             <plugin>

@@ -15,23 +15,23 @@ var editor = new JSONEditor(document.getElementById('editor_holder'),{
 
   // The schema for the editor
   schema: ${schema}
-
-  // Seed the form with a starting value
-  //startval: ${starting_value}
 });
 
 // Hook up the submit button to log to the console
 document.getElementById('submit').addEventListener('click',function() {
   // Get the value from the editor
-  console.log(JSON.stringify(${schema}));
-  console.log(JSON.stringify(editor.getValue()));
-  send(JSON.stringify(editor.getValue()));
+  console.log(send(JSON.stringify(editor.getValue())));
+  
 });
 
 // clear button
 document.getElementById('clear').addEventListener('click',function() {
-  // TODO clear
-  //editor.setValue(${starting_value});
+  var values = editor.getValue();
+  for (value in values) {
+      if (value != "author") {
+          editor.getEditor("root." + value).setValue("");
+      }
+  }
 });
 
 // Hook up the validation indicator to update its 
@@ -39,5 +39,13 @@ document.getElementById('clear').addEventListener('click',function() {
 editor.on('change',function() {
   // Get an array of errors from the validator
   var errors = editor.validate();
+  console.log(errors);
+  
+  // set default author based on the logged user
+  var author = editor.getEditor('root.author');
+  author.setValue("${author}");
+  
+  if (author != "")
+    editor.getEditor('root.author').disable();
 });
 
