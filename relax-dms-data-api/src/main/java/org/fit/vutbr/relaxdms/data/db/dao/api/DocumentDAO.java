@@ -1,14 +1,14 @@
 package org.fit.vutbr.relaxdms.data.db.dao.api;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import java.util.List;
 import org.ektorp.Revision;
-import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 
 /**
  *
  * @author Martin Kanis
  */
-public interface DocumentDAO extends GenericDAO<Document> {
+public interface DocumentDAO extends GenericDAO<JsonNode> {
     
     /**
      * Gets IDs of all documents in the database.

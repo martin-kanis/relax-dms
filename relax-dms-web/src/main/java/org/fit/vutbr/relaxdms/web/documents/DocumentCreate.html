@@ -10,6 +10,12 @@
     <body>
         <wicket:extend>
             <script src="data/js/json-editor.js"></script>
+            
+            <div class="row">
+                <span wicket:id="listView">
+                    <a wicket:id="templateLink"><span wicket:id="label">label</span></a><br/>
+                </span>
+            </div>
 
             <div class='row'>
                 <div id='editor_holder' class='medium-12 columns'></div>
@@ -18,11 +24,14 @@
                 <div class='medium-12-columns'>
                     <button id='submit' class='tiny'>Save</button>
                     <button id='clear' class='secondary tiny'>Clear</button>
+                    <span id='feedback1' class="label label-success hide">Document saved</span>
+                    <span id='feedback2' class="label label-danger hide">Error</span>
                 </div>
             </div>
 
-            <script type="text/javascript" wicket:id="jsonEditor">/* script will be rendered here */</script>
+            <div wicket:id="container">
+                <script type="text/javascript" wicket:id="jsonEditor">/* script will be rendered here */</script>
+            </div>
         </wicket:extend> 
-        
   </body>
 </html>

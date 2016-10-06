@@ -34,12 +34,12 @@ public class DocumentServiceImpl implements DocumentService {
     private Logger logger;
 
     @Override
-    public void storeDocument(Document document) {
+    public void storeDocument(JsonNode document) {
         documentDAO.create(document);
     }
 
     @Override
-    public Document getDocumentById(String id) {
+    public JsonNode getDocumentById(String id) {
         return documentDAO.read(id);
     }
 
@@ -81,6 +81,6 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public List<Document> getAll() {
-        return repo.getAll();
+        return repo.getAllDocuments();
     }
 }

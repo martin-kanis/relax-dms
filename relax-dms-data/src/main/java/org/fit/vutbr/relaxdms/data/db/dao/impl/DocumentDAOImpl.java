@@ -1,20 +1,20 @@
 package org.fit.vutbr.relaxdms.data.db.dao.impl;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import java.util.List;
 import javax.ejb.Stateless;
 import org.ektorp.Revision;
 import org.fit.vutbr.relaxdms.data.db.dao.api.DocumentDAO;
-import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 
 /**
  *
  * @author Martin Kanis
  */
 @Stateless
-public class DocumentDAOImpl extends GenericDAOImpl<Document> implements DocumentDAO {
+public class DocumentDAOImpl extends GenericDAOImpl<JsonNode> implements DocumentDAO {
 
     public DocumentDAOImpl() {
-        super(Document.class);
+        super(JsonNode.class);
     }
     
     @Override

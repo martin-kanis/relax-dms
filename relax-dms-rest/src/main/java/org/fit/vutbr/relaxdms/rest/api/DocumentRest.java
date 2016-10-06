@@ -1,5 +1,6 @@
 package org.fit.vutbr.relaxdms.rest.api;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import java.util.List;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -10,7 +11,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 
 /**
  *
@@ -37,7 +37,7 @@ public interface DocumentRest {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Document read(@PathParam("id") String id);
+    public JsonNode read(@PathParam("id") String id);
     
     @POST
     @Path("/store")

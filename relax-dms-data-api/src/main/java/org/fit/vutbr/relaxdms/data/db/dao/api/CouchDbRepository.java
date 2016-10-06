@@ -28,9 +28,14 @@ public interface CouchDbRepository<Document> {
      * Returns all documents from database that are descendant of Document class
      * @return List of documents
      */
-    public List<Document> getAll();
+    public List<Document> getAllDocuments();
     
-        
+    /**
+     * Returns all templates from database in JsonNode format.
+     * @return List of JsonNode that represent templates
+     */    
+    public List<JsonNode> getAllTemplates();
+    
     /**
      * Stores json node as document.
      * @param json JsonNode

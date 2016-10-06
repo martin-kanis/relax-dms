@@ -1,5 +1,6 @@
 package org.fit.vutbr.relaxdms.api.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import java.util.List;
 import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 
@@ -11,16 +12,16 @@ public interface DocumentService {
     
     /**
      * Service method for storing document to the database.
-     * @param document Document to be stored
+     * @param document as json to be stored
      */
-    public void storeDocument(Document document);
+    public void storeDocument(JsonNode document);
     
     /**
      * Retrieves document from the database by provided ID.
      * @param id String Id of document to be retrieved.
-     * @return Document
+     * @return Document as json
      */
-    public Document getDocumentById(String id);
+    public JsonNode getDocumentById(String id);
     
     /**
      * Creates JSON schema from provided entity

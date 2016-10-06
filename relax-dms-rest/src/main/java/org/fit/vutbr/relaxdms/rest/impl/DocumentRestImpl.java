@@ -1,5 +1,6 @@
 package org.fit.vutbr.relaxdms.rest.impl;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.List;
@@ -41,15 +42,15 @@ public class DocumentRestImpl implements DocumentRest {
     }
 
     @Override
-    public Document read(String id) {
+    public JsonNode read(String id) {
         return documentDAO.read(id);
     }
 
     @Override
     public Response create(String json) {
         try {
-            Document document = new ObjectMapper().readValue(json, Document.class);
-            documentDAO.create(document);
+            JsonNode jsonNode = new ObjectMapper().readValue(json, JsonNode.class);
+            documentDAO.create(jsonNode);
         } catch (IOException ex) {
             return Response.status(500).entity("Jackson error: Could not serialize provided object!").build();
         }
@@ -60,8 +61,8 @@ public class DocumentRestImpl implements DocumentRest {
     @Override
     public Response delete(String json) {
         try {
-            Document document = new ObjectMapper().readValue(json, Document.class);
-            documentDAO.delete(document);
+            JsonNode jsonNode = new ObjectMapper().readValue(json, JsonNode.class);
+            documentDAO.delete(jsonNode);
         } catch (IOException ex) {
             return Response.status(500).entity("Jackson error: Could not serialize provided object!").build();
         } catch (Exception ex) {

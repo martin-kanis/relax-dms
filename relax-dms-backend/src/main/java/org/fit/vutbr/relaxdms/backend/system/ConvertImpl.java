@@ -16,7 +16,7 @@ import org.jboss.logging.Logger;
  * @author Martin Kanis
  */
 @Stateless
-public class ConverImpl implements Convert {
+public class ConvertImpl implements Convert {
 
     private Logger logger;
     
@@ -51,6 +51,26 @@ public class ConverImpl implements Convert {
         try {
             ObjectMapper mapper = new ObjectMapper();
             return mapper.readTree(json);
+        } catch (IOException ex) {
+           return null;
+        }
+    }
+
+    @Override
+    public Document jsonNodeToObject(Class clazz, JsonNode node) {
+        try {
+            return (Document) new ObjectMapper().treeToValue(node, clazz);
+        } catch (IOException ex) {
+            logger.error(ex);
+            return null;
+        }
+    }
+
+    @Override
+    public String jsonNodeToString(JsonNode json) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.writeValueAsString(json);
         } catch (IOException ex) {
            return null;
         }

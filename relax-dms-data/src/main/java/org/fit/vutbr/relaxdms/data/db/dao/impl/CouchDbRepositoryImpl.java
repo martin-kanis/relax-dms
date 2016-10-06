@@ -3,6 +3,7 @@ package org.fit.vutbr.relaxdms.data.db.dao.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import org.ektorp.http.HttpResponse;
@@ -15,22 +16,26 @@ import org.fit.vutbr.relaxdms.data.db.dao.api.CouchDbRepository;
 import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 import org.fit.vutbr.relaxdms.data.system.configuration.ConfigurationService;
 import org.ektorp.http.RestTemplate;
+import org.fit.vutbr.relaxdms.api.system.Convert;
 
 /**
  *
  * @author Martin Kanis
  */
 @RequestScoped
-public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<Document> implements CouchDbRepository {
+public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> implements CouchDbRepository {
 
     @Inject
     private ConfigurationService config;
+    
+    @Inject
+    private Convert convert;
     
     private final RestTemplate restTemplate;
     
     @Inject
     public CouchDbRepositoryImpl(DBConnectorFactory dbFactory) {
-        super(Document.class, dbFactory.get());
+        super(JsonNode.class, dbFactory.get());
         
         // generates standart views
         initStandardDesignDocument();
@@ -41,13 +46,21 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<Document> im
     @Override
     @GenerateView
     public List<Document> findByName(String name) {
-        return queryView("by_name", name);
+        List<JsonNode> jsonList = queryView("by_name", name);
+        return jsonList.stream().map(e -> convert.jsonNodeToObject(Document.class, e)).collect(Collectors.toList());
     }
     
     @Override
     @View(name = "all", map = "function(doc) { if (doc.author && doc.name ) emit(doc.author, doc.name)}")
-    public List<Document> getAll() {
-        return queryView("all");
+    public List<Document> getAllDocuments() {
+        List<JsonNode> jsonList = queryView("all");
+        return jsonList.stream().map(e -> convert.jsonNodeToObject(Document.class, e)).collect(Collectors.toList());
+    }
+    
+    @Override
+    @View(name = "templates", map = "function(doc) { if (doc.doc_template) emit(doc.doc_template)}")
+    public List<JsonNode> getAllTemplates() {
+        return queryView("templates");
     }
 
     @Override

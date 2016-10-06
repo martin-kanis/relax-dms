@@ -1,20 +1,20 @@
 package org.fit.vutbr.relaxdms.data.db.dao.api;
 
-import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
+import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  *
  * @author Martin Kanis
  * @param <T>
  */
-public interface GenericDAO<T extends Document> {
+public interface GenericDAO<T extends JsonNode> {
     
     /**
      * Finds document in the database specified by id. If no document is find, returns null.
      * @param id String
-     * @return Found document from database or null
+     * @return Found document as string from database or null
      */
-    public T read(String id);
+    public JsonNode read(String id);
     
     /**
      * Creates entity in the database.
