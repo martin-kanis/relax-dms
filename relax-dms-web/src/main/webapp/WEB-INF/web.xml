@@ -36,7 +36,8 @@
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>app-admin</web-resource-name>
-            <url-pattern>/admin</url-pattern>
+            <url-pattern>/add-schema</url-pattern>
+            <url-pattern>/edit-schema</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>app-admin</role-name>

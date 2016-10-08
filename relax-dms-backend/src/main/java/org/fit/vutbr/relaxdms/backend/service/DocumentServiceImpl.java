@@ -83,4 +83,9 @@ public class DocumentServiceImpl implements DocumentService {
     public List<Document> getAll() {
         return repo.getAllDocuments();
     }
+
+    @Override
+    public void updateDocument(JsonNode document) {
+        repo.update(document);
+    }
 }

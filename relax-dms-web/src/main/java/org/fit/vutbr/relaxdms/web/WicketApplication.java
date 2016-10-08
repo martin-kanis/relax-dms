@@ -6,6 +6,7 @@ import javax.naming.InitialContext;
 import org.apache.wicket.cdi.CdiConfiguration;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.fit.vutbr.relaxdms.web.admin.Schema;
+import org.fit.vutbr.relaxdms.web.admin.SchemaUpdate;
 import org.fit.vutbr.relaxdms.web.documents.DocumentCreate;
 import org.fit.vutbr.relaxdms.web.documents.DocumentList;
 import org.fit.vutbr.relaxdms.web.documents.DocumentPage;
@@ -39,7 +40,8 @@ public class WicketApplication extends WebApplication implements Serializable {
         }
         
         mountPage("/user", User.class);
-        mountPage("/admin", Schema.class);
+        mountPage("/add-schema", Schema.class);
+        mountPage("/edit-schema", SchemaUpdate.class);
         mountPage("/create-document", DocumentCreate.class);
         mountPage("/find-document", DocumentList.class);
         mountPage("/document", DocumentPage.class);

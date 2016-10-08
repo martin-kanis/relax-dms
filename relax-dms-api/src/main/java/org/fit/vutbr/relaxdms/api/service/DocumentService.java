@@ -17,6 +17,12 @@ public interface DocumentService {
     public void storeDocument(JsonNode document);
     
     /**
+     * Update document to the database
+     * @param document 
+     */
+    public void updateDocument(JsonNode document);
+    
+    /**
      * Retrieves document from the database by provided ID.
      * @param id String Id of document to be retrieved.
      * @return Document as json

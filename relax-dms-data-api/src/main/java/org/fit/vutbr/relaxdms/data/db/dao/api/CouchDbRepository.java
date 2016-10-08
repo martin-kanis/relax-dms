@@ -41,4 +41,10 @@ public interface CouchDbRepository<Document> {
      * @param json JsonNode
      */
     public void storeJsonNode(JsonNode json);
+    
+    /**
+     * Update document to the database
+     * @param json 
+     */
+    public void update(JsonNode json);
 }
