@@ -12,9 +12,9 @@ import java.util.Arrays;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import org.ektorp.Revision;
 import org.fit.vutbr.relaxdms.api.service.DocumentService;
 import org.fit.vutbr.relaxdms.data.db.dao.api.CouchDbRepository;
-import org.fit.vutbr.relaxdms.data.db.dao.api.DocumentDAO;
 import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 import org.jboss.logging.Logger;
 
@@ -25,9 +25,6 @@ import org.jboss.logging.Logger;
 @Stateless
 public class DocumentServiceImpl implements DocumentService {
     
-    @Inject
-    private DocumentDAO documentDAO;
-    
     @Inject 
     private CouchDbRepository repo;
     
@@ -35,12 +32,12 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public void storeDocument(JsonNode document) {
-        documentDAO.create(document);
+        repo.storeJsonNode(document);
     }
 
     @Override
     public JsonNode getDocumentById(String id) {
-        return documentDAO.read(id);
+        return repo.find(id);
     }
 
     @Override
@@ -87,5 +84,25 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     public void updateDocument(JsonNode document) {
         repo.update(document);
+    }
+
+    @Override
+    public void deleteDocument(JsonNode document) {
+        repo.delete(document);
+    }
+    
+    @Override
+    public List<String> getAllDocIds() {
+        return repo.getAllDocIds();
+    }
+    
+    @Override
+    public String getCurrentRevision(String id) {
+        return repo.getCurrentRevision(id);
+    }
+
+    @Override
+    public List<Revision> getRevisions(String id) {
+        return repo.getRevisions(id);
     }
 }

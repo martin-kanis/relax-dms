@@ -7,9 +7,8 @@ import java.util.List;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
+import org.fit.vutbr.relaxdms.api.service.DocumentService;
 import org.fit.vutbr.relaxdms.api.system.Convert;
-import org.fit.vutbr.relaxdms.data.db.dao.api.DocumentDAO;
-import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 import org.fit.vutbr.relaxdms.rest.api.DocumentRest;
 
 /**
@@ -20,37 +19,37 @@ import org.fit.vutbr.relaxdms.rest.api.DocumentRest;
 public class DocumentRestImpl implements DocumentRest {
     
     @Inject
-    private DocumentDAO documentDAO;
+    private DocumentService documentService;
     
     @Inject 
     private Convert convert;
 
     @Override
     public List<String> getAllDocIds() {
-        return documentDAO.getAllDocIds();
+        return documentService.getAllDocIds();
     }
 
     @Override
     public String getCurrentRevision(String id) {
         // create valid JSON string by adding ""
-        return "\"" + documentDAO.getCurrentRevision(id) + "\"";
+        return "\"" + documentService.getCurrentRevision(id) + "\"";
     };
 
     @Override
     public List<String> getRevisions(String id) {
-        return convert.revisionToString(documentDAO.getRevisions(id));
+        return convert.revisionToString(documentService.getRevisions(id));
     }
 
     @Override
     public JsonNode read(String id) {
-        return documentDAO.read(id);
+        return documentService.getDocumentById(id);
     }
 
     @Override
     public Response create(String json) {
         try {
             JsonNode jsonNode = new ObjectMapper().readValue(json, JsonNode.class);
-            documentDAO.create(jsonNode);
+            documentService.storeDocument(jsonNode);
         } catch (IOException ex) {
             return Response.status(500).entity("Jackson error: Could not serialize provided object!").build();
         }
@@ -62,7 +61,7 @@ public class DocumentRestImpl implements DocumentRest {
     public Response delete(String json) {
         try {
             JsonNode jsonNode = new ObjectMapper().readValue(json, JsonNode.class);
-            documentDAO.delete(jsonNode);
+            documentService.deleteDocument(jsonNode);
         } catch (IOException ex) {
             return Response.status(500).entity("Jackson error: Could not serialize provided object!").build();
         } catch (Exception ex) {

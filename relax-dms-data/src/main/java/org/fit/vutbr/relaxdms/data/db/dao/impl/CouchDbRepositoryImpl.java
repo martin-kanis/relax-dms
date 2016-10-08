@@ -6,6 +6,7 @@ import java.util.Scanner;
 import java.util.stream.Collectors;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import org.ektorp.Revision;
 import org.ektorp.http.HttpResponse;
 import org.ektorp.support.CouchDbRepositorySupport;
 import org.ektorp.support.GenerateView;
@@ -88,5 +89,30 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
     @Override
     public void storeJsonNode(JsonNode json) {
         db.create(json);
+    }
+
+    @Override
+    public JsonNode find(String id) {
+        return db.find(type, id);
+    }
+
+    @Override
+    public void delete(JsonNode json) {
+        db.delete(json);
+    }
+    
+    @Override
+    public List<String> getAllDocIds() {
+        return db.getAllDocIds();
+    }
+    
+    @Override
+    public String getCurrentRevision(String id) {
+        return db.getCurrentRevision(id);
+    }
+
+    @Override
+    public List<Revision> getRevisions(String id) {
+        return db.getRevisions(id);
     }
 }
