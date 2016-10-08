@@ -3,7 +3,6 @@ package org.fit.vutbr.relaxdms.api.system;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.List;
 import org.ektorp.Revision;
-import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 
 /**
  *
@@ -16,23 +15,6 @@ public interface Convert {
      * @return 
      */
     public List<String> revisionToString(List<Revision> revs);
-    
-    /**
-     * 
-     * @param <T>
-     * @param clazz
-     * @param json
-     * @return 
-     */
-    public <T extends Document> T serialize(Class clazz, String json);
-    
-    /**
-     * 
-     * @param clazz
-     * @param node
-     * @return 
-     */
-    public Document jsonNodeToObject(Class clazz, JsonNode node);
     
     /**
      * Validates provided JSON.

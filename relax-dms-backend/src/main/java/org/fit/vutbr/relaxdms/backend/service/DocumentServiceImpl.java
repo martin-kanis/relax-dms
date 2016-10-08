@@ -15,7 +15,6 @@ import javax.inject.Inject;
 import org.ektorp.Revision;
 import org.fit.vutbr.relaxdms.api.service.DocumentService;
 import org.fit.vutbr.relaxdms.data.db.dao.api.CouchDbRepository;
-import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 import org.jboss.logging.Logger;
 
 /**
@@ -77,7 +76,7 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public List<Document> getAll() {
+    public List<JsonNode> getAll() {
         return repo.getAllDocuments();
     }
 

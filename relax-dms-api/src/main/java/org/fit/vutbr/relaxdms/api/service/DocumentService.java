@@ -3,7 +3,6 @@ package org.fit.vutbr.relaxdms.api.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.List;
 import org.ektorp.Revision;
-import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 
 /**
  *
@@ -47,7 +46,7 @@ public interface DocumentService {
      * Return all documents with real data (no metadata documents) from database.
      * @return List of documents
      */
-    public List<Document> getAll();
+    public List<JsonNode> getAll();
     
     /**
      * Gets IDs of all documents in the database.

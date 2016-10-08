@@ -7,16 +7,8 @@ import org.ektorp.Revision;
 /**
  *
  * @author Martin Kanis
- * @param <Document>
  */
-public interface CouchDbRepository<Document> {
-    
-    /**
-     * View function that finds documents by name field
-     * @param name String
-     * @return List of documents
-     */
-    public List<Document> findByName(String name);
+public interface CouchDbRepository {
     
     /**
      * Show function that creates HTML form JSON document
@@ -29,7 +21,7 @@ public interface CouchDbRepository<Document> {
      * Returns all documents from database that are descendant of Document class
      * @return List of documents
      */
-    public List<Document> getAllDocuments();
+    public List<JsonNode> getAllDocuments();
     
     /**
      * Returns all templates from database in JsonNode format.

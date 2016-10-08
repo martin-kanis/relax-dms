@@ -2,6 +2,7 @@ package org.fit.vutbr.relaxdms.web.documents;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
@@ -9,7 +10,6 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.fit.vutbr.relaxdms.api.service.DocumentService;
-import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 import org.fit.vutbr.relaxdms.web.BasePage;
 import org.fit.vutbr.relaxdms.web.cp.menu.MenuItemEnum;
 
@@ -25,12 +25,15 @@ public class DocumentList extends BasePage implements Serializable {
     public DocumentList(PageParameters parameters) {
         super(parameters);
         
-        List<Document> docList = documentService.getAll();
+        List<DocumentListData> docList = documentService.getAll().stream().map(e -> new DocumentListData(
+                e.get("_id").textValue(), 
+                e.get("name").textValue(), 
+                e.get("author").textValue())).collect(Collectors.toList());
 
         ListView listview = new ListView("listView", docList) {
             @Override
             protected void populateItem(ListItem item) {
-                Document doc = (Document) item.getModelObject();
+                DocumentListData doc = (DocumentListData) item.getModelObject();
                 
                 PageParameters pp = new PageParameters();
                 pp.set("id", doc.getId());

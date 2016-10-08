@@ -3,21 +3,17 @@ package org.fit.vutbr.relaxdms.data.db.dao.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.List;
 import java.util.Scanner;
-import java.util.stream.Collectors;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import org.ektorp.Revision;
 import org.ektorp.http.HttpResponse;
 import org.ektorp.support.CouchDbRepositorySupport;
-import org.ektorp.support.GenerateView;
 import org.ektorp.support.ShowFunction;
 import org.ektorp.support.View;
 import org.fit.vutbr.relaxdms.data.db.connector.DBConnectorFactory;
 import org.fit.vutbr.relaxdms.data.db.dao.api.CouchDbRepository;
-import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 import org.fit.vutbr.relaxdms.data.system.configuration.ConfigurationService;
 import org.ektorp.http.RestTemplate;
-import org.fit.vutbr.relaxdms.api.system.Convert;
 
 /**
  *
@@ -28,9 +24,6 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
 
     @Inject
     private ConfigurationService config;
-    
-    @Inject
-    private Convert convert;
     
     private final RestTemplate restTemplate;
     
@@ -45,17 +38,9 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
     }
 
     @Override
-    @GenerateView
-    public List<Document> findByName(String name) {
-        List<JsonNode> jsonList = queryView("by_name", name);
-        return jsonList.stream().map(e -> convert.jsonNodeToObject(Document.class, e)).collect(Collectors.toList());
-    }
-    
-    @Override
     @View(name = "all", map = "function(doc) { if (doc.author && doc.name ) emit(doc.author, doc.name)}")
-    public List<Document> getAllDocuments() {
-        List<JsonNode> jsonList = queryView("all");
-        return jsonList.stream().map(e -> convert.jsonNodeToObject(Document.class, e)).collect(Collectors.toList());
+    public List<JsonNode> getAllDocuments() {
+        return queryView("all");
     }
     
     @Override
@@ -114,5 +99,10 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
     @Override
     public List<Revision> getRevisions(String id) {
         return db.getRevisions(id);
+    }
+
+    @Override
+    public void update(JsonNode json) {
+        db.update(json);
     }
 }
