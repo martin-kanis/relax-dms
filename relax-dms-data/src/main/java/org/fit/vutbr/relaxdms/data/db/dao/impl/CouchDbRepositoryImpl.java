@@ -1,10 +1,15 @@
 package org.fit.vutbr.relaxdms.data.db.dao.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Scanner;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import org.ektorp.AttachmentInputStream;
 import org.ektorp.Revision;
 import org.ektorp.http.HttpResponse;
 import org.ektorp.support.CouchDbRepositorySupport;
@@ -14,6 +19,7 @@ import org.fit.vutbr.relaxdms.data.db.connector.DBConnectorFactory;
 import org.fit.vutbr.relaxdms.data.db.dao.api.CouchDbRepository;
 import org.fit.vutbr.relaxdms.data.system.configuration.ConfigurationService;
 import org.ektorp.http.RestTemplate;
+import org.fit.vutbr.relaxdms.api.system.Convert;
 
 /**
  *
@@ -24,6 +30,9 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
 
     @Inject
     private ConfigurationService config;
+    
+    @Inject
+    private Convert convert;
     
     private final RestTemplate restTemplate;
     
@@ -102,7 +111,20 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
     }
 
     @Override
-    public void update(JsonNode json) {
-        db.update(json);
+    public void updateSchema(JsonNode oldSchema, JsonNode newSchema) {
+        // store new version of the schema as newest revision of the document
+        db.update(newSchema);
+        
+        // prepare old schema as stream
+        byte[] bytes = convert.jsonNodeToString(oldSchema).getBytes(StandardCharsets.UTF_8);
+        InputStream stream = new ByteArrayInputStream(bytes);
+        String oldRev = oldSchema.get("_rev").textValue();
+        
+        // create attachment as stream 
+        // id will be revision of old schema
+        // data will be stored as application/json content type
+        // note that this also increment revision of the document
+        AttachmentInputStream data = new AttachmentInputStream(oldRev, stream, "application/json");
+        db.createAttachment(newSchema.get("_id").textValue(), newSchema.get("_rev").textValue(), data);  
     }
 }

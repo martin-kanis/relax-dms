@@ -16,11 +16,13 @@ public interface DocumentService {
      */
     public void storeDocument(JsonNode document);
     
-    /**
-     * Update document to the database
-     * @param document Document to be update as JsonNode 
+     /**
+     * Update schema to the database. New schema will saved as newest revision of the document. 
+     * Old version of schema will be saved as attachment with its revision as Id.
+     * @param oldSchema Previous version of the schema to be stored as attachment
+     * @param newSchema Newest version of the schema to be stored as newest revision of the document
      */
-    public void updateDocument(JsonNode document);
+    public void updateSchema(JsonNode oldSchema, JsonNode newSchema);
     
     /**
      * Delete document from the database

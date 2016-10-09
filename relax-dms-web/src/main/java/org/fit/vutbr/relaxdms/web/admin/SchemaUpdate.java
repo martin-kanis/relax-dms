@@ -86,11 +86,14 @@ public class SchemaUpdate extends BasePage implements Serializable {
     }
     
     private void createTextArea(JsonNode schema) {
-        // save id and rev
+        // save id, rev and attachment
         String id = schema.get("_id").textValue();
         String rev = schema.get("_rev").textValue();
-        // remove id and rev from schema to avoid users to modify it
-        ((ObjectNode) schema).remove(Arrays.asList("_id", "_rev"));
+        String attachment = convert.jsonNodeToString(schema.get("_attachments"));
+        String oldSchema = convert.jsonNodeToString(schema);
+        
+        // remove id, rev and attachment from oldSchema to avoid users to modify it
+        ((ObjectNode) schema).remove(Arrays.asList("_id", "_rev", "_attachments"));
         String prettySchema = createPrettyJson(schema);
         
         final TextArea<String> textArea = new TextArea<>("area", Model.of(prettySchema));
@@ -114,12 +117,13 @@ public class SchemaUpdate extends BasePage implements Serializable {
                 form.replace(feedback);
 
                 if (convert.isValidJson(schema)) {
-                    JsonNode node = convert.stringToJsonNode(schema);
-                    // remove id and rev for case, that user add it
-                    ((ObjectNode) node).remove(Arrays.asList("_id", "_rev"));
-                    // put id and rev back
-                    ((ObjectNode) node).put("_id", id).put("_rev", rev);
-                    documentService.updateDocument(node);
+                    JsonNode newSchema = convert.stringToJsonNode(schema);
+                    // remove id, rev and attachment for case, that user add it
+                    ((ObjectNode) newSchema).remove(Arrays.asList("_id", "_rev", "_attachments"));
+                    // put id, rev and attachment back
+                    ((ObjectNode) newSchema).put("_id", id).put("_rev", rev).put("_attachments", convert.stringToJsonNode(attachment));
+
+                    documentService.updateSchema(convert.stringToJsonNode(oldSchema), newSchema);
 
                     success("Template was update successfully");
 

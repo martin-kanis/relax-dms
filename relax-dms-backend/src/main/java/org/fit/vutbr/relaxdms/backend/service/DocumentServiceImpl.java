@@ -81,8 +81,8 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public void updateDocument(JsonNode document) {
-        repo.update(document);
+    public void updateSchema(JsonNode oldSchema, JsonNode newSchema) {
+        repo.updateSchema(oldSchema, newSchema);
     }
 
     @Override

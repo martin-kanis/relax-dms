@@ -36,10 +36,13 @@ public interface CouchDbRepository {
     public void storeJsonNode(JsonNode json);
     
     /**
-     * Update document to the database
-     * @param json 
+     * Update schema to the database. New schema will saved as newest revision of the document. 
+     * Old version of schema will be saved as attachment with its revision as Id.
+     * Example http://localhost:5984/db/my-docid/3-a2759ea8b50d82489bce49cc733b08d1
+     * @param oldSchema Previous version of the schema to be stored as attachment
+     * @param newSchema Newest version of the schema to be stored as newest revision of the document
      */
-    public void update(JsonNode json);
+    public void updateSchema(JsonNode oldSchema, JsonNode newSchema);
     
     /**
      * Finds document by provided ID
