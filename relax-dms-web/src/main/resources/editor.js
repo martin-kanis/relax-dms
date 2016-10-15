@@ -14,7 +14,9 @@ var editor = new JSONEditor(document.getElementById('editor_holder'),{
   disable_collapse: true,
 
   // The schema for the editor
-  schema: ${schema}
+  schema: ${schema},
+  
+  startval: ${startval}
 });
 
 // Hook up the submit button to log to the console

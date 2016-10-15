@@ -10,8 +10,8 @@ import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.fit.vutbr.relaxdms.api.service.DocumentService;
 import org.fit.vutbr.relaxdms.api.system.Convert;
-import org.fit.vutbr.relaxdms.data.db.dao.api.CouchDbRepository;
 import org.fit.vutbr.relaxdms.web.BasePage;
 import org.fit.vutbr.relaxdms.web.cp.menu.MenuItemEnum;
 
@@ -25,7 +25,7 @@ public class Schema extends BasePage implements Serializable {
     private Convert convert;
     
     @Inject
-    private CouchDbRepository repo;
+    private DocumentService documentService;
     
     private FeedbackPanel feedback;
 
@@ -57,7 +57,7 @@ public class Schema extends BasePage implements Serializable {
                     success("Template was successfully saved");
                     
                     JsonNode node = convert.stringToJsonNode(schema);
-                    repo.storeJsonNode(node);
+                    documentService.storeDocument(node);
                     
                     // clear text area
                     textArea.setModelObject("");

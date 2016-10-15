@@ -25,6 +25,12 @@ public interface DocumentService {
     public void updateSchema(JsonNode oldSchema, JsonNode newSchema);
     
     /**
+     * Updates document to the database
+     * @param json Document to be updated as JsonNode
+     */
+    public void updateDocument(JsonNode json);
+    
+    /**
      * Delete document from the database
      * @param document Document to be deleted as JsonNode 
      */
@@ -69,4 +75,24 @@ public interface DocumentService {
      * @return List of revisions
      */
     public List<Revision> getRevisions(String id);
+    
+    /**
+     * Returns id of schema from which was document created.
+     * @param docId Document Id
+     * @return String Id of schema
+     */
+    public String getSchemaIdFromDocument(String docId);
+    
+    /**
+     * Simple view that returns some of document's properties as HTML.
+     * @param docId Document Id
+     * @return String Document as HTML
+     */
+    public String getDocumentAsHtml(String docId);
+    
+    /**
+     * Returns all templates from database in JsonNode format.
+     * @return List of JsonNode that represent templates
+     */    
+    public List<JsonNode> getAllTemplates();
 }

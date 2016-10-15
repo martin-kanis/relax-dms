@@ -1,8 +1,8 @@
 package org.fit.vutbr.relaxdms.data.db.dao.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -20,6 +20,7 @@ import org.fit.vutbr.relaxdms.data.db.dao.api.CouchDbRepository;
 import org.fit.vutbr.relaxdms.data.system.configuration.ConfigurationService;
 import org.ektorp.http.RestTemplate;
 import org.fit.vutbr.relaxdms.api.system.Convert;
+import org.jboss.logging.Logger;
 
 /**
  *
@@ -33,6 +34,8 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
     
     @Inject
     private Convert convert;
+    
+    private Logger logger;
     
     private final RestTemplate restTemplate;
     
@@ -57,11 +60,18 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
     public List<JsonNode> getAllTemplates() {
         return queryView("templates");
     }
+    
+    @Override
+    @ShowFunction(name = "getSchemaId",  function = "(function getSchemaId(doc, req) {"
+            + "return doc.schemaId; })")
+    public String getSchemaIdFromDocument(String docId) {
+        return getHttpRequest("getSchemaId", docId);
+    }
 
     @Override
     @ShowFunction(name = "my_show", file = "../js/show.js")
-    public String firstShow(String docid) {
-        return getHttpRequest("my_show", docid);
+    public String firstShow(String docId) {
+        return getHttpRequest("my_show", docId);
     }
     
     /**
@@ -88,6 +98,11 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
     @Override
     public JsonNode find(String id) {
         return db.find(type, id);
+    }
+    
+    @Override
+    public void update(JsonNode json) {
+        db.update(json);
     }
 
     @Override
@@ -126,5 +141,11 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
         // note that this also increment revision of the document
         AttachmentInputStream data = new AttachmentInputStream(oldRev, stream, "application/json");
         db.createAttachment(newSchema.get("_id").textValue(), newSchema.get("_rev").textValue(), data);  
+        
+        try {
+            data.close();
+        } catch (IOException ex) {
+            logger.error(ex);
+        }
     }
 }

@@ -11,6 +11,13 @@ import org.ektorp.Revision;
 public interface CouchDbRepository {
     
     /**
+     * Returns id of schema from which was document created.
+     * @param docId Document Id
+     * @return String Id of schema
+     */
+    public String getSchemaIdFromDocument(String docId);
+    
+    /**
      * Show function that creates HTML form JSON document
      * @param docid
      * @return 
@@ -50,6 +57,12 @@ public interface CouchDbRepository {
      * @return Document as JsonNode
      */
     public JsonNode find(String id);
+    
+    /**
+     * Updates document to the database
+     * @param json Document to be updated as JsonNode
+     */
+    public void update(JsonNode json);
     
     /**
      * Deletes document from the database

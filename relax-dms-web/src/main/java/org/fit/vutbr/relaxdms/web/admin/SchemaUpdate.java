@@ -23,7 +23,6 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.fit.vutbr.relaxdms.api.service.DocumentService;
 import org.fit.vutbr.relaxdms.api.system.Convert;
-import org.fit.vutbr.relaxdms.data.db.dao.api.CouchDbRepository;
 import org.fit.vutbr.relaxdms.web.BasePage;
 import org.fit.vutbr.relaxdms.web.cp.menu.MenuItemEnum;
 
@@ -32,9 +31,6 @@ import org.fit.vutbr.relaxdms.web.cp.menu.MenuItemEnum;
  * @author Martin Kanis
  */
 public class SchemaUpdate extends BasePage implements Serializable {
-    
-    @Inject
-    private CouchDbRepository repo;
     
     @Inject
     private Convert convert;
@@ -48,7 +44,7 @@ public class SchemaUpdate extends BasePage implements Serializable {
         super(parameters);
         String templateId = parameters.get("templateId").toString();
         
-        List<JsonNode> templates = repo.getAllTemplates();
+        List<JsonNode> templates = documentService.getAllTemplates();
         // create map (template title) -> (template id)
         Map<String, String> templateMap = templates.stream()
                 .collect(Collectors.toMap(t -> t.get("title").asText(), t -> t.get("_id").asText()));

@@ -79,6 +79,11 @@ public class DocumentServiceImpl implements DocumentService {
     public List<JsonNode> getAll() {
         return repo.getAllDocuments();
     }
+    
+    @Override
+    public void updateDocument(JsonNode document) {
+        repo.update(document);
+    }
 
     @Override
     public void updateSchema(JsonNode oldSchema, JsonNode newSchema) {
@@ -103,5 +108,20 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     public List<Revision> getRevisions(String id) {
         return repo.getRevisions(id);
+    }
+
+    @Override
+    public String getSchemaIdFromDocument(String docId) {
+        return repo.getSchemaIdFromDocument(docId);
+    }
+
+    @Override
+    public String getDocumentAsHtml(String docId) {
+        return repo.firstShow(docId);
+    }
+
+    @Override
+    public List<JsonNode> getAllTemplates() {
+        return repo.getAllTemplates();
     }
 }
