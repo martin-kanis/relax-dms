@@ -46,6 +46,7 @@ public class WicketApplication extends WebApplication implements Serializable {
         mountPage("/create-document", DocumentCreate.class);
         mountPage("/find-document", DocumentList.class);
         mountPage("/edit-document", DocumentUpdate.class);
+        mountPage("/edit-document", DocumentUpdate.class);
         mountPage("/document", DocumentPage.class);
         
         getMarkupSettings().setStripWicketTags(true);
