@@ -1,14 +1,18 @@
 package org.fit.vutbr.relaxdms.data.db.dao.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.Level;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import org.apache.commons.io.IOUtils;
 import org.ektorp.AttachmentInputStream;
 import org.ektorp.Revision;
 import org.ektorp.http.HttpResponse;
@@ -146,6 +150,28 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
             data.close();
         } catch (IOException ex) {
             logger.error(ex);
+        }
+    }
+
+    @Override
+    public JsonNode getSchema(String id, String rev) {
+        String currentRev = getCurrentRevision(id);
+        JsonNode schema = null;
+        
+        // current and needed revisions are the same so return current version of the schema
+        if (currentRev.equals(rev)) {
+            return this.find(id);
+        } else {
+            AttachmentInputStream ais = db.getAttachment(id, rev);
+            try {
+                byte[] data = IOUtils.toByteArray(ais);
+                ObjectReader reader = (new ObjectMapper()).reader();
+                schema = reader.readTree(new ByteArrayInputStream(data));
+                ais.close();
+            } catch (IOException ex) {
+                logger.error(ex);
+            }
+            return schema;
         }
     }
 }

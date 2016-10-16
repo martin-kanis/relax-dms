@@ -95,4 +95,12 @@ public interface DocumentService {
      * @return List of JsonNode that represent templates
      */    
     public List<JsonNode> getAllTemplates();
+    
+    /**
+     * Get schema specified by Id and revision. If revision is older than current revision it is retrieve from attachment.
+     * @param id Id of schema as string
+     * @param rev Revision of schema as string
+     * @return Schema as JsonNode
+     */
+    public JsonNode getSchema(String id, String rev);
 }

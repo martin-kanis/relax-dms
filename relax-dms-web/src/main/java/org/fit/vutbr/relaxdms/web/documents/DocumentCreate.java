@@ -2,6 +2,7 @@ package org.fit.vutbr.relaxdms.web.documents;
 
 import java.io.Serializable;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +58,6 @@ public class DocumentCreate extends BasePage implements Serializable {
     
     public DocumentCreate(PageParameters parameters) {
         super(parameters);
-        String templateId = parameters.get("templateId").toString();
      
         List<JsonNode> templates = documentService.getAllTemplates();
         // create map (template title) -> (template id)
@@ -65,10 +65,14 @@ public class DocumentCreate extends BasePage implements Serializable {
                 .collect(Collectors.toMap(t -> t.get("title").asText(), t -> t.get("_id").asText()));
         
         // get first template on the first render
-        if (templateId == null)
-            templateId = templates.get(0).get("_id").textValue();
-            
-        
+        String tmp = parameters.get("templateId").toString();
+        final String templateId = (tmp == null) ? 
+                templates.get(0).get("_id").textValue() : tmp;
+
+        // get current template revision
+        // new documents might be created only with newest revision of template
+        final String templateRev = documentService.getCurrentRevision(templateId);
+             
         createTemplateList(templateMap);
         
         AbstractAjaxBehavior ajaxSaveBehaviour = new AbstractDefaultAjaxBehavior() {
@@ -100,6 +104,9 @@ public class DocumentCreate extends BasePage implements Serializable {
                 StringValue json = webRequest.getQueryParameters().getParameterValue("data");
                 
                 JsonNode document = convert.stringToJsonNode(json.toString());
+                
+                // add template Id and revision to document
+                ((ObjectNode) document).put("schemaId", templateId).put("schemaRev", templateRev);
                 documentService.storeDocument(document);
             }
         };

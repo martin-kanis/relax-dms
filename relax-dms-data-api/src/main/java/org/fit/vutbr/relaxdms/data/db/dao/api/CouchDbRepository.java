@@ -52,6 +52,14 @@ public interface CouchDbRepository {
     public void updateSchema(JsonNode oldSchema, JsonNode newSchema);
     
     /**
+     * Get schema specified by Id and revision. If revision is older than current revision it is retrieve from attachment.
+     * @param id Id of schema as string
+     * @param rev Revision of schema as string
+     * @return Schema as JsonNode
+     */
+    public JsonNode getSchema(String id, String rev);
+    
+    /**
      * Finds document by provided ID
      * @param id String
      * @return Document as JsonNode

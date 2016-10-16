@@ -53,6 +53,7 @@ public class DocumentUpdate extends BasePage implements Serializable {
         String id = json.get("_id").textValue();
         String rev = json.get("_rev").textValue();
         String schemaId = json.get("schemaId").textValue();
+        String schemaRev = json.get("schemaRev").textValue();
         
         AbstractAjaxBehavior ajaxSaveBehaviour = new AbstractDefaultAjaxBehavior() {
             
@@ -83,7 +84,8 @@ public class DocumentUpdate extends BasePage implements Serializable {
                 StringValue json = webRequest.getQueryParameters().getParameterValue("data");
                 
                 JsonNode document = convert.stringToJsonNode(json.toString());
-                ((ObjectNode) document).put("_id", id).put("_rev", rev).put("schemaId", schemaId);
+                ((ObjectNode) document).put("_id", id).put("_rev", rev)
+                        .put("schemaId", schemaId).put("schemaRev", schemaRev);
                 documentService.updateDocument(document);
                 
                 parameters.add("id", id);
@@ -93,7 +95,8 @@ public class DocumentUpdate extends BasePage implements Serializable {
 
         add(ajaxSaveBehaviour);
 
-        renderJsonEditor(documentService.getDocumentById(json.get("schemaId").textValue()), json);
+        JsonNode schema = documentService.getSchema(schemaId, schemaRev);
+        renderJsonEditor(schema, json);
     }
     
     private void renderJsonEditor(JsonNode schema, JsonNode document) {
@@ -103,7 +106,7 @@ public class DocumentUpdate extends BasePage implements Serializable {
         // render json-editor script
         Map<String, Object> map = new HashMap<>();
         map.put("schema", schema);
-        ((ObjectNode) document).remove(Arrays.asList("_id", "_rev", "schemaId"));
+        ((ObjectNode) document).remove(Arrays.asList("_id", "_rev", "schemaId", "schemaRev"));
         map.put("startval", document);
         
         ptt = new PackageTextTemplate(DocumentCreate.class, "../../../../../../editor.js");

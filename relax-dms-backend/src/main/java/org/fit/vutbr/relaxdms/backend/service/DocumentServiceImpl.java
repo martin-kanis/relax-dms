@@ -124,4 +124,9 @@ public class DocumentServiceImpl implements DocumentService {
     public List<JsonNode> getAllTemplates() {
         return repo.getAllTemplates();
     }
+
+    @Override
+    public JsonNode getSchema(String id, String rev) {
+        return repo.getSchema(id, rev);
+    }
 }
