@@ -57,6 +57,14 @@ public class DocumentPage extends BasePage implements Serializable {
                 setResponsePage(new DocumentUpdate(new PageParameters(), convert.stringToJsonNode(doc)));
             }
         });
+        
+        form.add(new AjaxSubmitLink("delete") {          
+            @Override
+            protected void onSubmit(AjaxRequestTarget target, Form form) {
+                documentService.deleteDocument(convert.stringToJsonNode(doc));
+                setResponsePage(DocumentList.class);
+            }
+        });
                 
         add(form);
     }
