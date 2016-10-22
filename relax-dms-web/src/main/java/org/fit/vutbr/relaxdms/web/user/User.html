@@ -5,9 +5,32 @@
     <title>User Page</title>
 </head>
 <body>
-<wicket:extend>
-    <h1>User page</h1>
+    <wicket:extend>
+        <h2><span wicket:id="user">user</span>'s home page</h2>
 
-</wicket:extend>
+        <div>
+            <h3>Assigned roles: </h3>
+            <div class="row">
+                <span wicket:id="roleListView">
+                    <span wicket:id="label">label</span><br/>
+                </span>
+            </div>
+        </div>
+        
+        <h3>User's documents: </h3>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th><span wicket:id="docId">Id</span></th>
+                    <th><span wicket:id="docName">Name</span></th>
+                </tr>
+            </thead>
+            <tr wicket:id="docListView">
+                <td><a wicket:id="docLink"><span wicket:id="id"/></a></td>
+                <td><span wicket:id="name"></span></td>
+            </tr>
+        </table>
+
+    </wicket:extend>
 </body>
 </html>

@@ -57,6 +57,13 @@ public interface DocumentService {
     public List<JsonNode> getAll();
     
     /**
+     * Returns all documents from database created by specified user.
+     * @param author Author of documents that will be returned
+     * @return List of documents
+     */
+    public List<JsonNode> getDocumentsByAuthor(String author);
+    
+    /**
      * Gets IDs of all documents in the database.
      * @return List of documents IDs 
      */

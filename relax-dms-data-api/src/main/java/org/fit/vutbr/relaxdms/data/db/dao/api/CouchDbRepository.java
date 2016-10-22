@@ -25,10 +25,17 @@ public interface CouchDbRepository {
     public String firstShow(String docid);
     
     /**
-     * Returns all documents from database that are descendant of Document class
+     * Returns all documents from database.
      * @return List of documents
      */
     public List<JsonNode> getAllDocuments();
+    
+    /**
+     * Returns all documents from database created by specified user.
+     * @param author Author of documents that will be returned
+     * @return List of documents
+     */
+    public List<JsonNode> findByAuthor(String author);
     
     /**
      * Returns all templates from database in JsonNode format.

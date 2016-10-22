@@ -1,5 +1,6 @@
 package org.fit.vutbr.relaxdms.api.security;
 
+import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -35,4 +36,11 @@ public interface AuthController {
      * @return username as string
      */
     public String getUserName(HttpServletRequest req);
+    
+    /**
+     * Returns all roles of currently logged user.
+     * @param req HttpServletRequest
+     * @return User's roles as set of strings
+     */
+    public Set<String> getUserRoles(HttpServletRequest req);
 }

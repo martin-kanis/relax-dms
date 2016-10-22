@@ -9,12 +9,12 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Scanner;
-import java.util.logging.Level;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import org.apache.commons.io.IOUtils;
 import org.ektorp.AttachmentInputStream;
 import org.ektorp.Revision;
+import org.ektorp.ViewQuery;
 import org.ektorp.http.HttpResponse;
 import org.ektorp.support.CouchDbRepositorySupport;
 import org.ektorp.support.ShowFunction;
@@ -23,6 +23,7 @@ import org.fit.vutbr.relaxdms.data.db.connector.DBConnectorFactory;
 import org.fit.vutbr.relaxdms.data.db.dao.api.CouchDbRepository;
 import org.fit.vutbr.relaxdms.data.system.configuration.ConfigurationService;
 import org.ektorp.http.RestTemplate;
+import org.ektorp.support.GenerateView;
 import org.fit.vutbr.relaxdms.api.system.Convert;
 import org.jboss.logging.Logger;
 
@@ -76,6 +77,17 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
     @ShowFunction(name = "my_show", file = "../js/show.js")
     public String firstShow(String docId) {
         return getHttpRequest("my_show", docId);
+    }
+    
+    @Override
+    @View(name = "by_author", map = "function(doc) { emit(doc.author, doc)}")
+    public List<JsonNode> findByAuthor(String author) {
+        ViewQuery q = new ViewQuery()
+                .viewName("by_author")
+                .designDocId("_design/JsonNode")
+                .key(author);
+        
+        return db.queryView(q, JsonNode.class);
     }
     
     /**

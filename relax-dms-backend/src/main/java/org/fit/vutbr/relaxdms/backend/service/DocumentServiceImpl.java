@@ -129,4 +129,9 @@ public class DocumentServiceImpl implements DocumentService {
     public JsonNode getSchema(String id, String rev) {
         return repo.getSchema(id, rev);
     }
+
+    @Override
+    public List<JsonNode> getDocumentsByAuthor(String author) {
+        return repo.findByAuthor(author);
+    }
 }

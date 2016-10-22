@@ -30,6 +30,10 @@ public class DocumentList extends BasePage implements Serializable {
                 e.get("name").textValue(), 
                 e.get("author").textValue())).collect(Collectors.toList());
 
+        createDocumentList(docList);
+    }
+    
+    private void createDocumentList(List<DocumentListData> docList) {
         ListView listview = new ListView("listView", docList) {
             @Override
             protected void populateItem(ListItem item) {
