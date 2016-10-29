@@ -2,36 +2,21 @@ package org.fit.vutbr.relaxdms.web.documents;
 
 import java.io.Serializable;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import org.apache.wicket.Component;
-import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.behavior.AbstractAjaxBehavior;
-import org.apache.wicket.markup.head.IHeaderResponse;
-import org.apache.wicket.markup.head.JavaScriptHeaderItem;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
-import org.apache.wicket.model.Model;
-import org.apache.wicket.request.cycle.RequestCycle;
-import org.apache.wicket.request.http.WebRequest;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.util.string.StringValue;
-import org.apache.wicket.util.template.PackageTextTemplate;
-import org.fit.vutbr.relaxdms.api.security.AuthController;
 import org.fit.vutbr.relaxdms.api.service.DocumentService;
-import org.fit.vutbr.relaxdms.api.system.Convert;
 import org.fit.vutbr.relaxdms.web.BasePage;
 import org.fit.vutbr.relaxdms.web.cp.menu.MenuItemEnum;
+import org.fit.vutbr.relaxdms.web.documents.DocumentEditorData.EditorUseCase;
 
 /**
  *
@@ -41,20 +26,6 @@ public class DocumentCreate extends BasePage implements Serializable {
     
     @Inject
     private DocumentService documentService;
-    
-    @Inject
-    private AuthController authController;
-    
-    @Inject 
-    private Convert convert;
-    
-    private WebMarkupContainer container;
-    
-    private Label myScript;
-    
-    private Model<String> labelModel;
-    
-    private PackageTextTemplate ptt;
     
     public DocumentCreate(PageParameters parameters) {
         super(parameters);
@@ -66,75 +37,23 @@ public class DocumentCreate extends BasePage implements Serializable {
         
         // get first template on the first render
         String tmp = parameters.get("templateId").toString();
-        final String templateId = (tmp == null) ? 
+        String templateId = (tmp == null) ? 
                 templates.get(0).get("_id").textValue() : tmp;
 
         // get current template revision
         // new documents might be created only with newest revision of template
-        final String templateRev = documentService.getCurrentRevision(templateId);
+        String templateRev = documentService.getCurrentRevision(templateId);
+        DocumentMetadata docData = new DocumentMetadata("", "", templateId, templateRev);
              
         createTemplateList(templateMap);
         
-        AbstractAjaxBehavior ajaxSaveBehaviour = new AbstractDefaultAjaxBehavior() {
-            
-            @Override
-            public void renderHead(Component component, IHeaderResponse response) {
-                super.renderHead(component, response);
-                String js = "function send(json) { " + getCallbackScript() + " return true }";
-                response.render(JavaScriptHeaderItem.forScript(js, "postJson"));
-            } 
-            
-            @Override
-            protected void updateAjaxAttributes(AjaxRequestAttributes attributes) {
-                super.updateAjaxAttributes(attributes);
-                attributes.getExtraParameters().put("data", "PLACEHOLDER");
-            }
-            
-            @Override
-            public CharSequence getCallbackScript() {
-              String script = super.getCallbackScript().toString();
-              script = script.replace("\"PLACEHOLDER\"", "json");
-              return script;
-            }
-            
-            @Override
-            protected void respond(AjaxRequestTarget target) {
-                RequestCycle cycle = RequestCycle.get();
-                WebRequest webRequest = (WebRequest) cycle.getRequest();
-                StringValue json = webRequest.getQueryParameters().getParameterValue("data");
-                
-                JsonNode document = convert.stringToJsonNode(json.toString());
-                
-                // add template Id and revision to document
-                ((ObjectNode) document).put("schemaId", templateId).put("schemaRev", templateRev);
-                documentService.storeDocument(document);
-            }
-        };
-
+        AbstractAjaxBehavior ajaxSaveBehaviour = new DocumentEditorBehavior(docData, this);
         add(ajaxSaveBehaviour);
 
-        renderJsonEditor(documentService.getDocumentById(templateId));
-    }
-    
-    private void renderJsonEditor(JsonNode schema) {
-        container = new WebMarkupContainer("container");
-        container.setOutputMarkupId(true);
-        
-        // render json-editor script
-        Map<String, Object> map = new HashMap<>();
-        map.put("schema", schema);
-        map.put("startval", "{}");
-        map.put("author", authController.getUserName((HttpServletRequest) getRequest().getContainerRequest()));
-        
-        ptt = new PackageTextTemplate(DocumentCreate.class, "../../../../../../editor.js");
-        labelModel = Model.of(ptt.asString(map));
-
-        myScript = new Label("jsonEditor", labelModel);
-        myScript.setOutputMarkupId(true);
-        myScript.setEscapeModelStrings(false);
-        
-        container.add(myScript);
-        add(container);
+        DocumentEditorData editorData = 
+                new DocumentEditorData(documentService.getDocumentById(templateId),
+                        EditorUseCase.CREATE);
+        add(new DocumentEditor("container", editorData));
     }
     
     private void createTemplateList(Map<String, String> templateMap) {  

@@ -1,16 +1,32 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns:wicket>
+<html>
     <head>
+        <title>Document page</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" media="screen" href="data/css/bootstrap.css" />   
     </head>
     <body>
         <wicket:extend>
-            <span wicket:id="label">Document will be rendered here</span>
+            <script src="data/js/json-editor.js"></script> 
             
-            <form wicket:id="form">
-                <input wicket:id="update" type="submit" class="btn btn-default" value="Update" />
-                <input wicket:id="delete" type="submit" class="btn btn-default" value="Delete" />
-            </form>
+            <div class='row'>
+                <div id='editor_holder' class='medium-12 columns'></div>
+            </div>
+            <div class='row'>
+                <div class='medium-12-columns'>
+                    <input id='edit' type="button" class="tiny" value="Edit" />
+                    <input id='save' type="button" class="tiny" value="Save" style="display:none;"/>
+                    <input id='cancel' type="button" class="tiny" value="Cancel" style="display:none;"/>
+                    <input wicket:id="delete" type="button" class="tiny" value="Delete" />
+                    <span id='feedback1' class="label label-success hide">Document updated</span>
+                    <span id='feedback2' class="label label-danger hide">Error</span>
+                </div>
+            </div>
+            
+            <div wicket:id="container">
+                <script type="text/javascript" wicket:id="jsonEditor">/* script will be rendered here */</script>
+            </div>      
         </wicket:extend>
     </body>
 </html>

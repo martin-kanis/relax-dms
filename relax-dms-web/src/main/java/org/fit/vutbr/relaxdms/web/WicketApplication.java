@@ -10,7 +10,6 @@ import org.fit.vutbr.relaxdms.web.admin.SchemaUpdate;
 import org.fit.vutbr.relaxdms.web.documents.DocumentCreate;
 import org.fit.vutbr.relaxdms.web.documents.DocumentList;
 import org.fit.vutbr.relaxdms.web.documents.DocumentPage;
-import org.fit.vutbr.relaxdms.web.documents.DocumentUpdate;
 import org.fit.vutbr.relaxdms.web.user.User;
 import org.jboss.logging.Logger;
 
@@ -45,8 +44,6 @@ public class WicketApplication extends WebApplication implements Serializable {
         mountPage("/edit-schema", SchemaUpdate.class);
         mountPage("/create-document", DocumentCreate.class);
         mountPage("/find-document", DocumentList.class);
-        mountPage("/edit-document", DocumentUpdate.class);
-        mountPage("/edit-document", DocumentUpdate.class);
         mountPage("/document", DocumentPage.class);
         
         getMarkupSettings().setStripWicketTags(true);

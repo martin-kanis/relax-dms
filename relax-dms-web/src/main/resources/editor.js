@@ -20,23 +20,50 @@ var editor = new JSONEditor(document.getElementById('editor_holder'),{
 });
 
 // Hook up the submit button to log to the console
-document.getElementById('submit').addEventListener('click',function() {
-  // Get the value from the editor
-    if (send(JSON.stringify(editor.getValue()))) {
-        console.log("Ok");
-        clear();
-        feedback(true);
-    } else {
-        clear();
-        feedback(false);
-    }
-  
-});
+var saveButton = document.getElementById('save');
+if (saveButton) {
+    saveButton.addEventListener('click',function() {
+      // Get the value from the editor
+        if (send(JSON.stringify(editor.getValue()))) {
+            feedback(true);
+        } else {
+            clear();
+            feedback(false);
+        }
+
+    });
+}
 
 // clear button
-document.getElementById('clear').addEventListener('click',function() {
-    clear();
-});
+var clearButton = document.getElementById('clear');
+if (clearButton) {
+    clearButton.addEventListener('click',function() {
+        clear();
+    });
+}
+
+var editButton = document.getElementById('edit');
+if (editButton) {
+    editButton.addEventListener('click',function() {
+        editor.enable();
+        editor.getEditor('root.author').disable();
+        
+        saveButton.style.cssText = "display:inline;"
+        editButton.style.cssText = "display:none;"
+        cancelButton.style.cssText = "display:inline;"
+    });
+}
+
+var cancelButton = document.getElementById('cancel');
+if (cancelButton) {
+    cancelButton.addEventListener('click',function() {
+        editor.disable();
+        
+        saveButton.style.cssText = "display:none;"
+        editButton.style.cssText = "display:inline;"
+        cancelButton.style.cssText = "display:none;"
+    });
+}
 
 // Hook up the validation indicator to update its 
 // status whenever the editor changes
@@ -47,11 +74,16 @@ editor.on('change',function() {
   
   // set default author based on the logged user
   var author = editor.getEditor('root.author');
-  author.setValue("${author}");
-  
-  if (author != "")
+
+  if (author.getValue() == "")
+    author.setValue("${author}");
+  else
     editor.getEditor('root.author').disable();
 });
+
+if ("${usecase}" === "UPDATE") {
+    editor.disable(); 
+}
 
 function clear() {
     var values = editor.getValue();
