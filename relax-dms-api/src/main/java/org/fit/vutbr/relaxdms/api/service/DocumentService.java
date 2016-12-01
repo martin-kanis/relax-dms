@@ -27,8 +27,10 @@ public interface DocumentService {
     /**
      * Updates document to the database
      * @param json Document to be updated as JsonNode
+     @return Diff between previous and actual version of the document.
+     If there is no updateDoc conflict returns empty json.
      */
-    public void updateDocument(JsonNode json);
+    public JsonNode updateDocument(JsonNode json);
     
     /**
      * Delete document from the database

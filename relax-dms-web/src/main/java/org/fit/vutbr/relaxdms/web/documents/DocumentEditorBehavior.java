@@ -2,6 +2,8 @@ package org.fit.vutbr.relaxdms.web.documents;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.HashMap;
+import java.util.Map;
 import javax.inject.Inject;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
@@ -75,11 +77,24 @@ public class DocumentEditorBehavior extends AbstractDefaultAjaxBehavior {
         } else {
             ((ObjectNode) document).put("_id", docData.getId()).put("_rev", docData.getRev())
                     .put("schemaId", docData.getSchemaId()).put("schemaRev", docData.getSchemaRev());
-            documentService.updateDocument(document);
+            JsonNode diff = documentService.updateDocument(document);
+            
+            Map<String, String> diffMap = new HashMap<>();
+            if(!diff.isNull()) {
+                for (JsonNode node : diff) {
+                    String path = node.get("path").textValue();
+                    if (!"/_rev".equals(path)) {
+                        String name = "root" + path.replace("/", ".");
+                        String value = node.get("value").asText();
+                        diffMap.put(name, value);
+                    }
+                }
+            }
 
             PageParameters params = new PageParameters();
             params.add("id", docData.getId());
-            component.setResponsePage(DocumentPage.class, params);
+            
+            component.setResponsePage(new DocumentPage(params, diffMap));
         }
     }
 }

@@ -34,6 +34,11 @@
         </dependency>
         
         <dependency>
+            <groupId>com.flipkart.zjsonpatch</groupId>
+            <artifactId>zjsonpatch</artifactId>
+        </dependency>
+        
+        <dependency>
             <groupId>org.fit.vutbr</groupId>
             <artifactId>relax-dms-data-api</artifactId>
             <version>${version.relax-dms}</version>

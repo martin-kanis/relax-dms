@@ -76,8 +76,10 @@ public interface CouchDbRepository {
     /**
      * Updates document to the database
      * @param json Document to be updated as JsonNode
+     * @return Diff between previous and actual version of the document.
+     If there is no updateDoc conflict returns empty json.
      */
-    public void update(JsonNode json);
+    public JsonNode updateDoc(JsonNode json);
     
     /**
      * Deletes document from the database

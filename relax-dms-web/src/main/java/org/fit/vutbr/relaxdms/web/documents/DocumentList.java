@@ -40,7 +40,7 @@ public class DocumentList extends BasePage implements Serializable {
                 DocumentListData doc = (DocumentListData) item.getModelObject();
                 
                 PageParameters pp = new PageParameters();
-                pp.set("id", doc.getId());
+                pp.add("id", doc.getId());
                 
                 BookmarkablePageLink<Void> docLink = new BookmarkablePageLink("docLink", DocumentPage.class, pp);
                 item.add(docLink.add(new Label("id", doc.getId())));

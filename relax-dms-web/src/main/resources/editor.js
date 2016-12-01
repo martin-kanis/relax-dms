@@ -12,6 +12,8 @@ var editor = new JSONEditor(document.getElementById('editor_holder'),{
   disable_edit_json: true,
   
   disable_collapse: true,
+  
+  show_errors: 'always',
 
   // The schema for the editor
   schema: ${schema},
@@ -19,8 +21,37 @@ var editor = new JSONEditor(document.getElementById('editor_holder'),{
   startval: ${startval}
 });
 
-// Hook up the submit button to log to the console
+var errors = [];
+var conflict = false;
+
+if ("${usecase}" === "UPDATE") {
+    editor.disable(); 
+}
+
+var dataString = '${diffData}';
+var data = JSON.parse(dataString);
+if (Object.keys(data).length > 0) {
+    for (var key in data) {
+        if (data.hasOwnProperty(key)) {
+            var p = editor.getEditor(key);
+            p.enable();
+
+            window.errors.push({
+                path: key,
+                property: 'format',
+                message: 'New value: ' + data[key]
+            });     
+        }
+    }
+    window.conflict = true;
+    editor.root.showValidationErrors(window.errors);
+}
+
 var saveButton = document.getElementById('save');
+var clearButton = document.getElementById('clear');
+var editButton = document.getElementById('edit');
+var cancelButton = document.getElementById('cancel');
+
 if (saveButton) {
     saveButton.addEventListener('click',function() {
       // Get the value from the editor
@@ -30,20 +61,23 @@ if (saveButton) {
             clear();
             feedback(false);
         }
-
     });
 }
 
 // clear button
-var clearButton = document.getElementById('clear');
 if (clearButton) {
     clearButton.addEventListener('click',function() {
         clear();
     });
 }
 
-var editButton = document.getElementById('edit');
+// edit button
 if (editButton) {
+    if (conflict) {
+        saveButton.style.cssText = "display:inline;"
+        editButton.style.cssText = "display:none;"
+        cancelButton.style.cssText = "display:inline;"
+    }
     editButton.addEventListener('click',function() {
         editor.enable();
         editor.getEditor('root.author').disable();
@@ -54,10 +88,12 @@ if (editButton) {
     });
 }
 
-var cancelButton = document.getElementById('cancel');
+// cancel button
 if (cancelButton) {
     cancelButton.addEventListener('click',function() {
         editor.disable();
+        editor.root.showValidationErrors([]);
+        editor.validate();
         
         saveButton.style.cssText = "display:none;"
         editButton.style.cssText = "display:inline;"
@@ -68,22 +104,18 @@ if (cancelButton) {
 // Hook up the validation indicator to update its 
 // status whenever the editor changes
 editor.on('change',function() {
-  // Get an array of errors from the validator
-  var errors = editor.validate();
-  console.log("My err: " + errors);
-  
-  // set default author based on the logged user
-  var author = editor.getEditor('root.author');
+    // Get an array of errors from the validator    
+    editor.root.showValidationErrors(window.errors);
+    window.errors = editor.validate();
+    
+    // set default author based on the logged user
+    var author = editor.getEditor('root.author');
 
-  if (author.getValue() == "")
-    author.setValue("${author}");
-  else
-    editor.getEditor('root.author').disable();
+    if (author.getValue() == "")
+      author.setValue('${author}');
+    else
+      author.disable();
 });
-
-if ("${usecase}" === "UPDATE") {
-    editor.disable(); 
-}
 
 function clear() {
     var values = editor.getValue();
@@ -103,4 +135,3 @@ function feedback(success) {
     else 
         document.getElementById('feedback2').classList.remove("hide");
 }
-

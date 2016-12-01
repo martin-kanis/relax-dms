@@ -16,6 +16,8 @@
         <version.ektorp>1.4.2</version.ektorp>
         <version.lombok>1.16.6</version.lombok>
         <version.keycloak>1.9.7.Final</version.keycloak>
+        <version.httpcomponents>4.5.2</version.httpcomponents>
+        <version.zjsonpatch>0.2.4</version.zjsonpatch>
     </properties>
     
     <modules>
@@ -44,6 +46,16 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>${version.lombok}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>${version.httpcomponents}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.flipkart.zjsonpatch</groupId>
+            <artifactId>zjsonpatch</artifactId>
+            <version>${version.zjsonpatch}</version>
         </dependency>
       </dependencies>
   </dependencyManagement>

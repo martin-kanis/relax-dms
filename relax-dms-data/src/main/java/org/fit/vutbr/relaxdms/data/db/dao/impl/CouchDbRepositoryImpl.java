@@ -3,6 +3,8 @@ package org.fit.vutbr.relaxdms.data.db.dao.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.flipkart.zjsonpatch.JsonDiff;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,6 +16,7 @@ import javax.inject.Inject;
 import org.apache.commons.io.IOUtils;
 import org.ektorp.AttachmentInputStream;
 import org.ektorp.Revision;
+import org.ektorp.UpdateConflictException;
 import org.ektorp.ViewQuery;
 import org.ektorp.http.HttpResponse;
 import org.ektorp.support.CouchDbRepositorySupport;
@@ -23,7 +26,6 @@ import org.fit.vutbr.relaxdms.data.db.connector.DBConnectorFactory;
 import org.fit.vutbr.relaxdms.data.db.dao.api.CouchDbRepository;
 import org.fit.vutbr.relaxdms.data.system.configuration.ConfigurationService;
 import org.ektorp.http.RestTemplate;
-import org.ektorp.support.GenerateView;
 import org.fit.vutbr.relaxdms.api.system.Convert;
 import org.jboss.logging.Logger;
 
@@ -117,8 +119,17 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
     }
     
     @Override
-    public void update(JsonNode json) {
-        db.update(json);
+    public JsonNode updateDoc(JsonNode json) {
+        try {
+            db.update(json);
+            
+            return (JsonNode) JsonNodeFactory.instance.nullNode();
+        } catch (UpdateConflictException ex) {
+            String id = json.get("_id").textValue();
+            JsonNode diff = JsonDiff.asJson(find(id), json);
+            
+            return diff;
+        }
     }
 
     @Override
