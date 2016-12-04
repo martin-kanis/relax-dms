@@ -1,4 +1,4 @@
-package org.fit.vutbr.relaxdms.web.documents;
+package org.fit.vutbr.relaxdms.web.documents.tabs;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.Serializable;
@@ -8,22 +8,21 @@ import javax.inject.Inject;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.behavior.AbstractAjaxBehavior;
-import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.util.string.StringValue;
+import org.apache.wicket.markup.html.panel.Panel;
 import org.fit.vutbr.relaxdms.api.service.DocumentService;
 import org.fit.vutbr.relaxdms.api.system.Convert;
-import org.fit.vutbr.relaxdms.web.BasePage;
-import org.fit.vutbr.relaxdms.web.cp.menu.MenuItemEnum;
+import org.fit.vutbr.relaxdms.web.documents.DocumentEditor;
+import org.fit.vutbr.relaxdms.web.documents.DocumentEditorBehavior;
+import org.fit.vutbr.relaxdms.web.documents.DocumentEditorData;
 import org.fit.vutbr.relaxdms.web.documents.DocumentEditorData.EditorUseCase;
-import org.jboss.logging.Logger;
+import org.fit.vutbr.relaxdms.web.documents.DocumentList;
+import org.fit.vutbr.relaxdms.web.documents.DocumentMetadata;
 
 /**
  *
  * @author Martin Kanis
  */
-public class DocumentPage extends BasePage implements Serializable {
-    
-    private final Logger log = Logger.getLogger(getClass());
+public class DocumentPage extends Panel implements Serializable {
     
     private String id;
 
@@ -33,18 +32,18 @@ public class DocumentPage extends BasePage implements Serializable {
     @Inject
     private Convert convert;
     
-    public DocumentPage(PageParameters parameters) {
-        super(parameters);
+    public DocumentPage(String id, String docId) {
+        super(id);
         
-        id = getDocId(parameters);
+        this.id = docId;
         
         prepareEditor(Collections.EMPTY_MAP);
     }
 
-    public DocumentPage(PageParameters parameters, Map diffMap) {
-        super(parameters);
- 
-        id = getDocId(parameters);
+    public DocumentPage(String id, String docId, Map diffMap) {
+        super(id);
+        
+        this.id = docId;
         
         prepareEditor(diffMap);
     }
@@ -78,19 +77,5 @@ public class DocumentPage extends BasePage implements Serializable {
         editorData.setDocument(json);
         editorData.setDiffMap(diffMap);
         add(new DocumentEditor("container", editorData));
-    }
-    
-    private String getDocId(PageParameters parameters) {
-        StringValue sv = parameters.get("id");
-        
-        if (sv.isNull() || sv.isEmpty()) {
-            log.info("ID is null or empty");
-        }
-        return sv.toString();
-    }
-
-    @Override
-    public MenuItemEnum getActiveMenu() {
-        return MenuItemEnum.DOCUMENT;
     }
 }

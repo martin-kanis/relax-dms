@@ -7,8 +7,15 @@
         <link rel="stylesheet" type="text/css" media="screen" href="data/css/bootstrap.css" />   
     </head>
     <body>
-        <wicket:extend>
+        <wicket:panel>
             <script src="data/js/json-editor.js"></script> 
+<!--            <ul class="nav nav-tabs">
+                <li class="active">
+                    <a href="#">Document</a>
+                </li>
+                <li><a href="#">Metadata</a></li>
+                <li><a href="Workflow.html">Workflow</a></li>
+            </ul>-->
             
             <div class='row'>
                 <div id='editor_holder' class='medium-12 columns'></div>
@@ -27,6 +34,6 @@
             <div wicket:id="container">
                 <script type="text/javascript" wicket:id="jsonEditor">/* script will be rendered here */</script>
             </div>      
-        </wicket:extend>
+        </wicket:panel>
     </body>
 </html>

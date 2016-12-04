@@ -26,7 +26,12 @@
             <version>${version.relax-dms}</version>
             <scope>provided</scope>
         </dependency>
-        
+        <dependency>
+            <groupId>org.apache.wicket</groupId>
+            <artifactId>wicket-extensions</artifactId>
+            <version>6.12.0</version>
+            <type>jar</type>
+        </dependency>
         <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-web-api</artifactId>

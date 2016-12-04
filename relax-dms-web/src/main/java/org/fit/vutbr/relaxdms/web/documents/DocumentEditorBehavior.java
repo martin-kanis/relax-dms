@@ -17,6 +17,7 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.StringValue;
 import org.fit.vutbr.relaxdms.api.service.DocumentService;
 import org.fit.vutbr.relaxdms.api.system.Convert;
+import org.fit.vutbr.relaxdms.web.documents.tabs.DocumentTabs;
 
 /**
  *
@@ -94,7 +95,7 @@ public class DocumentEditorBehavior extends AbstractDefaultAjaxBehavior {
             PageParameters params = new PageParameters();
             params.add("id", docData.getId());
             
-            component.setResponsePage(new DocumentPage(params, diffMap));
+            component.setResponsePage(new DocumentTabs(params));
         }
     }
 }

@@ -1,5 +1,6 @@
 package org.fit.vutbr.relaxdms.web.documents;
 
+import org.fit.vutbr.relaxdms.web.documents.tabs.DocumentPage;
 import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
