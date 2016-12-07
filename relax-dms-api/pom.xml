@@ -23,7 +23,7 @@
         <dependency>
             <groupId>org.fit.vutbr</groupId>
             <artifactId>relax-dms-data-api</artifactId>
-            <version>${version.relax-dms}</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>

@@ -9,7 +9,6 @@
 
     <groupId>org.fit.vutbr</groupId>
     <artifactId>relax-dms-backend</artifactId>
-    <version>0.1</version>
     <packaging>ejb</packaging>
 
     <name>relax-dms-backend</name>
@@ -29,12 +28,12 @@
         <dependency>
             <groupId>org.fit.vutbr</groupId>
             <artifactId>relax-dms-api</artifactId>
-            <version>${version.relax-dms}</version>
+            <version>${project.version}</version>
         </dependency>        
         <dependency>
             <groupId>org.fit.vutbr</groupId>
             <artifactId>relax-dms-data-api</artifactId>
-            <version>${version.relax-dms}</version>
+            <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>        
         <dependency>
