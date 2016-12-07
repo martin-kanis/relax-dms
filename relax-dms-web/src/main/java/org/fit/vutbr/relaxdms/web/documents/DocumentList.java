@@ -1,6 +1,5 @@
 package org.fit.vutbr.relaxdms.web.documents;
 
-import org.fit.vutbr.relaxdms.web.documents.tabs.DocumentPage;
 import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,6 +12,7 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.fit.vutbr.relaxdms.api.service.DocumentService;
 import org.fit.vutbr.relaxdms.web.BasePage;
 import org.fit.vutbr.relaxdms.web.cp.menu.MenuItemEnum;
+import org.fit.vutbr.relaxdms.web.documents.tabs.DocumentTabs;
 
 /**
  *
@@ -43,7 +43,7 @@ public class DocumentList extends BasePage implements Serializable {
                 PageParameters pp = new PageParameters();
                 pp.add("id", doc.getId());
                 
-                BookmarkablePageLink<Void> docLink = new BookmarkablePageLink("docLink", DocumentPage.class, pp);
+                BookmarkablePageLink<Void> docLink = new BookmarkablePageLink("docLink", DocumentTabs.class, pp);
                 item.add(docLink.add(new Label("id", doc.getId())));
                 item.add(new Label("name", doc.getName()));
                 item.add(new Label("author", doc.getAuthor()));

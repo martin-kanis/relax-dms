@@ -19,8 +19,7 @@ import org.jboss.logging.Logger;
  *
  * @author Martin Kanis
  */
-public class DocumentTabs extends BasePage implements Serializable {
-    
+public class DocumentTabs extends BasePage implements Serializable {  
     private final Logger log = Logger.getLogger(getClass());
     
     private final String id;
@@ -30,7 +29,6 @@ public class DocumentTabs extends BasePage implements Serializable {
     public DocumentTabs(PageParameters parameters) {
         super(parameters);
         id = getDocId(parameters);
-        
         prepareTabs();
     }
     
@@ -53,7 +51,7 @@ public class DocumentTabs extends BasePage implements Serializable {
         tabs.add(new AbstractTab(new Model<>("Metadata")) {
             @Override
             public Panel getPanel(String panelId) {
-                return null;
+                return new DocumentInfo(panelId, id);
             }
         });
 

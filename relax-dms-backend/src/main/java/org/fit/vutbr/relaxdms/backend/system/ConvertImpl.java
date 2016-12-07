@@ -54,4 +54,10 @@ public class ConvertImpl implements Convert {
            return null;
         }
     }
+
+    @Override
+    public JsonNode makeDocCopy(JsonNode doc) {
+        String tmp = jsonNodeToString(doc);
+        return stringToJsonNode(tmp);
+    }
 }

@@ -18,5 +18,5 @@ public class DocumentMetadata implements Serializable {
     
     private String schemaId;
     
-    private String schemaRev;        
+    private String schemaRev;   
 }

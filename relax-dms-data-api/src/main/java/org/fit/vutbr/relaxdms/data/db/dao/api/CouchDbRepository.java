@@ -2,6 +2,7 @@ package org.fit.vutbr.relaxdms.data.db.dao.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.List;
+import java.util.Map;
 import org.ektorp.Revision;
 
 /**
@@ -76,10 +77,11 @@ public interface CouchDbRepository {
     /**
      * Updates document to the database
      * @param json Document to be updated as JsonNode
+     * @param user String User who modifies document
      * @return Diff between previous and actual version of the document.
      If there is no updateDoc conflict returns empty json.
      */
-    public JsonNode updateDoc(JsonNode json);
+    public JsonNode updateDoc(JsonNode json, String user);
     
     /**
      * Deletes document from the database
@@ -106,4 +108,11 @@ public interface CouchDbRepository {
      * @return List of revisions
      */
     public List<Revision> getRevisions(String id);
+    
+    /**
+     * Returns metadata from document specified by Id.
+     * @param id String Id of document
+     * @return Map<String, String> Metadata of the document specified by Id
+     */
+    public Map<String, String> getMetadataFromDoc(String id);
 }

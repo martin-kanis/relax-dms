@@ -2,6 +2,7 @@ package org.fit.vutbr.relaxdms.api.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.List;
+import java.util.Map;
 import org.ektorp.Revision;
 
 /**
@@ -27,10 +28,11 @@ public interface DocumentService {
     /**
      * Updates document to the database
      * @param json Document to be updated as JsonNode
+     * @param user String User who modifies document
      @return Diff between previous and actual version of the document.
      If there is no updateDoc conflict returns empty json.
      */
-    public JsonNode updateDocument(JsonNode json);
+    public JsonNode updateDocument(JsonNode json, String user);
     
     /**
      * Delete document from the database
@@ -112,4 +114,11 @@ public interface DocumentService {
      * @return Schema as JsonNode
      */
     public JsonNode getSchema(String id, String rev);
+    
+    /**
+     * Returns metadata from document specified by Id.
+     * @param id String Id of document
+     * @return Map<String, String> Metadata of the document specified by Id
+     */
+    public Map<String, String> getMetadataFromDoc(String id);
 }

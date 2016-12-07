@@ -29,22 +29,24 @@ if ("${usecase}" === "UPDATE") {
 }
 
 var dataString = '${diffData}';
-var data = JSON.parse(dataString);
-if (Object.keys(data).length > 0) {
-    for (var key in data) {
-        if (data.hasOwnProperty(key)) {
-            var p = editor.getEditor(key);
-            p.enable();
+if (dataString.indexOf("root") !== -1) {
+    var data = JSON.parse(dataString);
+    if (Object.keys(data).length > 0) {
+        for (var key in data) {
+            if (data.hasOwnProperty(key)) {
+                var p = editor.getEditor(key);
+                p.enable();
 
-            window.errors.push({
-                path: key,
-                property: 'format',
-                message: 'New value: ' + data[key]
-            });     
+                window.errors.push({
+                    path: key,
+                    property: 'format',
+                    message: 'New value: ' + data[key]
+                });     
+            }
         }
+        window.conflict = true;
+        editor.root.showValidationErrors(window.errors);
     }
-    window.conflict = true;
-    editor.root.showValidationErrors(window.errors);
 }
 
 var saveButton = document.getElementById('save');
@@ -107,7 +109,7 @@ editor.on('change',function() {
     // Get an array of errors from the validator    
     editor.root.showValidationErrors(window.errors);
     window.errors = editor.validate();
-    
+
     // set default author based on the logged user
     var author = editor.getEditor('root.author');
 

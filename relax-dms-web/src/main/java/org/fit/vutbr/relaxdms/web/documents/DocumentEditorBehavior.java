@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.HashMap;
 import java.util.Map;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -15,6 +16,7 @@ import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.http.WebRequest;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.StringValue;
+import org.fit.vutbr.relaxdms.api.security.AuthController;
 import org.fit.vutbr.relaxdms.api.service.DocumentService;
 import org.fit.vutbr.relaxdms.api.system.Convert;
 import org.fit.vutbr.relaxdms.web.documents.tabs.DocumentTabs;
@@ -30,6 +32,9 @@ public class DocumentEditorBehavior extends AbstractDefaultAjaxBehavior {
     
     @Inject 
     private Convert convert;
+    
+    @Inject
+    private AuthController auth;
     
     private final DocumentMetadata docData;
     
@@ -78,24 +83,24 @@ public class DocumentEditorBehavior extends AbstractDefaultAjaxBehavior {
         } else {
             ((ObjectNode) document).put("_id", docData.getId()).put("_rev", docData.getRev())
                     .put("schemaId", docData.getSchemaId()).put("schemaRev", docData.getSchemaRev());
-            JsonNode diff = documentService.updateDocument(document);
+            HttpServletRequest req = (HttpServletRequest) component.getRequest().getContainerRequest();
+            String user = auth.getUserName(req);
+            JsonNode diff = documentService.updateDocument(document, user);
             
             Map<String, String> diffMap = new HashMap<>();
             if(!diff.isNull()) {
                 for (JsonNode node : diff) {
                     String path = node.get("path").textValue();
-                    if (!"/_rev".equals(path)) {
-                        String name = "root" + path.replace("/", ".");
-                        String value = node.get("value").asText();
-                        diffMap.put(name, value);
-                    }
+                    String name = "root" + path.replace("/", ".");
+                    String value = node.get("value").asText();
+                    diffMap.put(name, value);
                 }
             }
 
             PageParameters params = new PageParameters();
             params.add("id", docData.getId());
             
-            component.setResponsePage(new DocumentTabs(params));
+            component.setResponsePage(new DocumentTabs(params, diffMap));
         }
     }
 }

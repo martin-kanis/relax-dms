@@ -36,4 +36,11 @@ public interface Convert {
      * @return 
      */
     public String jsonNodeToString(JsonNode json);
+    
+    /**
+     * Creates a deep copy of document by convert it to String and back to JsonNode.
+     * @param doc JsonNode Document to be copied
+     * @return JsonNode A copy of document
+     */
+    public JsonNode makeDocCopy(JsonNode doc);
 }

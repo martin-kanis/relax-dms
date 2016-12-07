@@ -10,6 +10,7 @@ import com.fasterxml.jackson.module.jsonSchema.factories.SchemaFactoryWrapper;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import org.ektorp.Revision;
@@ -81,8 +82,8 @@ public class DocumentServiceImpl implements DocumentService {
     }
     
     @Override
-    public JsonNode updateDocument(JsonNode document) {
-        return repo.updateDoc(document);
+    public JsonNode updateDocument(JsonNode document, String user) {
+        return repo.updateDoc(document, user);
     }
 
     @Override
@@ -133,5 +134,10 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     public List<JsonNode> getDocumentsByAuthor(String author) {
         return repo.findByAuthor(author);
+    }
+
+    @Override
+    public Map<String, String> getMetadataFromDoc(String id) {
+        return repo.getMetadataFromDoc(id);
     }
 }
