@@ -24,7 +24,7 @@ import org.fit.vutbr.relaxdms.web.documents.DocumentMetadata;
  */
 public class DocumentPage extends Panel implements Serializable {
     
-    private String id;
+    private final String docId;
 
     @Inject
     private DocumentService documentService;
@@ -34,17 +34,13 @@ public class DocumentPage extends Panel implements Serializable {
     
     public DocumentPage(String id, String docId) {
         super(id);
-        
-        this.id = docId;
-        
+        this.docId = docId;
         prepareEditor(Collections.EMPTY_MAP);
     }
 
     public DocumentPage(String id, String docId, Map diffMap) {
         super(id);
-        
-        this.id = docId;
-        
+        this.docId = docId;
         prepareEditor(diffMap);
     }
     
@@ -59,7 +55,7 @@ public class DocumentPage extends Panel implements Serializable {
     }
     
     private void prepareEditor(Map diffMap) {
-        JsonNode json = documentService.getDocumentById(id);
+        JsonNode json = documentService.getDocumentById(docId);
         JsonNode schema = documentService.getSchema(json.get("schemaId").textValue(), json.get("schemaRev").textValue());
         String doc = convert.jsonNodeToString(json);
         

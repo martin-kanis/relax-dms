@@ -58,7 +58,7 @@ public class DocumentTabs extends BasePage implements Serializable {
         tabs.add(new AbstractTab(new Model<>("Workflow")) {
             @Override
             public Panel getPanel(String panelId) {
-                return null;
+                return new DocumentWorkflow(panelId, id);
             }
         });
 

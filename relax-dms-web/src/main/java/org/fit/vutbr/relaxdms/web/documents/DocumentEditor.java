@@ -53,7 +53,7 @@ public class DocumentEditor extends WebMarkupContainer {
         } else {
             JsonNode document = editorData.getDocument();
             ((ObjectNode) document).remove(Arrays.asList("_id", "_rev", "schemaId", "schemaRev",
-                    "lastModifiedBy", "creationDate", "lastModifiedDate"));
+                    "lastModifiedBy", "creationDate", "lastModifiedDate", "workflow"));
 
             map.put("startval", document);
             map.put("usecase", EditorUseCase.UPDATE);

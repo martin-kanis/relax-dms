@@ -115,4 +115,11 @@ public interface CouchDbRepository {
      * @return Map<String, String> Metadata of the document specified by Id
      */
     public Map<String, String> getMetadataFromDoc(String id);
+    
+    /**
+     * Returns workflow from document specified by Id.
+     * @param id String Id of document
+     * @return JsonNode Workflow of the document specified by Id
+     */
+    public JsonNode getWorkflowFromDoc(String id);
 }

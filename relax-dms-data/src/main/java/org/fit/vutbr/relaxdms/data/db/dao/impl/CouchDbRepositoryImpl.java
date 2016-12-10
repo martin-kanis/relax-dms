@@ -103,11 +103,10 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
         return db.queryView(q, JsonNode.class);
     }
     
-    
+    @Override
     @View(name = "get_metadata", map = "function(doc) { emit(doc._id, "
             + "{author:doc.author, creationDate:doc.creationDate, "
             + "lastModifiedDate:doc.lastModifiedDate, lastModifiedBy:doc.lastModifiedBy})}")
-    @Override
     public Map<String, String> getMetadataFromDoc(String id) {
         ViewQuery q = new ViewQuery()
                 .viewName("get_metadata")
@@ -124,6 +123,19 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
             logger.error(ex);
         }
         return resultMap;
+    }
+    
+    @Override
+    @View(name = "get_workflow", map = "function(doc) { emit(doc._id, doc.workflow)}")
+    public JsonNode getWorkflowFromDoc(String id) {
+        ViewQuery q = new ViewQuery()
+                .viewName("get_workflow")
+                .designDocId("_design/JsonNode")
+                .key(id);
+        
+        ViewResult result = db.queryView(q);
+        String json = result.getRows().get(0).getValue();
+        return convert.stringToJsonNode(json);
     }
     
     /**

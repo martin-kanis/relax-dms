@@ -1,0 +1,21 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+    <head>
+        <title>Document Workflow</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" media="screen" href="data/css/bootstrap.css" />   
+    </head>
+    <body>
+        <wicket:panel>
+            <span wicket:id="approvedLabel" class="label label-success"></span>
+            <span wicket:id="declinedLabel" class="label label-important"></span>
+            <div class='row'>
+                <div class='medium-12-columns'>
+                    <input wicket:id='approve' type="button" class="tiny btn btn-success" value="Approve" />
+                    <input wicket:id='decline' type="button" class="tiny btn btn-danger" value="Decline"/>
+                </div>
+            </div>
+        </wicket:panel>
+    </body>
+</html>
