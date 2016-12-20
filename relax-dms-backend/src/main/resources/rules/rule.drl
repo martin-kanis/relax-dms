@@ -1,0 +1,12 @@
+package org.fit.vutbr.relaxdms;
+
+import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Workflow;
+
+dialect "java"
+
+rule "Approve"
+  when
+    Workflow(isApproved == true)
+  then
+    System.out.println("Document approved!");
+end

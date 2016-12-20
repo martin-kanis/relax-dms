@@ -11,11 +11,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java-version>1.8</java-version>
         <version.jackson>2.7.1</version.jackson>
-        <version.resteasy>3.0.12.Final</version.resteasy>
         <version.ektorp>1.4.2</version.ektorp>
         <version.lombok>1.16.6</version.lombok>
         <version.keycloak>1.9.7.Final</version.keycloak>
-        <version.httpcomponents>4.5.2</version.httpcomponents>
         <version.zjsonpatch>0.2.4</version.zjsonpatch>
     </properties>
     
@@ -47,14 +45,16 @@
             <version>${version.lombok}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>${version.httpcomponents}</version>
-        </dependency>
-        <dependency>
             <groupId>com.flipkart.zjsonpatch</groupId>
             <artifactId>zjsonpatch</artifactId>
             <version>${version.zjsonpatch}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.bom.brms</groupId>
+            <artifactId>jboss-brms-bpmsuite-platform-bom</artifactId>
+            <version>6.4.0.GA-redhat-2</version>
+            <type>pom</type>
+            <scope>import</scope>
         </dependency>
       </dependencies>
   </dependencyManagement>
@@ -63,7 +63,6 @@
     <dependency>
         <groupId>org.jboss.logging</groupId>
         <artifactId>jboss-logging</artifactId>
-        <version>3.1.4.GA</version>
     </dependency>
   </dependencies>
 </project>

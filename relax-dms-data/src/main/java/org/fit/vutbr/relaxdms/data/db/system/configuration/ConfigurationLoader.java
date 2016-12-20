@@ -36,7 +36,7 @@ public class ConfigurationLoader {
         
         try {
             if (configFileContents == null) {
-                System.out.println("AHAAAA");
+                logger.error("Could not parse properties file!");
             }
             proper.load(configFileContents);
             return proper;

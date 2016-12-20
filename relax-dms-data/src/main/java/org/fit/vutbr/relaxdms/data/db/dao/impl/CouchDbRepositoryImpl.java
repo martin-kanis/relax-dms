@@ -53,7 +53,7 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
     @Inject
     private Convert convert;
     
-    private Logger logger;
+    private final Logger logger = Logger.getLogger(this.getClass().getName()); ;
     
     private final RestTemplate restTemplate;
     

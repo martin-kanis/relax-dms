@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import javax.ejb.Stateless;
 import org.ektorp.Revision;
 import org.fit.vutbr.relaxdms.api.system.Convert;
-import org.jboss.logging.Logger;
 
 /**
  *
@@ -16,8 +15,6 @@ import org.jboss.logging.Logger;
  */
 @Stateless
 public class ConvertImpl implements Convert {
-
-    private Logger logger;
     
     @Override
     public List<String> revisionToString(List<Revision> revs) {

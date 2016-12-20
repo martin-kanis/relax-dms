@@ -75,7 +75,7 @@ public class DocumentWorkflow extends Panel implements Serializable {
                 PageParameters params = new PageParameters();
                 params.add("id", id);
                 //setResponsePage(DocumentTabs.class, params);
-                
+
                 approveLink.setVisible(false);
                 declineLink.setVisible(true);
                 approvedLabel.setVisible(true);

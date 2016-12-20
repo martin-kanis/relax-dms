@@ -1,6 +1,7 @@
 package org.fit.vutbr.relaxdms.api.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Workflow;
 
 /**
  *
@@ -11,9 +12,9 @@ public interface WorkflowService {
     /**
      * Returns workflow from document specified by id.
      * @param docId Id of document which workflow will be returned
-     * @return JsonNode Workflow of document
+     * @return Workflow Workflow of document
      */
-    public JsonNode getWorkflowFromDoc(String docId);
+    public Workflow getWorkflowFromDoc(String docId);
     
     /**
      * Approves document by setting property in workflow

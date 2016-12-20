@@ -1,23 +1,17 @@
 package org.fit.vutbr.relaxdms.backend.security;
 
-import java.security.Principal;
-import java.util.HashSet;
 import java.util.Set;
 import javax.ejb.Stateless;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import org.fit.vutbr.relaxdms.api.security.AuthController;
 import org.jboss.logging.Logger;
-import org.keycloak.KeycloakPrincipal;
 import org.keycloak.KeycloakSecurityContext;
 import org.keycloak.adapters.AdapterDeploymentContext;
 import org.keycloak.adapters.KeycloakDeployment;
-//import org.keycloak.admin.client.Keycloak;
-//import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.common.util.KeycloakUriBuilder;
 import org.keycloak.constants.ServiceUrlConstants;
 import org.keycloak.representations.AccessToken;
-import org.keycloak.representations.IDToken;
 
 /**
  *
@@ -26,7 +20,7 @@ import org.keycloak.representations.IDToken;
 @Stateless
 public class AuthControllerImpl implements AuthController {
     
-    private Logger logger;
+    private final Logger logger = Logger.getLogger(this.getClass().getName()); ;
 
     @Override
     public boolean isLoggedIn(HttpServletRequest req) {
