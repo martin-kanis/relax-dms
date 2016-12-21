@@ -3,7 +3,10 @@ package org.fit.vutbr.relaxdms.api.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.ektorp.Revision;
+import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
+import org.fit.vutbr.relaxdms.data.db.dao.model.DocumentMetadata;
 
 /**
  *
@@ -14,8 +17,9 @@ public interface DocumentService {
     /**
      * Service method for storing document to the database.
      * @param document as json to be stored
+     * @param docData Metadata and workflow to be added to the document
      */
-    public void storeDocument(JsonNode document);
+    public void storeDocument(JsonNode document, Document docData);
     
      /**
      * Update schema to the database. New schema will saved as newest revision of the document. 
@@ -28,11 +32,11 @@ public interface DocumentService {
     /**
      * Updates document to the database
      * @param json Document to be updated as JsonNode
-     * @param user String User who modifies document
+     * @param docData Metadata and workflow to be added to the document
      @return Diff between previous and actual version of the document.
      If there is no updateDoc conflict returns empty json.
      */
-    public JsonNode updateDocument(JsonNode json, String user);
+    public JsonNode updateDocument(JsonNode json, Document docData);
     
     /**
      * Delete document from the database
@@ -46,13 +50,6 @@ public interface DocumentService {
      * @return Document as json
      */
     public JsonNode getDocumentById(String id);
-    
-    /**
-     * Creates JSON schema from provided entity
-     * @param clazz Class
-     * @return String JSON schema
-     */
-    public String createJSONSchema(Class clazz); 
     
     /**
      * Return all documents with real data (no metadata documents) from database.
@@ -108,6 +105,12 @@ public interface DocumentService {
     public List<JsonNode> getAllTemplates();
     
     /**
+     * Service method for storing schema to the database.
+     * @param schema Schema to be stored
+     */
+    public void storeSchema(JsonNode schema);
+    
+    /**
      * Get schema specified by Id and revision. If revision is older than current revision it is retrieve from attachment.
      * @param id Id of schema as string
      * @param rev Revision of schema as string
@@ -121,4 +124,28 @@ public interface DocumentService {
      * @return Map<String, String> Metadata of the document specified by Id
      */
     public Map<String, String> getMetadataFromDoc(String id);
+    
+    /**
+     * Returns metadata from provided json document.
+     * @param doc JsonNode
+     * @return Metadata from json
+     */
+    public DocumentMetadata getMetadataFromJson(JsonNode doc);
+    
+    /**
+     * Removes all data we don't want to show in JSON editor.
+     * For example metadata and workflow.
+     * @param doc Json from where data will be removed
+     * @return Json without unwanted data
+     */
+    public JsonNode removeMetadataFromJson(JsonNode doc);
+    
+    /**
+     * Adds metadata to provided json document.
+     * @param doc Json where metadata will be added
+     * @param metadata Metadata to be added
+     * @param skipFields Field that will be skipped while adding
+     * @return JsonNode with metadata
+     */
+    public JsonNode addMetadataToJson(JsonNode doc, DocumentMetadata metadata, Set<String> skipFields);
 }

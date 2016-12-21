@@ -10,13 +10,16 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.behavior.AbstractAjaxBehavior;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.fit.vutbr.relaxdms.api.service.DocumentService;
+import org.fit.vutbr.relaxdms.api.service.WorkflowService;
 import org.fit.vutbr.relaxdms.api.system.Convert;
+import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
+import org.fit.vutbr.relaxdms.data.db.dao.model.DocumentMetadata;
+import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Workflow;
 import org.fit.vutbr.relaxdms.web.documents.DocumentEditor;
 import org.fit.vutbr.relaxdms.web.documents.DocumentEditorBehavior;
 import org.fit.vutbr.relaxdms.web.documents.DocumentEditorData;
 import org.fit.vutbr.relaxdms.web.documents.DocumentEditorData.EditorUseCase;
 import org.fit.vutbr.relaxdms.web.documents.DocumentList;
-import org.fit.vutbr.relaxdms.web.documents.DocumentMetadata;
 
 /**
  *
@@ -28,6 +31,9 @@ public class DocumentPage extends Panel implements Serializable {
 
     @Inject
     private DocumentService documentService;
+    
+    @Inject
+    private WorkflowService workflowService;
     
     @Inject
     private Convert convert;
@@ -61,12 +67,10 @@ public class DocumentPage extends Panel implements Serializable {
         
         createDeleteButton(doc);
         
-        DocumentMetadata docData = new DocumentMetadata(json.get("_id").textValue(),
-                json.get("_rev").textValue(),
-                json.get("schemaId").textValue(),
-                json.get("schemaRev").textValue());
+        DocumentMetadata metadata = documentService.getMetadataFromJson(json);
+        Workflow workflow = workflowService.getWorkflowFromJson(json);
       
-        AbstractAjaxBehavior ajaxSaveBehaviour = new DocumentEditorBehavior(docData, this);
+        AbstractAjaxBehavior ajaxSaveBehaviour = new DocumentEditorBehavior(new Document(metadata, workflow), this);
         add(ajaxSaveBehaviour);
         
         DocumentEditorData editorData = new DocumentEditorData(schema, EditorUseCase.UPDATE);

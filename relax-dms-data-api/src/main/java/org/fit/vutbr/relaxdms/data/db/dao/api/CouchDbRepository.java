@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.util.List;
 import java.util.Map;
 import org.ektorp.Revision;
+import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
+import org.fit.vutbr.relaxdms.data.db.dao.model.DocumentMetadata;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Workflow;
 
 /**
@@ -48,8 +50,15 @@ public interface CouchDbRepository {
     /**
      * Stores json node as document.
      * @param json JsonNode
+     * @param docData Metadata and workflow to be added to the document
      */
-    public void storeJsonNode(JsonNode json);
+    public void storeDocument(JsonNode json, Document docData);
+    
+    /**
+     * Stores schema to the database.
+     * @param schema Schema to be stored
+     */
+    public void storeSchema(JsonNode schema);
     
     /**
      * Update schema to the database. New schema will saved as newest revision of the document. 
@@ -78,11 +87,11 @@ public interface CouchDbRepository {
     /**
      * Updates document to the database
      * @param json Document to be updated as JsonNode
-     * @param user String User who modifies document
+     * @param docData Metadata and workflow to be added to the document
      * @return Diff between previous and actual version of the document.
      If there is no updateDoc conflict returns empty json.
      */
-    public JsonNode updateDoc(JsonNode json, String user);
+    public JsonNode updateDoc(JsonNode json, Document docData);
     
     /**
      * Deletes document from the database

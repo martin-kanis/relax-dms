@@ -5,21 +5,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.flipkart.zjsonpatch.JsonDiff;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import org.apache.commons.io.IOUtils;
@@ -36,8 +34,10 @@ import org.fit.vutbr.relaxdms.data.db.connector.DBConnectorFactory;
 import org.fit.vutbr.relaxdms.data.db.dao.api.CouchDbRepository;
 import org.fit.vutbr.relaxdms.data.system.configuration.ConfigurationService;
 import org.ektorp.http.RestTemplate;
+import org.fit.vutbr.relaxdms.api.service.DocumentService;
 import org.fit.vutbr.relaxdms.api.service.WorkflowService;
 import org.fit.vutbr.relaxdms.api.system.Convert;
+import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 import org.fit.vutbr.relaxdms.data.db.dao.model.DocumentMetadata;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Workflow;
 import org.jboss.logging.Logger;
@@ -57,6 +57,9 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
     
     @Inject
     private WorkflowService workflowService;
+    
+    @Inject
+    private DocumentService documentService;
     
     private final Logger logger = Logger.getLogger(this.getClass().getName()); ;
     
@@ -140,7 +143,7 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
         
         ViewResult result = db.queryView(q);
         String json = result.getRows().get(0).getValue();
-        return serialize(json);
+        return workflowService.serialize(json);
     }
     
     /**
@@ -160,9 +163,10 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
     }
 
     @Override
-    public void storeJsonNode(JsonNode json) {
-        JsonNode doc = addMetadataToDocument(json, createDocMetadata(json));
-        doc = addWorkflowToDocument(doc);
+    public void storeDocument(JsonNode json, Document docData) {
+        Set<String> skipFields = new HashSet<>(Arrays.asList("author", "id", "rev"));
+        JsonNode doc = documentService.addMetadataToJson(json, updateDocMetadata(docData.getMetadata()), skipFields);
+        doc = workflowService.addWorkflowToDoc(doc, new Workflow());
         db.create(doc);
     }
 
@@ -172,9 +176,11 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
     }
     
     @Override
-    public JsonNode updateDoc(JsonNode json, String user) {
+    public JsonNode updateDoc(JsonNode json, Document docData) {
         try {
-            JsonNode doc = addMetadataToDocument(json, updateDocMetadata(user, LocalDateTime.now()));
+            Set<String> skipFields = new HashSet<>(Arrays.asList("author"));
+            JsonNode doc = documentService.addMetadataToJson(json, updateDocMetadata(docData.getMetadata()), skipFields);
+            doc = workflowService.addWorkflowToDoc(doc, docData.getWorkflow());
             db.update(doc);
             
             return (JsonNode) JsonNodeFactory.instance.nullNode();
@@ -251,29 +257,15 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
             return schema;
         }
     }
-    
-    /**
-     * Creates document metadata when document is created.
-     * @param document JsonNode
-     * @return DocumentMetadata
-     */
-    private DocumentMetadata createDocMetadata(JsonNode document) {
-        LocalDateTime time = LocalDateTime.now();
-        String author = getAuthor(document);
-        return new DocumentMetadata(author, author, time, time);
-    }
-    
-    private DocumentMetadata updateDocMetadata(String user, LocalDateTime time) {
-        return new DocumentMetadata(null, user, null, time);
-    }
-    
-    private JsonNode addMetadataToDocument(JsonNode doc, DocumentMetadata metadata) {
-        ObjectNode node = (ObjectNode) doc;
-        Map<String, Object> propertyMap = getFieldNamesWithValues(metadata);
-        propertyMap.keySet().stream().forEach((key) -> {
-            node.put(key, propertyMap.get(key).toString());
-        });
-        return (JsonNode) node;
+
+    private DocumentMetadata updateDocMetadata(DocumentMetadata metadata) {
+        LocalDateTime now = LocalDateTime.now();
+        metadata.setLastModifiedDate(now);
+        
+        if (metadata.getCreationDate() == null)
+            metadata.setCreationDate(now);
+        
+        return metadata;
     }
     
     private JsonNode removeMetadataFromDiff(JsonNode doc) {
@@ -288,47 +280,9 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
         }
         return result;
     }
-    
-    private Map<String, Object> getFieldNamesWithValues(Object obj) {
-        Map<String, Object> resultMap = new HashMap<>();
-        for (Field field : obj.getClass().getDeclaredFields()) {
-            String fieldName = field.getName();
-            if (!"author".equals(fieldName)) {
-                String methodName = "get" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
-                try {
-                    Method method = obj.getClass().getMethod(methodName);
-                    Object fieldValue = method.invoke(obj);
-                    
-                    // skip null properties
-                    if (fieldValue != null)
-                        resultMap.put(fieldName, fieldValue);
-                } catch (NoSuchMethodException | SecurityException ex) {
-                    logger.error(ex);
-                } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                    logger.error(ex);
-                }
-            }
-        }
-        return resultMap;
-    }
-    
-    private String getAuthor(JsonNode document) {
-        return document.get("author").textValue();
-    }
-    
-    private JsonNode addWorkflowToDocument(JsonNode doc) {
-        Workflow workflow = new Workflow();
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode workflowNode = mapper.convertValue(workflow, JsonNode.class);
-        return ((ObjectNode) doc).set("workflow", workflowNode);
-    }
-    
-    public Workflow serialize(String json) {
-        try {
-            return new ObjectMapper().readValue(json, Workflow.class);
-        } catch (IOException ex) {
-            logger.error(ex);
-            return null;
-        }
+
+    @Override
+    public void storeSchema(JsonNode schema) {
+        db.create(schema);
     }
 }

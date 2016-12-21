@@ -1,21 +1,22 @@
 package org.fit.vutbr.relaxdms.backend.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
-import com.fasterxml.jackson.module.jsonSchema.factories.SchemaFactoryWrapper;
-import java.io.IOException;
-import java.util.Arrays;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import org.ektorp.Revision;
 import org.fit.vutbr.relaxdms.api.service.DocumentService;
 import org.fit.vutbr.relaxdms.data.db.dao.api.CouchDbRepository;
+import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
+import org.fit.vutbr.relaxdms.data.db.dao.model.DocumentMetadata;
 import org.jboss.logging.Logger;
 
 /**
@@ -31,8 +32,8 @@ public class DocumentServiceImpl implements DocumentService {
     private final Logger logger = Logger.getLogger(this.getClass().getName()); ;
 
     @Override
-    public void storeDocument(JsonNode document) {
-        repo.storeJsonNode(document);
+    public void storeDocument(JsonNode document, Document docData) {
+        repo.storeDocument(document, docData);
     }
 
     @Override
@@ -41,49 +42,13 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public String createJSONSchema(Class clazz) {
-        ObjectMapper mapper = new ObjectMapper();
-        SchemaFactoryWrapper visitor = new SchemaFactoryWrapper();
-        String result = null;
-        
-        try {
-            mapper.acceptJsonFormatVisitor(mapper.constructType(clazz), visitor);
-            JsonSchema jsonSchema = visitor.finalSchema();
-  
-            String schema = mapper.writeValueAsString(jsonSchema);
-            ObjectNode node = (ObjectNode) mapper.readTree(schema);
-            
-            // add title property to schema to create form title
-            node.put("title", clazz.getSimpleName());
-            
-            // iterate over nodes to find Object node
-            for (JsonNode n: node) {
-                // remove id, rev, attachments
-                if (n instanceof ObjectNode) {
-                    ObjectNode on = (ObjectNode) n;
-                    on.remove(Arrays.asList("_id", "_rev", "_attachments"));
-                }
-            }
-            result = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(node);
-        } catch (JsonMappingException ex) {
-            logger.error(ex);
-        } catch (JsonProcessingException ex) {
-            logger.error(ex);
-        } catch (IOException ex) {
-            logger.error(ex);
-        }
-
-        return result;
-    }
-
-    @Override
     public List<JsonNode> getAll() {
         return repo.getAllDocuments();
     }
     
     @Override
-    public JsonNode updateDocument(JsonNode document, String user) {
-        return repo.updateDoc(document, user);
+    public JsonNode updateDocument(JsonNode document, Document docData) {
+        return repo.updateDoc(document, docData);
     }
 
     @Override
@@ -139,5 +104,69 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     public Map<String, String> getMetadataFromDoc(String id) {
         return repo.getMetadataFromDoc(id);
+    }
+
+    @Override
+    public DocumentMetadata getMetadataFromJson(JsonNode doc) {
+        DocumentMetadata metadata = new DocumentMetadata();
+        
+        metadata.set_id(doc.get("_id").textValue());
+        metadata.set_rev(doc.get("_rev").textValue());
+        metadata.setSchemaId(doc.get("schemaId").textValue());
+        metadata.setSchemaRev(doc.get("schemaRev").textValue());
+        
+        metadata.setAuthor(doc.get("author").textValue());
+        metadata.setLastModifiedBy(doc.get("lastModifiedBy").textValue());
+        metadata.setCreationDate(LocalDateTime.parse(doc.get("creationDate").textValue()));
+        metadata.setLastModifiedDate(LocalDateTime.parse(doc.get("lastModifiedDate").textValue()));
+
+        return metadata;
+    }
+
+    @Override
+    public JsonNode removeMetadataFromJson(JsonNode doc) {
+        ObjectNode resultDoc = (ObjectNode) doc;
+        for (Field field : DocumentMetadata.class.getDeclaredFields()) {
+            String name = field.getName();
+            if (!"author".equals(name))
+                resultDoc.remove(name);
+        }
+        resultDoc.remove("workflow");
+        return resultDoc;
+    }
+
+    @Override
+    public JsonNode addMetadataToJson(JsonNode doc, DocumentMetadata metadata, Set<String> skipFields) {
+        ObjectNode resultDoc = (ObjectNode) doc;
+        Map<String, Object> resultMap = new HashMap<>();
+        
+        for (Field field : metadata.getClass().getDeclaredFields()) {
+            String fieldName = field.getName();
+            if (!skipFields.contains(fieldName)) {
+                String methodName = "get" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
+                try {
+                    Method method = metadata.getClass().getMethod(methodName);
+                    Object fieldValue = method.invoke(metadata);
+                    
+                    // skip null properties
+                    if (fieldValue != null)
+                        resultMap.put(fieldName, fieldValue);
+                } catch (NoSuchMethodException | SecurityException ex) {
+                    logger.error(ex);
+                } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                    logger.error(ex);
+                }
+            }
+        }
+        
+        resultMap.keySet().stream().forEach((key) -> {
+            resultDoc.put(key, resultMap.get(key).toString());
+        });
+        return resultDoc;
+    }
+
+    @Override
+    public void storeSchema(JsonNode schema) {
+        
     }
 }

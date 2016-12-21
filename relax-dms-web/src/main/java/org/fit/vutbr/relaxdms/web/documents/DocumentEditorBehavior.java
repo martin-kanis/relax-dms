@@ -1,7 +1,6 @@
 package org.fit.vutbr.relaxdms.web.documents;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.HashMap;
 import java.util.Map;
 import javax.inject.Inject;
@@ -19,6 +18,8 @@ import org.apache.wicket.util.string.StringValue;
 import org.fit.vutbr.relaxdms.api.security.AuthController;
 import org.fit.vutbr.relaxdms.api.service.DocumentService;
 import org.fit.vutbr.relaxdms.api.system.Convert;
+import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
+import org.fit.vutbr.relaxdms.data.db.dao.model.DocumentMetadata;
 import org.fit.vutbr.relaxdms.web.documents.tabs.DocumentTabs;
 
 /**
@@ -36,12 +37,15 @@ public class DocumentEditorBehavior extends AbstractDefaultAjaxBehavior {
     @Inject
     private AuthController auth;
     
-    private final DocumentMetadata docData;
+    private final DocumentMetadata metadata;
+    
+    private final Document docData;
     
     private final Component component;
 
-    public DocumentEditorBehavior(DocumentMetadata docData, Component c) {
-        this.docData = docData;
+    public DocumentEditorBehavior(Document document, Component c) {
+        metadata = document.getMetadata();
+        docData = document;
         component = c;
     }
 
@@ -72,20 +76,18 @@ public class DocumentEditorBehavior extends AbstractDefaultAjaxBehavior {
         StringValue json = webRequest.getQueryParameters().getParameterValue("data");
 
         JsonNode document = convert.stringToJsonNode(json.toString());
+        HttpServletRequest req = (HttpServletRequest) component.getRequest().getContainerRequest();
+        String user = auth.getUserName(req);
 
         // document id is empty = create new document
-        if ("".equals(docData.getId())) {
-            // add template Id and revision to document
-            ((ObjectNode) document).put("schemaId", docData.getSchemaId())
-                    .put("schemaRev", docData.getSchemaRev());
-            documentService.storeDocument(document);
+        if (metadata.get_id() == null) {
+            metadata.setAuthor(user);
+            metadata.setLastModifiedBy(user);
+            documentService.storeDocument(document, docData);
         // update document
         } else {
-            ((ObjectNode) document).put("_id", docData.getId()).put("_rev", docData.getRev())
-                    .put("schemaId", docData.getSchemaId()).put("schemaRev", docData.getSchemaRev());
-            HttpServletRequest req = (HttpServletRequest) component.getRequest().getContainerRequest();
-            String user = auth.getUserName(req);
-            JsonNode diff = documentService.updateDocument(document, user);
+            metadata.setLastModifiedBy(user);
+            JsonNode diff = documentService.updateDocument(document, docData);
             
             Map<String, String> diffMap = new HashMap<>();
             if(!diff.isNull()) {
@@ -98,7 +100,7 @@ public class DocumentEditorBehavior extends AbstractDefaultAjaxBehavior {
             }
 
             PageParameters params = new PageParameters();
-            params.add("id", docData.getId());
+            params.add("id", metadata.get_id());
             
             component.setResponsePage(new DocumentTabs(params, diffMap));
         }

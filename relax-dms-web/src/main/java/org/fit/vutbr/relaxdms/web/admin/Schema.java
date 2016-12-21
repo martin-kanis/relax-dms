@@ -57,7 +57,7 @@ public class Schema extends BasePage implements Serializable {
                     success("Template was successfully saved");
                     
                     JsonNode node = convert.stringToJsonNode(schema);
-                    documentService.storeDocument(node);
+                    documentService.storeSchema(node);
                     
                     // clear text area
                     textArea.setModelObject("");

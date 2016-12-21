@@ -14,6 +14,8 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.fit.vutbr.relaxdms.api.service.DocumentService;
+import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
+import org.fit.vutbr.relaxdms.data.db.dao.model.DocumentMetadata;
 import org.fit.vutbr.relaxdms.web.BasePage;
 import org.fit.vutbr.relaxdms.web.cp.menu.MenuItemEnum;
 import org.fit.vutbr.relaxdms.web.documents.DocumentEditorData.EditorUseCase;
@@ -43,11 +45,13 @@ public class DocumentCreate extends BasePage implements Serializable {
         // get current template revision
         // new documents might be created only with newest revision of template
         String templateRev = documentService.getCurrentRevision(templateId);
-        DocumentMetadata docData = new DocumentMetadata("", "", templateId, templateRev);
+        DocumentMetadata metadata = new DocumentMetadata();
+        metadata.setSchemaId(templateId);
+        metadata.setSchemaRev(templateRev);
              
         createTemplateList(templateMap);
         
-        AbstractAjaxBehavior ajaxSaveBehaviour = new DocumentEditorBehavior(docData, this);
+        AbstractAjaxBehavior ajaxSaveBehaviour = new DocumentEditorBehavior(new Document(metadata), this);
         add(ajaxSaveBehaviour);
 
         DocumentEditorData editorData = 

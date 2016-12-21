@@ -8,9 +8,9 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.fit.vutbr.relaxdms.api.security.AuthController;
-import org.fit.vutbr.relaxdms.api.service.DocumentService;
 import org.fit.vutbr.relaxdms.api.service.WorkflowService;
-import org.fit.vutbr.relaxdms.api.system.Convert;
+import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
+import org.fit.vutbr.relaxdms.data.db.dao.model.DocumentMetadata;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Workflow;
 
 /**
@@ -27,12 +27,6 @@ public class DocumentWorkflow extends Panel implements Serializable {
     
     @Inject
     private WorkflowService workflowService;
-    
-    @Inject
-    private DocumentService documentService;
-    
-    @Inject
-    private Convert convert;
     
     @Inject
     private AuthController auth;
@@ -71,7 +65,9 @@ public class DocumentWorkflow extends Panel implements Serializable {
         approveLink = new AjaxLink("approve") {       
             @Override
             public void onClick(AjaxRequestTarget target) {
-                workflowService.approveDoc(id, user);
+                DocumentMetadata metadata = new DocumentMetadata();
+                metadata.setLastModifiedBy(user);
+                workflowService.approveDoc(id, new Document(metadata, workflow));
 
                 approveLink.setVisible(false);
                 declineLink.setVisible(true);
@@ -90,7 +86,9 @@ public class DocumentWorkflow extends Panel implements Serializable {
         declineLink = new AjaxLink("decline") {       
             @Override
             public void onClick(AjaxRequestTarget target) {
-                workflowService.declineDoc(id, user);
+                DocumentMetadata metadata = new DocumentMetadata();
+                metadata.setLastModifiedBy(user);
+                workflowService.declineDoc(id, new Document(metadata, workflow));
                 
                 declineLink.setVisible(false);
                 approveLink.setVisible(true);
