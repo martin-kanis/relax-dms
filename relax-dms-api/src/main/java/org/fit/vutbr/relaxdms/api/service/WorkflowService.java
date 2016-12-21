@@ -1,6 +1,5 @@
 package org.fit.vutbr.relaxdms.api.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Workflow;
 
 /**
@@ -18,29 +17,29 @@ public interface WorkflowService {
     
     /**
      * Approves document by setting property in workflow
-     * @param doc Document to be approved
+     * @param docId String Id of document to be approved
      * @param user User who approves document
      */
-    public void approveDoc(JsonNode doc, String user);
+    public void approveDoc(String docId, String user);
     
     /**
      * Declines document by setting property in workflow
-     * @param doc Document to be declined
+     * @param docId String Id of document to be declined
      * @param user User who declines document
      */
-    public void declineDoc(JsonNode doc, String user);
+    public void declineDoc(String docId, String user);
     
     /**
-     * Checks if document is approved
-     * @param doc 
+     * Checks if document is approved 
+     * @param workflow
      * @return boolean
      */
-    public boolean isApproved(JsonNode doc);
+    public boolean isApproved(Workflow workflow);
     
     /**
      * Checks if document is declined
-     * @param doc
+     * @param workflow
      * @return boolean
      */
-    public boolean isDeclined(JsonNode doc);
+    public boolean isDeclined(Workflow workflow);
 }

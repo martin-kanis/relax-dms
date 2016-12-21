@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.util.List;
 import java.util.Map;
 import org.ektorp.Revision;
+import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Workflow;
 
 /**
  *
@@ -119,7 +120,7 @@ public interface CouchDbRepository {
     /**
      * Returns workflow from document specified by Id.
      * @param id String Id of document
-     * @return JsonNode Workflow of the document specified by Id
+     * @return Workflow Workflow of the document specified by Id
      */
-    public JsonNode getWorkflowFromDoc(String id);
+    public Workflow getWorkflowFromDoc(String id);
 }

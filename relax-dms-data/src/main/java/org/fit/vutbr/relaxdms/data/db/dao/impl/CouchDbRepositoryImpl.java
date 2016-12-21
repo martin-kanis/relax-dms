@@ -36,8 +36,10 @@ import org.fit.vutbr.relaxdms.data.db.connector.DBConnectorFactory;
 import org.fit.vutbr.relaxdms.data.db.dao.api.CouchDbRepository;
 import org.fit.vutbr.relaxdms.data.system.configuration.ConfigurationService;
 import org.ektorp.http.RestTemplate;
+import org.fit.vutbr.relaxdms.api.service.WorkflowService;
 import org.fit.vutbr.relaxdms.api.system.Convert;
 import org.fit.vutbr.relaxdms.data.db.dao.model.DocumentMetadata;
+import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Workflow;
 import org.jboss.logging.Logger;
 
 /**
@@ -52,6 +54,9 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
     
     @Inject
     private Convert convert;
+    
+    @Inject
+    private WorkflowService workflowService;
     
     private final Logger logger = Logger.getLogger(this.getClass().getName()); ;
     
@@ -127,7 +132,7 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
     
     @Override
     @View(name = "get_workflow", map = "function(doc) { emit(doc._id, doc.workflow)}")
-    public JsonNode getWorkflowFromDoc(String id) {
+    public Workflow getWorkflowFromDoc(String id) {
         ViewQuery q = new ViewQuery()
                 .viewName("get_workflow")
                 .designDocId("_design/JsonNode")
@@ -135,7 +140,7 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
         
         ViewResult result = db.queryView(q);
         String json = result.getRows().get(0).getValue();
-        return convert.stringToJsonNode(json);
+        return serialize(json);
     }
     
     /**
@@ -157,6 +162,7 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
     @Override
     public void storeJsonNode(JsonNode json) {
         JsonNode doc = addMetadataToDocument(json, createDocMetadata(json));
+        doc = addWorkflowToDocument(doc);
         db.create(doc);
     }
 
@@ -308,5 +314,21 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
     
     private String getAuthor(JsonNode document) {
         return document.get("author").textValue();
+    }
+    
+    private JsonNode addWorkflowToDocument(JsonNode doc) {
+        Workflow workflow = new Workflow();
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode workflowNode = mapper.convertValue(workflow, JsonNode.class);
+        return ((ObjectNode) doc).set("workflow", workflowNode);
+    }
+    
+    public Workflow serialize(String json) {
+        try {
+            return new ObjectMapper().readValue(json, Workflow.class);
+        } catch (IOException ex) {
+            logger.error(ex);
+            return null;
+        }
     }
 }

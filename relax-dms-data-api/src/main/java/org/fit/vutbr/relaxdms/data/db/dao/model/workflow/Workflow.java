@@ -1,5 +1,6 @@
 package org.fit.vutbr.relaxdms.data.db.dao.model.workflow;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 
@@ -10,25 +11,19 @@ import java.io.Serializable;
  */
 public class Workflow implements Serializable {
     
-    @JsonProperty("approved")
-    private boolean isApproved;
-    
-    @JsonProperty("declined")
-    private boolean idDeclined;
+    @JsonProperty("state")
+    private State state;
 
-    public boolean isIsApproved() {
-        return isApproved;
+    public Workflow() {
+        this.state = new State();
     }
 
-    public void setIsApproved(boolean isApproved) {
-        this.isApproved = isApproved;
+    @JsonIgnore
+    public State getState() {
+        return state;
     }
 
-    public boolean isIdDeclined() {
-        return idDeclined;
+    public void setState(State state) {
+        this.state = state;
     }
-
-    public void setIdDeclined(boolean idDeclined) {
-        this.idDeclined = idDeclined;
-    } 
 }

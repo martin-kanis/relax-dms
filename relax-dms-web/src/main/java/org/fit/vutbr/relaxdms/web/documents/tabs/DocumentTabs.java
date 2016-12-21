@@ -19,7 +19,8 @@ import org.jboss.logging.Logger;
  *
  * @author Martin Kanis
  */
-public class DocumentTabs extends BasePage implements Serializable {  
+public class DocumentTabs extends BasePage implements Serializable { 
+    
     private final Logger log = Logger.getLogger(getClass());
     
     private final String id;
