@@ -14,17 +14,21 @@ public class State implements Serializable {
     
     @JsonProperty("approval")
     private ApprovalEnum approval;
+    
+    @JsonProperty("approvalBy")
+    private String approvalBy;
 
     public State() {
         currentState = StateEnum.OPEN;
         approval = ApprovalEnum.NONE;
+        approvalBy = null;
     } 
 
-    public StateEnum getState() {
+    public StateEnum getCurrentState() {
         return currentState;
     }
 
-    public void setState(StateEnum currentState) {
+    public void setCurrentState(StateEnum currentState) {
         this.currentState = currentState;
     }
 
@@ -34,5 +38,13 @@ public class State implements Serializable {
 
     public void setApproval(ApprovalEnum approval) {
         this.approval = approval;
+    }
+
+    public String getApprovalBy() {
+        return approvalBy;
+    }
+
+    public void setApprovalBy(String approvalBy) {
+        this.approvalBy = approvalBy;
     }
 }

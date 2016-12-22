@@ -7,6 +7,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.Model;
 import org.fit.vutbr.relaxdms.api.security.AuthController;
 import org.fit.vutbr.relaxdms.api.service.WorkflowService;
 import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
@@ -35,13 +36,28 @@ public class DocumentWorkflow extends Panel implements Serializable {
     
     private AjaxLink declineLink;
     
-    private Label approvedLabel;
+    private final Label approvedLabel;
     
-    private Label declinedLabel;
+    private final Label declinedLabel;
+    
+    private final Label noneLabel;
+    
+    private final Label statusLabel;
+    
+    private final Label approvalByLabel;
+    
+    private final Label approvalByValue;
     
     public DocumentWorkflow(String id, String docId) {
         super(id);
         this.id = docId;
+        
+        approvedLabel = new Label("approvedLabel", "Approved");
+        declinedLabel = new Label("declinedLabel", "Declined");
+        noneLabel = new Label("noneLabel", "None");
+        statusLabel = new Label("statusLabel");
+        approvalByLabel = new Label("approvalBy");
+        approvalByValue = new Label("approvalByValue");
         
         HttpServletRequest req = (HttpServletRequest) getRequest().getContainerRequest();
         user = auth.getUserName(req);
@@ -54,8 +70,22 @@ public class DocumentWorkflow extends Panel implements Serializable {
         boolean approved = workflowService.isApproved(workflow);
         boolean declined = workflowService.isDeclined(workflow);
         
-        createApprovedLabel(approved);
-        createDeclinedLabel(declined);
+        createLabel(approvedLabel, approved);
+        createLabel(declinedLabel, declined);
+        createLabel(noneLabel, !approved && !declined);
+        statusLabel.setDefaultModel(new Model(workflow.getState().getCurrentState().getName()));
+        createLabel(statusLabel, true);
+        
+        String approvalLabel = "";
+        if (approved)
+            approvalLabel = "Approved by: ";
+        if (declined)
+            approvalLabel = "Declined by: ";
+        
+        approvalByLabel.setDefaultModel(new Model(approvalLabel));
+        approvalByValue.setDefaultModel(new Model(workflow.getState().getApprovalBy()));
+        createLabel(approvalByLabel, approved || declined);
+        createLabel(approvalByValue, approved || declined);
         
         createApproveButton(approved);     
         createDeclineButton(declined);
@@ -73,7 +103,11 @@ public class DocumentWorkflow extends Panel implements Serializable {
                 declineLink.setVisible(true);
                 approvedLabel.setVisible(true);
                 declinedLabel.setVisible(false);
-                target.add(approveLink, declineLink, approvedLabel, declinedLabel);
+                noneLabel.setVisible(false);
+                approvalByLabel.setDefaultModel(new Model("Approved by: "));
+                approvalByValue.setDefaultModel(new Model(user));
+                target.add(approveLink, declineLink, approvedLabel, declinedLabel, 
+                        noneLabel, approvalByValue, approvalByLabel);
             }
         };
         approveLink.setVisible(!visible);
@@ -94,7 +128,11 @@ public class DocumentWorkflow extends Panel implements Serializable {
                 approveLink.setVisible(true);
                 declinedLabel.setVisible(true);
                 approvedLabel.setVisible(false);
-                target.add(approveLink, declineLink, declinedLabel, approvedLabel);
+                noneLabel.setVisible(false);
+                approvalByLabel.setDefaultModel(new Model("Declined by: "));
+                approvalByValue.setDefaultModel(new Model(user));
+                target.add(approveLink, declineLink, declinedLabel, approvedLabel, 
+                        noneLabel, approvalByValue, approvalByLabel);
             }
         };
         declineLink.setVisible(!visible);
@@ -103,19 +141,10 @@ public class DocumentWorkflow extends Panel implements Serializable {
         add(declineLink);
     }
     
-    private void createApprovedLabel(boolean visible) {
-        approvedLabel = new Label("approvedLabel", "Document approved");
-        approvedLabel.setVisible(visible);
-        approvedLabel.setOutputMarkupPlaceholderTag(true);
-        approvedLabel.setOutputMarkupId(true);
-        add(approvedLabel);
-    }
-    
-    private void createDeclinedLabel(boolean visible) {
-        declinedLabel = new Label("declinedLabel", "Document declined");
-        declinedLabel.setVisible(visible);
-        declinedLabel.setOutputMarkupPlaceholderTag(true);
-        declinedLabel.setOutputMarkupId(true);
-        add(declinedLabel);
+    private void createLabel(Label label, boolean visible) {
+        label.setVisible(visible);
+        label.setOutputMarkupPlaceholderTag(true);
+        label.setOutputMarkupId(true);
+        add(label);
     }
 }

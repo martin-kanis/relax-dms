@@ -8,12 +8,58 @@
     </head>
     <body>
         <wicket:panel>
-            <span wicket:id="approvedLabel" class="label label-success"></span>
-            <span wicket:id="declinedLabel" class="label label-important"></span>
-            <div class='row'>
-                <div class='medium-12-columns'>
-                    <input wicket:id='approve' type="button" class="tiny btn btn-success" value="Approve" />
-                    <input wicket:id='decline' type="button" class="tiny btn btn-danger" value="Decline"/>
+            <div class="row-fluid">
+                <div class="span8">
+                    <h3>Details</h3>
+                    <div class="row-fluid">
+                        <div class="span6">
+                            <table>
+                                <tr>
+                                    <td>Approval:</td> 
+                                    <td>
+                                        <span wicket:id="noneLabel" class="label"></span>
+                                        <span wicket:id="approvedLabel" class="label label-success"></span>
+                                        <span wicket:id="declinedLabel" class="label label-important"></span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><span wicket:id="approvalBy"></span></td>
+                                    <td><span wicket:id="approvalByValue"></span></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="span6">
+                            <table>
+                                <tr>
+                                    <td>Status:</td>
+                                    <td>
+                                        <span wicket:id="statusLabel" class="label label-info"></span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <hr>
+                    
+                    <h3>Description</h3>
+                    <div class="row-fluid">
+                        <div class="span6">
+                        </div>
+                        <div class="span6"> 
+                        </div>
+                    </div>
+                    <hr>
+                </div>
+                
+                <div class="span4">
+                    
+                    
+                    <div class='row'>
+                        <div class='medium-12-columns'>
+                            <input wicket:id='approve' type="button" class="tiny btn btn-success" value="Approve" />
+                            <input wicket:id='decline' type="button" class="tiny btn btn-danger" value="Decline"/>
+                        </div>
+                    </div>
                 </div>
             </div>
         </wicket:panel>

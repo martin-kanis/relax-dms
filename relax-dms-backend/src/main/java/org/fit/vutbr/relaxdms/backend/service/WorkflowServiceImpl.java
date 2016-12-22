@@ -3,7 +3,6 @@ package org.fit.vutbr.relaxdms.backend.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import javax.ejb.Stateless;
@@ -51,6 +50,11 @@ public class WorkflowServiceImpl implements WorkflowService {
     public void approveDoc(String docId, Document docData) {
         JsonNode doc = documentService.getDocumentById(docId);
         docData.getWorkflow().getState().setApproval(ApprovalEnum.APPROVED);
+        
+        // set approvalBy
+        String user = docData.getMetadata().getLastModifiedBy();
+        docData.getWorkflow().getState().setApprovalBy(user);
+        
         repo.updateDoc(doc, docData);
         // TODO remove test
         fireWorkflow(getWorkflowFromDoc(doc.get("_id").asText()));
@@ -60,6 +64,11 @@ public class WorkflowServiceImpl implements WorkflowService {
     public void declineDoc(String docId, Document docData) {
         JsonNode doc = documentService.getDocumentById(docId);
         docData.getWorkflow().getState().setApproval(ApprovalEnum.DECLINED);
+        
+        // set approvalBy
+        String user = docData.getMetadata().getLastModifiedBy();
+        docData.getWorkflow().getState().setApprovalBy(user);
+        
         repo.updateDoc(doc, docData);
     }
 

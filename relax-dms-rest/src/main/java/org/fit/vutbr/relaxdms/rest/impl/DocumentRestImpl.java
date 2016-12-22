@@ -9,6 +9,9 @@ import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 import org.fit.vutbr.relaxdms.api.service.DocumentService;
 import org.fit.vutbr.relaxdms.api.system.Convert;
+import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
+import org.fit.vutbr.relaxdms.data.db.dao.model.DocumentMetadata;
+import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Workflow;
 import org.fit.vutbr.relaxdms.rest.api.DocumentRest;
 
 /**
@@ -49,7 +52,8 @@ public class DocumentRestImpl implements DocumentRest {
     public Response create(String json) {
         try {
             JsonNode jsonNode = new ObjectMapper().readValue(json, JsonNode.class);
-            documentService.storeDocument(jsonNode, null);
+            Document docData = new Document(new DocumentMetadata(), new Workflow());
+            documentService.storeDocument(jsonNode, docData);
         } catch (IOException ex) {
             return Response.status(500).entity("Jackson error: Could not serialize provided object!").build();
         }
