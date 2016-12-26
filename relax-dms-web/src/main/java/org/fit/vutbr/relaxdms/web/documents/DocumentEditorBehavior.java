@@ -20,6 +20,7 @@ import org.fit.vutbr.relaxdms.api.service.DocumentService;
 import org.fit.vutbr.relaxdms.api.system.Convert;
 import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 import org.fit.vutbr.relaxdms.data.db.dao.model.DocumentMetadata;
+import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.StateEnum;
 import org.fit.vutbr.relaxdms.web.documents.tabs.DocumentTabs;
 
 /**
@@ -87,6 +88,7 @@ public class DocumentEditorBehavior extends AbstractDefaultAjaxBehavior {
         // update document
         } else {
             metadata.setLastModifiedBy(user);
+            docData.getWorkflow().getState().setCurrentState(StateEnum.IN_PROGRESS);
             JsonNode diff = documentService.updateDocument(document, docData);
             
             Map<String, String> diffMap = new HashMap<>();

@@ -9,6 +9,22 @@
     <body>
         <wicket:panel>
             <div class="row-fluid">
+                <div class="span12">
+                    <div class="btn-group row">
+                        <input wicket:id='approve' type="button" class="tiny btn btn-success" value="Approve" />
+                        <input wicket:id='decline' type="button" class="tiny btn btn-danger" value="Decline"/>
+
+                        <input wicket:id='submit' type="button" class="tiny btn-primary" value="Submit"/>
+                        <input wicket:id='startProgress' type="button" class="tiny btn-primary" value="Start Progress"/>
+                        <input wicket:id='close' type="button" class="tiny btn-primary" value="Close"/>
+                        <input wicket:id='reopen' type="button" class="tiny btn-primary" value="Reopen"/>
+                    </div>
+                </div>
+            </div>
+            
+            <hr>
+                
+            <div class="row-fluid">
                 <div class="span8">
                     <h3>Details</h3>
                     <div class="row-fluid">
@@ -53,13 +69,6 @@
                 
                 <div class="span4">
                     
-                    
-                    <div class='row'>
-                        <div class='medium-12-columns'>
-                            <input wicket:id='approve' type="button" class="tiny btn btn-success" value="Approve" />
-                            <input wicket:id='decline' type="button" class="tiny btn btn-danger" value="Decline"/>
-                        </div>
-                    </div>
                 </div>
             </div>
         </wicket:panel>

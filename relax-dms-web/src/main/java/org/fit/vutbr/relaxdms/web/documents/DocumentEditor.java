@@ -51,12 +51,14 @@ public class DocumentEditor extends WebMarkupContainer {
         if (editorData.getUseCase() == EditorUseCase.CREATE) {
             map.put("startval", "{}");
             map.put("author", authController.getUserName((HttpServletRequest) getRequest().getContainerRequest()));
+            map.put("readonly", false);
         // document update / show
         } else {
             JsonNode document = documentService.removeMetadataFromJson(editorData.getDocument());
             
             map.put("startval", document);
             map.put("usecase", EditorUseCase.UPDATE);
+            map.put("readonly", editorData.isReadonly());
             try {
                 String jsonMap = new ObjectMapper().writeValueAsString(editorData.getDiffMap());
                 map.put("diffData", jsonMap);

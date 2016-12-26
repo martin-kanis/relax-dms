@@ -20,6 +20,8 @@ import org.keycloak.representations.AccessToken;
 @Stateless
 public class AuthControllerImpl implements AuthController {
     
+    public static final String[] adminRoles = {"app-admin", "super-user"};
+    
     private final Logger logger = Logger.getLogger(this.getClass().getName()); ;
 
     @Override
@@ -67,5 +69,16 @@ public class AuthControllerImpl implements AuthController {
     @Override
     public Set<String> getUserRoles(HttpServletRequest req) {
         return getToken(req).getRealmAccess().getRoles();
+    }
+
+    @Override
+    public boolean isAdminAuthorized(HttpServletRequest req) {
+        Set<String> roles = getUserRoles(req);
+
+        for (String r: adminRoles) {
+            if (roles.contains(r))
+                return true;
+        }
+        return false;
     }
 }

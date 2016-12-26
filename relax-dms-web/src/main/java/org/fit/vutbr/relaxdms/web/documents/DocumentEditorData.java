@@ -25,7 +25,7 @@ public class DocumentEditorData implements Serializable {
     
     private Map<String, String> diffMap;
     
-    private String parameters;
+    private boolean readonly;
     
     public enum EditorUseCase {
         CREATE("CREATE"),

@@ -88,6 +88,9 @@ if (editButton) {
         editButton.style.cssText = "display:none;"
         cancelButton.style.cssText = "display:inline;"
     });
+
+    if (${readonly})
+        editButton.disabled = true;
 }
 
 // cancel button

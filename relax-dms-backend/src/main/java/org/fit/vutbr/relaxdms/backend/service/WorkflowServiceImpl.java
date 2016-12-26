@@ -12,6 +12,7 @@ import org.fit.vutbr.relaxdms.api.service.WorkflowService;
 import org.fit.vutbr.relaxdms.data.db.dao.api.CouchDbRepository;
 import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.ApprovalEnum;
+import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.StateEnum;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Workflow;
 import org.jboss.logging.Logger;
 import org.kie.api.cdi.KSession;
@@ -107,5 +108,18 @@ public class WorkflowServiceImpl implements WorkflowService {
     public JsonNode addWorkflowToDoc(JsonNode doc, Workflow workflow) {
         JsonNode workflowNode = new ObjectMapper().convertValue(workflow, JsonNode.class);
         return ((ObjectNode) doc).set("workflow", workflowNode);
+    }
+
+    @Override
+    public boolean checkState(Workflow workflow, StateEnum expectedState) {
+        return workflow.getState().getCurrentState() == expectedState;
+    }
+
+    @Override
+    public void changeState(String docId, Document docData, StateEnum expectedState) {
+        JsonNode doc = documentService.getDocumentById(docId);
+        docData.getWorkflow().getState().setCurrentState(expectedState);
+        
+        repo.updateDoc(doc, docData);
     }
 }

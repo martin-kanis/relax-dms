@@ -11,6 +11,7 @@ public enum StateEnum implements Serializable {
     OPEN("Open"),
     IN_PROGRESS("In Progress"),
     SUBMITED("Submited"),
+    DONE("Done"),
     CLOSED("Closed");
     
     private final String name;

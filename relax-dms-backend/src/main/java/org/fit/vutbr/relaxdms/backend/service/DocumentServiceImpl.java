@@ -158,7 +158,7 @@ public class DocumentServiceImpl implements DocumentService {
                 }
             }
         }
-        
+
         resultMap.keySet().stream().forEach((key) -> {
             resultDoc.put(key, resultMap.get(key).toString());
         });

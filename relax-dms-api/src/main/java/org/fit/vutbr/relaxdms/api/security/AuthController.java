@@ -43,4 +43,11 @@ public interface AuthController {
      * @return User's roles as set of strings
      */
     public Set<String> getUserRoles(HttpServletRequest req);
+    
+    /**
+     * Checks if currently logged user is authorized to provided role. 
+     * @param req HttpServletRequest
+     * @return boolean
+     */
+    public boolean isAdminAuthorized(HttpServletRequest req);
 }
