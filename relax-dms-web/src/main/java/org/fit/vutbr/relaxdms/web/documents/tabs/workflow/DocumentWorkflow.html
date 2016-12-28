@@ -4,7 +4,24 @@
         <title>Document Workflow</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" type="text/css" media="screen" href="data/css/bootstrap.css" />   
+        <link rel="stylesheet" type="text/css" media="screen" href="data/css/bootstrap.css" />  
+        <wicket:head>
+        <style>
+                div.wicket-aa {
+                    font-family: "Lucida Grande","Lucida Sans Unicode",Tahoma,Verdana;
+                    font-size: 12px;
+                    background-color: white;
+                    border-width: 1px;
+                    border-color: #cccccc;
+                    border-style: solid;
+                    padding: 2px;
+                    margin: 1px 0 0 0;
+                    text-align:left;
+                }
+                div.wicket-aa ul { list-style:none; padding: 2px; margin:0; }
+                div.wicket-aa ul li.selected { background-color: #ffe680; padding: 2px; margin:0; }
+            </style>
+        </wicket:head>
     </head>
     <body>
         <wicket:panel>
@@ -50,6 +67,12 @@
                                     <td>Status:</td>
                                     <td>
                                         <span wicket:id="statusLabel" class="label label-info"></span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Assignee:</td>
+                                    <td>
+                                        <span wicket:id="assignee" data-toggle="tooltip" title="Click to edit"></span>
                                     </td>
                                 </tr>
                             </table>

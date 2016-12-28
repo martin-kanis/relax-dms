@@ -13,9 +13,13 @@ public class Workflow implements Serializable {
     
     @JsonProperty("state")
     private State state;
+    
+    @JsonProperty("assignment")
+    private Assignment assignment;
 
     public Workflow() {
         this.state = new State();
+        this.assignment = new Assignment();
     }
 
     @JsonIgnore
@@ -25,5 +29,14 @@ public class Workflow implements Serializable {
 
     public void setState(State state) {
         this.state = state;
+    }
+
+    @JsonIgnore
+    public Assignment getAssigment() {
+        return assignment;
+    }
+
+    public void setAssigment(Assignment assignment) {
+        this.assignment = assignment;
     }
 }

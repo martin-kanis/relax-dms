@@ -122,4 +122,12 @@ public class WorkflowServiceImpl implements WorkflowService {
         
         repo.updateDoc(doc, docData);
     }
+
+    @Override
+    public void assignDocument(String docId, Document docData, String assignee) {   
+        JsonNode doc = documentService.getDocumentById(docId);
+        docData.getWorkflow().getAssigment().setAssignee(assignee);
+
+        repo.updateDoc(doc, docData);
+    }
 }

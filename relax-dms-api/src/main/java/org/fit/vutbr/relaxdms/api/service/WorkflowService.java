@@ -70,6 +70,14 @@ public interface WorkflowService {
     public void changeState(String docId, Document docData, StateEnum expectedState);
     
     /**
+     * Assigns document to given user.
+     * @param docId Id of document to be updated
+     * @param docData Document metadata
+     * @param assignee Assignee of document
+     */
+    public void assignDocument(String docId, Document docData, String assignee);
+    
+    /**
      * 
      * @param doc
      * @param workflow

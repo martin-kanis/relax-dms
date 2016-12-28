@@ -1,4 +1,4 @@
-package org.fit.vutbr.relaxdms.web.documents.tabs;
+package org.fit.vutbr.relaxdms.web.documents.tabs.workflow;
 
 import java.io.Serializable;
 import javax.inject.Inject;
@@ -6,10 +6,12 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.extensions.ajax.markup.html.AjaxEditableLabel;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.fit.vutbr.relaxdms.api.security.AuthController;
+import org.fit.vutbr.relaxdms.api.service.DocumentService;
 import org.fit.vutbr.relaxdms.api.service.WorkflowService;
 import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 import org.fit.vutbr.relaxdms.data.db.dao.model.DocumentMetadata;
@@ -28,8 +30,13 @@ public class DocumentWorkflow extends Panel implements Serializable {
     
     private final Workflow workflow;
     
+    private final DocumentMetadata metadata;
+    
     @Inject
     private WorkflowService workflowService;
+    
+    @Inject
+    private DocumentService documentService;
     
     @Inject
     private AuthController auth;
@@ -60,18 +67,13 @@ public class DocumentWorkflow extends Panel implements Serializable {
     
     private final Label approvalByValue;
     
-    private Document docData;
+    private final AjaxEditableLabel assigneeLabel;
+    
+    private final Document docData;
     
     public DocumentWorkflow(String id, String docId) {
         super(id);
         this.id = docId;
-        
-        approvedLabel = new Label("approvedLabel", "Approved");
-        declinedLabel = new Label("declinedLabel", "Declined");
-        noneLabel = new Label("noneLabel", "None");
-        statusLabel = new Label("statusLabel");
-        approvalByLabel = new Label("approvalBy");
-        approvalByValue = new Label("approvalByValue");
         
         HttpServletRequest req = (HttpServletRequest) getRequest().getContainerRequest();
         user = auth.getUserName(req);
@@ -79,11 +81,19 @@ public class DocumentWorkflow extends Panel implements Serializable {
         isAdmin = auth.isAdminAuthorized(req);
         
         workflow = workflowService.getWorkflowFromDoc(docId);
-
-        DocumentMetadata metadata = new DocumentMetadata();
+        metadata = documentService.getMetadataFromJson(documentService.getDocumentById(docId));
         metadata.setLastModifiedBy(user);
         docData = new Document(metadata, workflow);
         
+        approvedLabel = new Label("approvedLabel", "Approved");
+        declinedLabel = new Label("declinedLabel", "Declined");
+        noneLabel = new Label("noneLabel", "None");
+        statusLabel = new Label("statusLabel");
+        approvalByLabel = new Label("approvalBy");
+        approvalByValue = new Label("approvalByValue");
+
+        assigneeLabel = new AssigneeLabel("assignee", docId, docData);
+
         prepareComonents();
         prepareApprovalComponents();
     }
@@ -92,9 +102,9 @@ public class DocumentWorkflow extends Panel implements Serializable {
         boolean approved = workflowService.isApproved(workflow);
         boolean declined = workflowService.isDeclined(workflow);
         
-        createLabel(approvedLabel, approved);
-        createLabel(declinedLabel, declined);
-        createLabel(noneLabel, !approved && !declined);
+        addComponent(approvedLabel, approved);
+        addComponent(declinedLabel, declined);
+        addComponent(noneLabel, !approved && !declined);
 
         String approvalLabel = "";
         if (approved)
@@ -104,8 +114,8 @@ public class DocumentWorkflow extends Panel implements Serializable {
         
         approvalByLabel.setDefaultModel(new Model(approvalLabel));
         approvalByValue.setDefaultModel(new Model(workflow.getState().getApprovalBy()));
-        createLabel(approvalByLabel, approved || declined);
-        createLabel(approvalByValue, approved || declined);
+        addComponent(approvalByLabel, approved || declined);
+        addComponent(approvalByValue, approved || declined);
         
         // approval buttons are visible if current user is admin and document is in submited status
         boolean approvalVisible = isAdmin && workflowService.checkState(workflow, StateEnum.SUBMITED);
@@ -115,7 +125,9 @@ public class DocumentWorkflow extends Panel implements Serializable {
     
     private void prepareComonents() {
         statusLabel.setDefaultModel(new Model(workflow.getState().getCurrentState().getName()));
-        createLabel(statusLabel, true);
+        addComponent(statusLabel, true);
+
+        addComponent(assigneeLabel, true);
         
         boolean submitVisible = workflowService.checkState(workflow, StateEnum.OPEN) ||
                 workflowService.checkState(workflow, StateEnum.IN_PROGRESS);
@@ -152,7 +164,7 @@ public class DocumentWorkflow extends Panel implements Serializable {
                         noneLabel, approvalByValue, approvalByLabel, statusLabel);
             }
         };
-        setVisibility(approveLink, visible);
+        addComponent(approveLink, visible);
     }
     
     private void createDeclineButton(boolean visible) {
@@ -176,7 +188,7 @@ public class DocumentWorkflow extends Panel implements Serializable {
                         noneLabel, approvalByValue, approvalByLabel, statusLabel);
             }
         };
-        setVisibility(declineLink, visible);
+        addComponent(declineLink, visible);
     }
     
     private void createSubmitButton(boolean visible) {
@@ -195,7 +207,7 @@ public class DocumentWorkflow extends Panel implements Serializable {
                 target.add(statusLabel, submitLink, startProgressLink, approveLink, declineLink);
             }
         };
-        setVisibility(submitLink, visible);
+        addComponent(submitLink, visible);
     }
     
     private void createStartProgressButton(boolean visible) {
@@ -210,7 +222,7 @@ public class DocumentWorkflow extends Panel implements Serializable {
                 target.add(statusLabel, startProgressLink);
             }
         };
-        setVisibility(startProgressLink, visible);
+        addComponent(startProgressLink, visible);
     }
     
     private void createCloseButton(boolean visible) {
@@ -227,7 +239,7 @@ public class DocumentWorkflow extends Panel implements Serializable {
                         reopenLink, approveLink, declineLink);
             }
         };
-        setVisibility(closeLink, visible);
+        addComponent(closeLink, visible);
     }
     
     private void createReopenButton(boolean visible) {
@@ -243,23 +255,16 @@ public class DocumentWorkflow extends Panel implements Serializable {
                 target.add(statusLabel, closeLink, submitLink, startProgressLink, reopenLink);
             }
         };
-        setVisibility(reopenLink, visible);
+        addComponent(reopenLink, visible);
     }
     
-    private void createLabel(Label label, boolean visible) {
-        label.setVisible(visible);
-        label.setOutputMarkupPlaceholderTag(true);
-        label.setOutputMarkupId(true);
-        add(label);
-    }
-    
-    private void setVisibility(Component c, boolean visible) {
-        c.setOutputMarkupId(true);
-        c.setOutputMarkupPlaceholderTag(true);
+    private void addComponent(Component c, boolean visible) {
         c.setVisible(visible);
+        c.setOutputMarkupPlaceholderTag(true);
+        c.setOutputMarkupId(true);
         add(c);
     }
-    
+   
     private void setVisibility(boolean visible, Component... components) {
         for (Component c: components)
             c.setVisible(visible);

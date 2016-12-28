@@ -1,5 +1,6 @@
 package org.fit.vutbr.relaxdms.web.documents.tabs;
 
+import org.fit.vutbr.relaxdms.web.documents.tabs.workflow.DocumentWorkflow;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
