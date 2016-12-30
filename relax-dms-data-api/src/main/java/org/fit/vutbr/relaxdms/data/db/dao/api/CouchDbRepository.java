@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import org.ektorp.Revision;
 import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
-import org.fit.vutbr.relaxdms.data.db.dao.model.DocumentMetadata;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Workflow;
 
 /**
@@ -40,6 +39,13 @@ public interface CouchDbRepository {
      * @return List of documents
      */
     public List<JsonNode> findByAuthor(String author);
+    
+    /**
+     * Returns all documents from database assigned to specified user.
+     * @param assignee Assignee of document
+     * @return List of documents
+     */
+    public List<JsonNode> findByAssignee(String assignee);
     
     /**
      * Returns all templates from database in JsonNode format.

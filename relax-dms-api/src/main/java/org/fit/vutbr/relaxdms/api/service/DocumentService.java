@@ -65,6 +65,13 @@ public interface DocumentService {
     public List<JsonNode> getDocumentsByAuthor(String author);
     
     /**
+     * Returns all documents from database assigned to specified user.
+     * @param assignee Assignee of document
+     * @return List of documents
+     */
+    public List<JsonNode> getDocumentsByAssignee(String assignee);
+    
+    /**
      * Gets IDs of all documents in the database.
      * @return List of documents IDs 
      */

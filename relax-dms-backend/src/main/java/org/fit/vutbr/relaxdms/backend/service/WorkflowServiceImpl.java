@@ -12,6 +12,7 @@ import org.fit.vutbr.relaxdms.api.service.WorkflowService;
 import org.fit.vutbr.relaxdms.data.db.dao.api.CouchDbRepository;
 import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.ApprovalEnum;
+import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Assignment;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.StateEnum;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Workflow;
 import org.jboss.logging.Logger;
@@ -130,6 +131,12 @@ public class WorkflowServiceImpl implements WorkflowService {
     public void changeState(String docId, Document docData, StateEnum expectedState) {
         JsonNode doc = documentService.getDocumentById(docId);
         docData.getWorkflow().getState().setCurrentState(expectedState);
+        
+        // if doc is not assigned, assign it to user who performed change of state
+        Assignment assignment = docData.getWorkflow().getAssignment();
+        if ("Unassigned".equals(assignment.getAssignee())) {
+            assignment.setAssignee(docData.getMetadata().getLastModifiedBy());
+        }
         
         // cancel approval and approvalBy when reopen doc
         if (expectedState == StateEnum.OPEN) {

@@ -31,7 +31,9 @@ public class Assignment implements Serializable {
 
     public void setAssignee(String assignee) {
         this.assignee = assignee;
-        history.add(assignee);
+        
+        if (history.isEmpty() || !assignee.equals(history.get(history.size() - 1)))
+            history.add(assignee);
     }
 
     public List<String> getHistory() {

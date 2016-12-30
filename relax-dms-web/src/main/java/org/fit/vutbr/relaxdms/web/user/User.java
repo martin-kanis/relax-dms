@@ -37,27 +37,19 @@ public class User extends BasePage implements Serializable {
         HttpServletRequest req = (HttpServletRequest) getRequest().getContainerRequest();
         Set<String> roles = auth.getUserRoles(req);
         
+        // create title
         String user = auth.getUserName(req);
         add(new Label("user", user));
+        
         createRoleList(roles);
         
-        List<JsonNode> documents = documentService.getDocumentsByAuthor(user);
+        List<JsonNode> docsByAuthor = documentService.getDocumentsByAuthor(user);
+        createTableHeaders("byAuthorId", "byAuthorName", docsByAuthor.size());
+        createDocumentList("docListView", createListData(docsByAuthor));
         
-        String docId, docName;
-        docId = docName = "";
-        // table header
-        if (documents.size() > 0) {
-            docId = "Id";
-            docName = "Name";
-        } 
-        add(new Label("docId", docId));
-        add(new Label("docName", docName));
-        
-        List<DocumentListData> docList = documents.stream().map(e -> new DocumentListData(
-                e.get("_id").textValue(), 
-                e.get("name").textValue(), 
-                e.get("author").textValue())).collect(Collectors.toList());
-        createDocumentList(docList);
+        List<JsonNode> docsByAssignee = documentService.getDocumentsByAssignee(user);
+        createTableHeaders("byAssigneeId", "byAssigneeName", docsByAssignee.size());
+        createDocumentList("docListViewByAssignee", createListData(docsByAssignee));
     }
     
     private void createRoleList(Set<String> roles) {  
@@ -73,8 +65,8 @@ public class User extends BasePage implements Serializable {
         add(listview);
     }
     
-    private void createDocumentList(List<DocumentListData> docList) {
-        ListView listview = new ListView("docListView", docList) {
+    private void createDocumentList(String id, List<DocumentListData> docList) {
+        ListView listview = new ListView(id, docList) {
             @Override
             protected void populateItem(ListItem item) {
                 DocumentListData doc = (DocumentListData) item.getModelObject();
@@ -88,6 +80,25 @@ public class User extends BasePage implements Serializable {
             }
         };
         add(listview);
+    }
+    
+    private List<DocumentListData> createListData(List<JsonNode> data) {
+        return data.stream().map(e -> new DocumentListData(
+                e.get("_id").textValue(), 
+                e.get("name").textValue(), 
+                e.get("author").textValue())).collect(Collectors.toList());
+    }
+    
+    private void createTableHeaders(String docId, String docName, int docsCount) {
+        Label idLabel = new Label(docId, "Id");
+        Label nameLabel = new Label(docName, "Name");
+        
+        if (docsCount == 0) {
+            idLabel.setVisible(false);
+            nameLabel.setVisible(false);
+        }
+        
+        add(idLabel, nameLabel);
     }
 
     @Override

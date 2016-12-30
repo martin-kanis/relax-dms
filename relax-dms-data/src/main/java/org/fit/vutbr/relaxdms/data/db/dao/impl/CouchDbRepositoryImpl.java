@@ -113,6 +113,17 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
     }
     
     @Override
+    @View(name = "by_assignee", map = "function(doc) { emit(doc.workflow.assignment.assignee, doc)}")
+    public List<JsonNode> findByAssignee(String assignee) {
+        ViewQuery q = new ViewQuery()
+                .viewName("by_assignee")
+                .designDocId("_design/JsonNode")
+                .key(assignee);
+        
+        return db.queryView(q, JsonNode.class);
+    }
+    
+    @Override
     @View(name = "get_metadata", map = "function(doc) { emit(doc._id, "
             + "{author:doc.author, creationDate:doc.creationDate, "
             + "lastModifiedDate:doc.lastModifiedDate, lastModifiedBy:doc.lastModifiedBy})}")

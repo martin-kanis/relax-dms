@@ -100,6 +100,11 @@ public class DocumentServiceImpl implements DocumentService {
     public List<JsonNode> getDocumentsByAuthor(String author) {
         return repo.findByAuthor(author);
     }
+    
+    @Override
+    public List<JsonNode> getDocumentsByAssignee(String assignee) {
+        return repo.findByAssignee(assignee);
+    }
 
     @Override
     public Map<String, String> getMetadataFromDoc(String id) {
