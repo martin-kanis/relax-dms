@@ -2,11 +2,13 @@ package org.fit.vutbr.relaxdms.data.db.dao.model.workflow;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
+import lombok.ToString;
 
 /**
  * Represents current currentState of the document.
  * @author Martin Kanis
  */
+@ToString
 public class State implements Serializable {
     
     @JsonProperty("currentState")

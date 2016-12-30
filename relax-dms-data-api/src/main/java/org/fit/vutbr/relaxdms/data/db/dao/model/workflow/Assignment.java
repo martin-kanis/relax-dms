@@ -4,11 +4,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import lombok.ToString;
 
 /**
  *
  * @author Martin Kanis
  */
+@ToString
 public class Assignment implements Serializable {
     
     @JsonProperty("assignee")

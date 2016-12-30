@@ -20,35 +20,34 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+        <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-api</artifactId>
             <version>7.0</version>
             <scope>provided</scope>
         </dependency>
-        
         <dependency>
             <groupId>org.ektorp</groupId>
             <artifactId>org.ektorp</artifactId>
             <version>${version.ektorp}</version>
         </dependency>
-        
         <dependency>
             <groupId>com.flipkart.zjsonpatch</groupId>
             <artifactId>zjsonpatch</artifactId>
         </dependency>
-        
         <dependency>
             <groupId>org.fit.vutbr</groupId>
             <artifactId>relax-dms-data-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
         <dependency>
             <groupId>org.fit.vutbr</groupId>
             <artifactId>relax-dms-api</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        
+        </dependency>      
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

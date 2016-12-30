@@ -3,12 +3,14 @@ package org.fit.vutbr.relaxdms.data.db.dao.model.workflow;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
+import lombok.ToString;
 
 /**
  * Represents workflow stored in CouchDb document. This class is used as fact for 
  * Drools engine.
  * @author Martin Kanis
  */
+@ToString
 public class Workflow implements Serializable {
     
     @JsonProperty("state")
@@ -32,11 +34,11 @@ public class Workflow implements Serializable {
     }
 
     @JsonIgnore
-    public Assignment getAssigment() {
+    public Assignment getAssignment() {
         return assignment;
     }
 
-    public void setAssigment(Assignment assignment) {
+    public void setAssignment(Assignment assignment) {
         this.assignment = assignment;
     }
 }

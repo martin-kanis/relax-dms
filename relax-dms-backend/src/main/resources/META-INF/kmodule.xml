@@ -2,7 +2,7 @@
 <kmodule
         xmlns="http://www.drools.org/xsd/kmodule">
 
-    <kbase name="cdiexample">
+    <kbase name="cdiexample" equalsBehavior="equality">
         <ksession name="ksession1"/>
         <ksession name="ksession-optional"/>
     </kbase>

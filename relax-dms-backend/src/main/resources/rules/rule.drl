@@ -1,14 +1,55 @@
 package org.fit.vutbr.relaxdms;
 
+import java.util.List;
+import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Workflow;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.State;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.ApprovalEnum;
+import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.StateEnum;
 
 dialect "java"
 
+rule "Submit"
+    when
+        $document : Document(workflow.state.currentState == StateEnum.SUBMITED &&
+            workflow.assignment.assignee != "user")
+    then
+        modify($document) {
+            getWorkflow().getAssignment().setAssignee("user")
+        };
+        System.out.println("Submit rule fired");
+end
+
 rule "Approve"
-  when
-    Workflow(state.approval == ApprovalEnum.APPROVED)
-  then
-    System.out.println("Document approved!");
+    when
+        $document : Document(workflow.state.approval == ApprovalEnum.APPROVED &&
+            workflow.assignment.assignee == "user")
+    then
+        List<String> assigneeList = $document.getWorkflow().getAssignment().getHistory();
+        String assignee = assigneeList.get(assigneeList.size() - 2);
+
+        modify($document) {
+            getWorkflow().getAssignment().setAssignee(assignee),
+            getWorkflow().getState().setCurrentState(StateEnum.DONE)
+        };
+        System.out.println("Approve rule fired");
+end
+
+rule "Decline"
+    when
+        $document : Document(workflow.state.approval == ApprovalEnum.DECLINED &&
+            workflow.assignment.assignee == "user")
+    then
+        List<String> assigneeList = $document.getWorkflow().getAssignment().getHistory();
+        String assignee = assigneeList.get(assigneeList.size() - 2);
+
+        modify($document) {
+            getWorkflow().getAssignment().setAssignee(assignee),
+            getWorkflow().getState().setCurrentState(StateEnum.OPEN)
+        };
+        System.out.println("Decline rule fired");
+end
+
+query "Document"
+    $result: Document()
 end

@@ -61,7 +61,7 @@ public class DocumentWorkflow extends Panel implements Serializable {
     
     private final Label noneLabel;
     
-    private final Label statusLabel;
+    private final Label stateLabel;
     
     private final Label approvalByLabel;
     
@@ -88,7 +88,7 @@ public class DocumentWorkflow extends Panel implements Serializable {
         approvedLabel = new Label("approvedLabel", "Approved");
         declinedLabel = new Label("declinedLabel", "Declined");
         noneLabel = new Label("noneLabel", "None");
-        statusLabel = new Label("statusLabel");
+        stateLabel = new Label("stateLabel");
         approvalByLabel = new Label("approvalBy");
         approvalByValue = new Label("approvalByValue");
 
@@ -117,15 +117,15 @@ public class DocumentWorkflow extends Panel implements Serializable {
         addComponent(approvalByLabel, approved || declined);
         addComponent(approvalByValue, approved || declined);
         
-        // approval buttons are visible if current user is admin and document is in submited status
+        // approval buttons are visible if current user is admin and document is in submited state
         boolean approvalVisible = isAdmin && workflowService.checkState(workflow, StateEnum.SUBMITED);
         createApproveButton(approvalVisible && !approved);     
         createDeclineButton(approvalVisible && !declined);
     }
     
     private void prepareComonents() {
-        statusLabel.setDefaultModel(new Model(workflow.getState().getCurrentState().getName()));
-        addComponent(statusLabel, true);
+        stateLabel.setDefaultModel(new Model(workflow.getState().getCurrentState().getName()));
+        addComponent(stateLabel, true);
 
         addComponent(assigneeLabel, true);
         
@@ -149,19 +149,19 @@ public class DocumentWorkflow extends Panel implements Serializable {
             public void onClick(AjaxRequestTarget target) {
                 workflowService.approveDoc(id, docData);
 
-                setVisibility(false, approveLink, declinedLabel, noneLabel);
-                setVisibility(true, approvedLabel, closeLink);
+                setVisibility(false, approveLink, declineLink, declinedLabel, noneLabel);
+                setVisibility(true, approvedLabel, closeLink, approvalByLabel, approvalByValue);
                 
                 // set approval by
                 approvalByLabel.setDefaultModel(new Model("Approved by: "));
                 approvalByValue.setDefaultModel(new Model(user));
                 
-                // change state
-                workflowService.changeState(id, docData, StateEnum.DONE);
-                statusLabel.setDefaultModel(new Model(workflow.getState().getCurrentState().getName()));
+                // update state label and assignee label
+                stateLabel.setDefaultModel(new Model(workflow.getState().getCurrentState().getName()));
+                assigneeLabel.setDefaultModel(new Model(workflow.getAssignment().getAssignee()));
                 
-                target.add(approveLink, approvedLabel, declinedLabel, closeLink,
-                        noneLabel, approvalByValue, approvalByLabel, statusLabel);
+                target.add(approveLink, declineLink, approvedLabel, declinedLabel, closeLink,
+                        noneLabel, approvalByValue, approvalByLabel, stateLabel, assigneeLabel);
             }
         };
         addComponent(approveLink, visible);
@@ -173,19 +173,21 @@ public class DocumentWorkflow extends Panel implements Serializable {
             public void onClick(AjaxRequestTarget target) {
                 workflowService.declineDoc(id, docData);
                 
-                setVisibility(false, approvedLabel, noneLabel, declineLink);
-                setVisibility(true, submitLink, declinedLabel);
+                setVisibility(false, approvedLabel, noneLabel, declineLink, approveLink);
+                setVisibility(true, submitLink, declinedLabel, approvalByLabel,
+                        approvalByValue, startProgressLink);
                 
                 // set approval by
                 approvalByLabel.setDefaultModel(new Model("Declined by: "));
                 approvalByValue.setDefaultModel(new Model(user));
                 
-                // change state to In Progress when decline document
-                workflowService.changeState(id, docData, StateEnum.IN_PROGRESS);
-                statusLabel.setDefaultModel(new Model(workflow.getState().getCurrentState().getName()));
+                // update state label and assignee label
+                stateLabel.setDefaultModel(new Model(workflow.getState().getCurrentState().getName()));
+                assigneeLabel.setDefaultModel(new Model(workflow.getAssignment().getAssignee()));
                 
-                target.add(submitLink, declineLink, declinedLabel, approvedLabel, 
-                        noneLabel, approvalByValue, approvalByLabel, statusLabel);
+                target.add(submitLink, declineLink, approveLink, declinedLabel, 
+                        approvedLabel, noneLabel, approvalByValue, approvalByLabel, 
+                        stateLabel, startProgressLink, assigneeLabel);
             }
         };
         addComponent(declineLink, visible);
@@ -196,15 +198,21 @@ public class DocumentWorkflow extends Panel implements Serializable {
             @Override
             public void onClick(AjaxRequestTarget target) {
                 workflowService.changeState(id, docData, StateEnum.SUBMITED);
-                statusLabel.setDefaultModel(new Model(workflow.getState().getCurrentState().getName()));
+
+                stateLabel.setDefaultModel(new Model(workflow.getState().getCurrentState().getName()));
+                assigneeLabel.setDefaultModel(new Model(workflow.getAssignment().getAssignee()));
                 
-                setVisibility(false, submitLink, startProgressLink);
+                setVisibility(false, submitLink, startProgressLink, approvedLabel,
+                        declinedLabel, approvalByLabel, approvalByValue);
+                setVisibility(true, noneLabel);
                 
                 boolean approvalVisible = isAdmin && workflowService.checkState(workflow, StateEnum.SUBMITED);
                 approveLink.setVisible(approvalVisible);
                 declineLink.setVisible(approvalVisible);
 
-                target.add(statusLabel, submitLink, startProgressLink, approveLink, declineLink);
+                target.add(stateLabel, assigneeLabel, submitLink, startProgressLink, 
+                        approveLink, declineLink, approvedLabel, declinedLabel, 
+                        approvalByLabel, approvalByValue, noneLabel);
             }
         };
         addComponent(submitLink, visible);
@@ -215,11 +223,11 @@ public class DocumentWorkflow extends Panel implements Serializable {
             @Override
             public void onClick(AjaxRequestTarget target) {
                 workflowService.changeState(id, docData, StateEnum.IN_PROGRESS);
-                statusLabel.setDefaultModel(new Model(workflow.getState().getCurrentState().getName()));
+                stateLabel.setDefaultModel(new Model(workflow.getState().getCurrentState().getName()));
                 
                 startProgressLink.setVisible(false);
                 
-                target.add(statusLabel, startProgressLink);
+                target.add(stateLabel, startProgressLink);
             }
         };
         addComponent(startProgressLink, visible);
@@ -230,12 +238,12 @@ public class DocumentWorkflow extends Panel implements Serializable {
             @Override
             public void onClick(AjaxRequestTarget target) {
                 workflowService.changeState(id, docData, StateEnum.CLOSED);
-                statusLabel.setDefaultModel(new Model(workflow.getState().getCurrentState().getName()));
+                stateLabel.setDefaultModel(new Model(workflow.getState().getCurrentState().getName()));
                 
                 setVisibility(false, closeLink, submitLink, startProgressLink, approveLink, declineLink);
                 reopenLink.setVisible(true);
                 
-                target.add(statusLabel, closeLink, submitLink, startProgressLink,
+                target.add(stateLabel, closeLink, submitLink, startProgressLink,
                         reopenLink, approveLink, declineLink);
             }
         };
@@ -247,12 +255,15 @@ public class DocumentWorkflow extends Panel implements Serializable {
             @Override
             public void onClick(AjaxRequestTarget target) {
                 workflowService.changeState(id, docData, StateEnum.OPEN);
-                statusLabel.setDefaultModel(new Model(workflow.getState().getCurrentState().getName()));
+                stateLabel.setDefaultModel(new Model(workflow.getState().getCurrentState().getName()));
                 
-                setVisibility(true, closeLink, submitLink, startProgressLink);
-                reopenLink.setVisible(false);
+                setVisibility(true, closeLink, submitLink, startProgressLink, noneLabel);
+                setVisibility(false, approvedLabel, declinedLabel, approvalByLabel, 
+                        approvalByValue, reopenLink);
                 
-                target.add(statusLabel, closeLink, submitLink, startProgressLink, reopenLink);
+                target.add(stateLabel, closeLink, submitLink, startProgressLink, 
+                        reopenLink, approvedLabel, declinedLabel, approvalByLabel,
+                        approvalByValue, noneLabel);
             }
         };
         addComponent(reopenLink, visible);

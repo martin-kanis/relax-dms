@@ -17,6 +17,9 @@ import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Workflow;
 import org.jboss.logging.Logger;
 import org.kie.api.cdi.KSession;
 import org.kie.api.runtime.KieSession;
+import org.kie.api.runtime.rule.FactHandle;
+import org.kie.api.runtime.rule.QueryResults;
+import org.kie.api.runtime.rule.QueryResultsRow;
 
 /**
  *
@@ -37,8 +40,14 @@ public class WorkflowServiceImpl implements WorkflowService {
     @KSession("ksession1")
     private KieSession kSession;
     
-    public void fireWorkflow(Workflow wf) {
-        kSession.insert(wf);
+    public void fireWorkflow(Document docData) {
+        FactHandle fh = kSession.getFactHandle(docData);
+        if (fh == null) {
+            kSession.insert(docData);
+        }
+        else 
+            kSession.update(fh, docData);
+
         kSession.fireAllRules();
     }
 
@@ -56,9 +65,9 @@ public class WorkflowServiceImpl implements WorkflowService {
         String user = docData.getMetadata().getLastModifiedBy();
         docData.getWorkflow().getState().setApprovalBy(user);
         
+        fireWorkflow(docData);
+        
         repo.updateDoc(doc, docData);
-        // TODO remove test
-        fireWorkflow(getWorkflowFromDoc(doc.get("_id").asText()));
     }
 
     @Override
@@ -69,6 +78,8 @@ public class WorkflowServiceImpl implements WorkflowService {
         // set approvalBy
         String user = docData.getMetadata().getLastModifiedBy();
         docData.getWorkflow().getState().setApprovalBy(user);
+        
+        fireWorkflow(docData);
         
         repo.updateDoc(doc, docData);
     }
@@ -120,14 +131,38 @@ public class WorkflowServiceImpl implements WorkflowService {
         JsonNode doc = documentService.getDocumentById(docId);
         docData.getWorkflow().getState().setCurrentState(expectedState);
         
+        // cancel approval and approvalBy when reopen doc
+        if (expectedState == StateEnum.OPEN) {
+            cancelApproval(docData);
+        }
+
+        // document was submited, fire drools rules to perform steps
+        if (expectedState == StateEnum.SUBMITED) {
+            cancelApproval(docData);
+            fireWorkflow(docData);
+        }
+
         repo.updateDoc(doc, docData);
     }
 
     @Override
     public void assignDocument(String docId, Document docData, String assignee) {   
         JsonNode doc = documentService.getDocumentById(docId);
-        docData.getWorkflow().getAssigment().setAssignee(assignee);
+        docData.getWorkflow().getAssignment().setAssignee(assignee);
 
         repo.updateDoc(doc, docData);
+    }
+    
+    private void cancelApproval(Document docData) {
+        docData.getWorkflow().getState().setApproval(ApprovalEnum.NONE);
+        docData.getWorkflow().getState().setApprovalBy(null);
+    }
+    
+    private void queryWorkingMemory() {
+        QueryResults results = kSession.getQueryResults( "Document" ); 
+        for (QueryResultsRow row : results) {
+            Document doc = (Document) row.get("$result");
+            System.out.println(doc);
+        }
     }
 }

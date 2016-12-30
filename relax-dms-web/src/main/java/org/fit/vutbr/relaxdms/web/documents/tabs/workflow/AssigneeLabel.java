@@ -37,7 +37,7 @@ public class AssigneeLabel extends AjaxEditableLabel {
     private AutoCompleteBehavior autocomplete;
 
     public AssigneeLabel(String id, String docId, Document docData) {
-        super(id, new Model(docData.getWorkflow().getAssigment().getAssignee()));
+        super(id, new Model(docData.getWorkflow().getAssignment().getAssignee()));
 
         this.docId = docId;
         this.docData = docData;
@@ -61,9 +61,12 @@ public class AssigneeLabel extends AjaxEditableLabel {
         String assignee = super.getEditor().getInput();
         
         // check if assignee was changed
-        if (!assignee.equals(docData.getWorkflow().getAssigment().getAssignee())) {
+        if (!assignee.equals(docData.getWorkflow().getAssignment().getAssignee())) {
             // persist
             workflowService.assignDocument(docId, docData, assignee);
+            setDefaultModel(new Model(assignee));
+            
+            target.add(this);
         }
     }
     

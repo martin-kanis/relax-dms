@@ -21,6 +21,7 @@ import java.util.Set;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.SerializationUtils;
 import org.ektorp.AttachmentInputStream;
 import org.ektorp.Revision;
 import org.ektorp.UpdateConflictException;
@@ -61,7 +62,7 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
     @Inject
     private DocumentService documentService;
     
-    private final Logger logger = Logger.getLogger(this.getClass().getName()); ;
+    private final Logger logger = Logger.getLogger(this.getClass().getName());
     
     private final RestTemplate restTemplate;
     
@@ -177,11 +178,17 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
     
     @Override
     public JsonNode updateDoc(JsonNode json, Document docData) {
+        Set<String> skipFields = new HashSet<>(Arrays.asList("author"));
+        DocumentMetadata metadata = docData.getMetadata();
+        JsonNode doc = documentService.addMetadataToJson(json, updateDocMetadata(metadata), skipFields);
+        doc = workflowService.addWorkflowToDoc(doc, docData.getWorkflow());
+        
         try {
-            Set<String> skipFields = new HashSet<>(Arrays.asList("author"));
-            JsonNode doc = documentService.addMetadataToJson(json, updateDocMetadata(docData.getMetadata()), skipFields);
-            doc = workflowService.addWorkflowToDoc(doc, docData.getWorkflow());
             db.update(doc);
+            
+            // update revision in Document model
+            String rev = getCurrentRevision(metadata.get_id());
+            metadata.set_rev(rev);
             
             return (JsonNode) JsonNodeFactory.instance.nullNode();
         } catch (UpdateConflictException ex) {
@@ -258,14 +265,17 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
         }
     }
 
-    private DocumentMetadata updateDocMetadata(DocumentMetadata metadata) {
+    private DocumentMetadata updateDocMetadata(DocumentMetadata metadata) { 
+        // create deep copy
+        DocumentMetadata updatedMetadata = SerializationUtils.clone(metadata);
+
         LocalDateTime now = LocalDateTime.now();
-        metadata.setLastModifiedDate(now);
+        updatedMetadata.setLastModifiedDate(now);
         
         if (metadata.getCreationDate() == null)
-            metadata.setCreationDate(now);
+            updatedMetadata.setCreationDate(now);
         
-        return metadata;
+        return updatedMetadata;
     }
     
     private JsonNode removeMetadataFromDiff(JsonNode doc) {
