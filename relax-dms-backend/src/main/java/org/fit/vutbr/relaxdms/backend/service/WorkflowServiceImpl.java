@@ -3,16 +3,20 @@ package org.fit.vutbr.relaxdms.backend.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import org.fit.vutbr.relaxdms.api.security.AuthController;
 import org.fit.vutbr.relaxdms.api.service.DocumentService;
 import org.fit.vutbr.relaxdms.api.service.WorkflowService;
 import org.fit.vutbr.relaxdms.data.db.dao.api.CouchDbRepository;
 import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.ApprovalEnum;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Assignment;
+import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Label;
+import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.LabelEnum;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.StateEnum;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Workflow;
 import org.jboss.logging.Logger;
@@ -158,6 +162,41 @@ public class WorkflowServiceImpl implements WorkflowService {
         docData.getWorkflow().getAssignment().setAssignee(assignee);
 
         repo.updateDoc(doc, docData);
+    }
+    
+    @Override
+    public void addLabel(String docId, Document docData, LabelEnum labelType) {
+        JsonNode doc = documentService.getDocumentById(docId);
+        Label label = new Label(labelType, docData.getMetadata().getLastModifiedBy());
+        docData.getWorkflow().getLabels().add(label);
+        
+        repo.updateDoc(doc, docData);
+    }
+    
+    @Override
+    public void removeLabel(String docId, Document docData, LabelEnum labelType) {
+        JsonNode doc = documentService.getDocumentById(docId);
+        Label label = new Label(labelType);
+        docData.getWorkflow().getLabels().remove(label);
+        
+        repo.updateDoc(doc, docData);
+    }
+    
+    @Override
+    public boolean checkLabel(Workflow workflow, LabelEnum expectedLabel) {
+        Label label = new Label(expectedLabel);
+        return workflow.getLabels().contains(label);
+    }
+    
+    @Override
+    public boolean canBeSigned(Document docData, boolean isManager) {
+        Workflow workflow = docData.getWorkflow();
+        boolean isApproved = isApproved(workflow);
+        boolean isCorrectState = checkState(workflow, StateEnum.DONE) ||
+                checkState(workflow, StateEnum.CLOSED);
+        boolean signed = checkLabel(workflow, LabelEnum.SIGNED);
+        
+        return isManager && isApproved && isCorrectState && !signed;
     }
     
     private void cancelApproval(Document docData) {

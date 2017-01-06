@@ -2,6 +2,7 @@ package org.fit.vutbr.relaxdms.api.security;
 
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
+import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 
 /**
  *
@@ -45,9 +46,16 @@ public interface AuthController {
     public Set<String> getUserRoles(HttpServletRequest req);
     
     /**
-     * Checks if currently logged user is authorized to provided role. 
+     * Checks if currently logged user is authorized to admin role. 
      * @param req HttpServletRequest
      * @return boolean
      */
     public boolean isAdminAuthorized(HttpServletRequest req);
+    
+    /**
+     * Checks if currently logged user is authorized to manager role. 
+     * @param req HttpServletRequest
+     * @return boolean
+     */
+    public boolean isManagerAuthorized(HttpServletRequest req);
 }

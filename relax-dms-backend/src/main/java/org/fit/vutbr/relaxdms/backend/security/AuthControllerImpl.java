@@ -22,7 +22,9 @@ public class AuthControllerImpl implements AuthController {
     
     public static final String[] adminRoles = {"app-admin", "super-user"};
     
-    private final Logger logger = Logger.getLogger(this.getClass().getName()); ;
+    public static final String[] managerRoles = {"manager"};
+    
+    private final Logger logger = Logger.getLogger(this.getClass().getName());
 
     @Override
     public boolean isLoggedIn(HttpServletRequest req) {
@@ -81,4 +83,15 @@ public class AuthControllerImpl implements AuthController {
         }
         return false;
     }
+
+    @Override
+    public boolean isManagerAuthorized(HttpServletRequest req) {
+        Set<String> roles = getUserRoles(req);
+
+        for (String r: managerRoles) {
+            if (roles.contains(r))
+                return true;
+        }
+        return false;
+    } 
  }

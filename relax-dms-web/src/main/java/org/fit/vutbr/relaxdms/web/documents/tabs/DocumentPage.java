@@ -5,7 +5,6 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 import javax.inject.Inject;
-import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.behavior.AbstractAjaxBehavior;
@@ -74,7 +73,7 @@ public class DocumentPage extends Panel implements Serializable {
         
         DocumentMetadata metadata = documentService.getMetadataFromJson(json);
         Workflow workflow = workflowService.getWorkflowFromJson(json);
-      
+
         AbstractAjaxBehavior ajaxSaveBehaviour = new DocumentEditorBehavior(new Document(metadata, workflow), this);
         add(ajaxSaveBehaviour);
         

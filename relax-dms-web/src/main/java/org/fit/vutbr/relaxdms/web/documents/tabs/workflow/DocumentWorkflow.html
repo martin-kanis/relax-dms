@@ -20,6 +20,8 @@
                 }
                 div.wicket-aa ul { list-style:none; padding: 2px; margin:0; }
                 div.wicket-aa ul li.selected { background-color: #ffe680; padding: 2px; margin:0; }
+                .top-space { margin-top: 20px; }
+                .labels { font-size: 18px; }
             </style>
         </wicket:head>
     </head>
@@ -31,10 +33,10 @@
                         <input wicket:id='approve' type="button" class="tiny btn btn-success" value="Approve" />
                         <input wicket:id='decline' type="button" class="tiny btn btn-danger" value="Decline"/>
 
-                        <input wicket:id='submit' type="button" class="tiny btn-primary" value="Submit"/>
-                        <input wicket:id='startProgress' type="button" class="tiny btn-primary" value="Start Progress"/>
-                        <input wicket:id='close' type="button" class="tiny btn-primary" value="Close"/>
-                        <input wicket:id='reopen' type="button" class="tiny btn-primary" value="Reopen"/>
+                        <input wicket:id='submit' type="button" class="tiny btn btn-primary" value="Submit"/>
+                        <input wicket:id='startProgress' type="button" class="tiny btn btn-primary" value="Start Progress"/>
+                        <input wicket:id='close' type="button" class="tiny btn btn-primary" value="Close"/>
+                        <input wicket:id='reopen' type="button" class="tiny btn btn-primary" value="Reopen"/>
                     </div>
                 </div>
             </div>
@@ -80,6 +82,15 @@
                     </div>
                     <hr>
                     
+                    <h3>Labels</h3>
+                    <div class="row-fluid">
+                        <div class="top-space">
+                            <span wicket:id="labels">[labels]</span>
+                        </div>
+                    </div>  
+                    
+                    <hr>
+                        
                     <h3>Description</h3>
                     <div class="row-fluid">
                         <div class="span6">
@@ -91,7 +102,10 @@
                 </div>
                 
                 <div class="span4">
-                    
+                    <div class="btn-group btn-group-vertical">
+                        <input wicket:id='sign' type="button" class="tiny btn btn-primary" value="Sign"/>
+                        <input wicket:id='freeze' type="button" class="tiny btn btn-primary" value="Freeze"/>
+                    </div>
                 </div>
             </div>
         </wicket:panel>
