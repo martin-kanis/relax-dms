@@ -1,11 +1,16 @@
 package org.fit.vutbr.relaxdms;
 
 import java.util.List;
+import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Flag;
 import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Workflow;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.State;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.ApprovalEnum;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.StateEnum;
+import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.LabelEnum;
+import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Label;
+
+global java.util.Set docSet;
 
 dialect "java"
 
@@ -52,6 +57,31 @@ rule "Decline"
             getWorkflow().getState().setCurrentState(StateEnum.OPEN)
         };
         System.out.println("Decline rule fired");
+end
+
+rule "Sign"
+    when 
+        $document : Document(workflow.state.approval == ApprovalEnum.APPROVED &&
+            workflow.assignment.assignee != "manager" && 
+            !workflow.labels.contains(new Label(LabelEnum.SIGNED)))
+    then
+        modify($document) {
+            getWorkflow().getAssignment().setAssignee("manager")
+        };
+        docSet.add($document);
+        System.out.println("Sign rule fired");
+end
+
+rule "Unfreeze"
+    when 
+        Flag(isTrue() == true)
+        $document : Document(workflow.labels.contains(new Label(LabelEnum.FREEZED)))
+    then      
+        modify($document) {
+            getWorkflow().getLabels().remove(new Label(LabelEnum.FREEZED))
+        };
+        docSet.add($document);
+        System.out.println("Unfreeze rule fired");
 end
 
 query "Document"

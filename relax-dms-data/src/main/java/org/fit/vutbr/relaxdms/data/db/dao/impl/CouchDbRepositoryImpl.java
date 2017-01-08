@@ -1,16 +1,19 @@
 package org.fit.vutbr.relaxdms.data.db.dao.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.flipkart.zjsonpatch.JsonDiff;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,6 +30,7 @@ import org.ektorp.Revision;
 import org.ektorp.UpdateConflictException;
 import org.ektorp.ViewQuery;
 import org.ektorp.ViewResult;
+import org.ektorp.ViewResult.Row;
 import org.ektorp.http.HttpResponse;
 import org.ektorp.support.CouchDbRepositorySupport;
 import org.ektorp.support.ShowFunction;
@@ -305,5 +309,33 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
     @Override
     public void storeSchema(JsonNode schema) {
         db.create(schema);
+    }
+
+    @Override
+    @View(name = "get_all_metadata", map = "function(doc) { if (!doc.doc_template) {"
+    + "emit(doc._id, [{_id:doc._id, _rev:doc._rev, schemaId:doc.schemaId, schemaRev:doc.schemaRev, author:doc.author,"
+            + "creationDate:doc.creationDate, lastModifiedDate:doc.lastModifiedDate, lastModifiedBy:doc.lastModifiedBy}, "
+            + "doc.workflow])}}")
+    public List<Document> getAllDocumentsMetadata() {
+        ViewQuery q = new ViewQuery()
+                .viewName("get_all_metadata")
+                .designDocId("_design/JsonNode");
+        
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        
+        ViewResult result = db.queryView(q);
+        List<Document> resultList = new ArrayList<>();
+        result.getRows().stream().map((row) -> (ArrayNode) row.getValueAsNode()).forEach((docAsNode) -> {
+            try {
+                DocumentMetadata metadata = mapper.treeToValue(docAsNode.get(0), DocumentMetadata.class);
+                Workflow workflow = mapper.treeToValue(docAsNode.get(1), Workflow.class);
+                Document docData = new Document(metadata, workflow);
+                resultList.add(docData);
+            } catch (JsonProcessingException ex) {
+                logger.error(ex);
+            }
+        });
+        return resultList;
     }
 }

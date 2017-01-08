@@ -155,4 +155,10 @@ public interface DocumentService {
      * @return JsonNode with metadata
      */
     public JsonNode addMetadataToJson(JsonNode doc, DocumentMetadata metadata, Set<String> skipFields);
+    
+    /**
+     * Returns metadata and workflow from all documents
+     * @return List of Documents
+     */
+    public List<Document> getAllDocumentsMetadata();
 }

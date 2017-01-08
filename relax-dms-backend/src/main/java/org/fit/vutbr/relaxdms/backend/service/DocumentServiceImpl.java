@@ -174,4 +174,9 @@ public class DocumentServiceImpl implements DocumentService {
     public void storeSchema(JsonNode schema) {
         
     }
+
+    @Override
+    public List<Document> getAllDocumentsMetadata() {
+        return repo.getAllDocumentsMetadata();
+    }
 }

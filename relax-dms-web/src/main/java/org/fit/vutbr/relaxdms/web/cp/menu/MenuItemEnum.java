@@ -5,6 +5,7 @@ package org.fit.vutbr.relaxdms.web.cp.menu;
  * @author Martin Kanis
  */
 public enum MenuItemEnum {
+    WORKFLOW("Workflow"),
     DOCUMENT("Document"),
     ADMIN("Admin"),
     USER("User");

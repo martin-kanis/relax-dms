@@ -138,4 +138,10 @@ public interface CouchDbRepository {
      * @return Workflow Workflow of the document specified by Id
      */
     public Workflow getWorkflowFromDoc(String id);
+    
+    /**
+     * Returns metadata and workflow from all documents
+     * @return List of Documents
+     */
+    public List<Document> getAllDocumentsMetadata();
 }

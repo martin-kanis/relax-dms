@@ -1,6 +1,7 @@
 package org.fit.vutbr.relaxdms.api.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import java.util.List;
 import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.LabelEnum;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.StateEnum;
@@ -117,6 +118,12 @@ public interface WorkflowService {
      * @return boolean
      */
     public boolean canBeSigned(Document docData, boolean isManager);
+    
+    /**
+     * Inserts metadata and workflow from all documents to the drools engine as facts.
+     * @param docDataList List of Documents
+     */
+    public void insertAllFacts(List<Document> docDataList);
     
     /**
      * Serialize provided json to workflow object.

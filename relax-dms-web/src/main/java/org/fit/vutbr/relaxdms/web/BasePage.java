@@ -10,6 +10,7 @@ import org.fit.vutbr.relaxdms.web.cp.menu.MenuItemEnum;
 import org.fit.vutbr.relaxdms.web.documents.DocumentCreate;
 import org.fit.vutbr.relaxdms.web.documents.DocumentList;
 import org.fit.vutbr.relaxdms.web.user.User;
+import org.fit.vutbr.relaxdms.web.workflow.WorkflowPage;
 
 /**
  *
@@ -26,7 +27,7 @@ public abstract class BasePage extends WebPage implements Serializable {
             .addMenuItem(MenuItemEnum.USER, User.class)
             .addMenuItemAsDropdown(MenuItemEnum.DOCUMENT, DocumentCreate.class, "Create Document")
             .addMenuItemAsDropdown(MenuItemEnum.DOCUMENT, DocumentList.class, "Find Document")
-            //.addMenuItemAsDropdown(MenuItemEnum.DOCUMENT, DocumentPage.class, "Edit Document")
+            .addMenuItem(MenuItemEnum.WORKFLOW, WorkflowPage.class)
             .build());
     }
 

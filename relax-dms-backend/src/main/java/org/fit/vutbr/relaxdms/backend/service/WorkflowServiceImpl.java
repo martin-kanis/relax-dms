@@ -3,18 +3,21 @@ package org.fit.vutbr.relaxdms.backend.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
+import java.io.Serializable;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import org.fit.vutbr.relaxdms.api.security.AuthController;
 import org.fit.vutbr.relaxdms.api.service.DocumentService;
 import org.fit.vutbr.relaxdms.api.service.WorkflowService;
 import org.fit.vutbr.relaxdms.data.db.dao.api.CouchDbRepository;
 import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.ApprovalEnum;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Assignment;
+import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Flag;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Label;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.LabelEnum;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.StateEnum;
@@ -45,7 +48,7 @@ public class WorkflowServiceImpl implements WorkflowService {
     @KSession("ksession1")
     private KieSession kSession;
     
-    public void fireWorkflow(Document docData) {
+    private void fireWorkflow(Document docData) {
         FactHandle fh = kSession.getFactHandle(docData);
         if (fh == null) {
             kSession.insert(docData);
@@ -211,4 +214,24 @@ public class WorkflowServiceImpl implements WorkflowService {
             System.out.println(doc);
         }
     }
+
+    @Override
+    public void insertAllFacts(List<Document> docDataList) {
+        // Insert a fact for async start of rule and get a handle on to it
+        Flag asyncFire = new Flag(true);
+        FactHandle handle = kSession.insert(asyncFire);
+
+        Set<Document> modifiedFacts = new HashSet<>();
+        kSession.setGlobal("docSet", modifiedFacts);
+        
+        docDataList.stream().forEach(docData -> kSession.insert(docData));
+        
+        kSession.fireAllRules();
+        
+        // retract the async fact
+        kSession.retract(handle);
+        
+        // TODO update documents to the DB
+        System.out.println(modifiedFacts);
+    }    
 }
