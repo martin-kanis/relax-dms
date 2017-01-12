@@ -6,12 +6,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;
 import java.util.Map;
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.template.PackageTextTemplate;
-import org.fit.vutbr.relaxdms.api.security.AuthController;
 import org.fit.vutbr.relaxdms.api.service.DocumentService;
 import org.fit.vutbr.relaxdms.web.documents.DocumentEditorData.EditorUseCase;
 import org.jboss.logging.Logger;
@@ -21,9 +19,6 @@ import org.jboss.logging.Logger;
  * @author Martin Kanis
  */
 public class DocumentEditor extends WebMarkupContainer {
-    
-    @Inject
-    private AuthController authController;
     
     @Inject
     private DocumentService documentService;
@@ -50,7 +45,6 @@ public class DocumentEditor extends WebMarkupContainer {
         // editor for document creation
         if (editorData.getUseCase() == EditorUseCase.CREATE) {
             map.put("startval", "{}");
-            map.put("author", authController.getUserName((HttpServletRequest) getRequest().getContainerRequest()));
             map.put("readonly", false);
         // document update / show
         } else {

@@ -1,15 +1,13 @@
 package org.fit.vutbr.relaxdms.backend.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import org.ektorp.Revision;
@@ -114,16 +112,17 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     public DocumentMetadata getMetadataFromJson(JsonNode doc) {
         DocumentMetadata metadata = new DocumentMetadata();
+        JsonNode md = doc.get("metadata");
         
         metadata.set_id(doc.get("_id").textValue());
         metadata.set_rev(doc.get("_rev").textValue());
-        metadata.setSchemaId(doc.get("schemaId").textValue());
-        metadata.setSchemaRev(doc.get("schemaRev").textValue());
+        metadata.setSchemaId(md.get("schemaId").textValue());
+        metadata.setSchemaRev(md.get("schemaRev").textValue());
         
-        metadata.setAuthor(doc.get("author").textValue());
-        metadata.setLastModifiedBy(doc.get("lastModifiedBy").textValue());
-        metadata.setCreationDate(LocalDateTime.parse(doc.get("creationDate").textValue()));
-        metadata.setLastModifiedDate(LocalDateTime.parse(doc.get("lastModifiedDate").textValue()));
+        metadata.setAuthor(md.get("author").textValue());
+        metadata.setLastModifiedBy(md.get("lastModifiedBy").textValue());
+        metadata.setCreationDate(LocalDateTime.parse(md.get("creationDate").textValue()));
+        metadata.setLastModifiedDate(LocalDateTime.parse(md.get("lastModifiedDate").textValue()));
 
         return metadata;
     }
@@ -131,43 +130,27 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     public JsonNode removeMetadataFromJson(JsonNode doc) {
         ObjectNode resultDoc = (ObjectNode) doc;
-        for (Field field : DocumentMetadata.class.getDeclaredFields()) {
-            String name = field.getName();
-            if (!"author".equals(name))
-                resultDoc.remove(name);
-        }
+        
+        resultDoc.remove("_id");
+        resultDoc.remove("_rev");
+        resultDoc.remove("metadata");
         resultDoc.remove("workflow");
+        
         return resultDoc;
     }
 
     @Override
-    public JsonNode addMetadataToJson(JsonNode doc, DocumentMetadata metadata, Set<String> skipFields) {
-        ObjectNode resultDoc = (ObjectNode) doc;
-        Map<String, Object> resultMap = new HashMap<>();
+    public JsonNode addMetadataToJson(JsonNode doc, DocumentMetadata metadata) {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        JsonNode metadataNode = mapper.convertValue(metadata, JsonNode.class);
         
-        for (Field field : metadata.getClass().getDeclaredFields()) {
-            String fieldName = field.getName();
-            if (!skipFields.contains(fieldName)) {
-                String methodName = "get" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
-                try {
-                    Method method = metadata.getClass().getMethod(methodName);
-                    Object fieldValue = method.invoke(metadata);
-                    
-                    // skip null properties
-                    if (fieldValue != null)
-                        resultMap.put(fieldName, fieldValue);
-                } catch (NoSuchMethodException | SecurityException ex) {
-                    logger.error(ex);
-                } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                    logger.error(ex);
-                }
-            }
+        if (metadata.get_id() != null) {
+            ((ObjectNode) doc).put("_id", metadata.get_id());
+            ((ObjectNode) doc).put("_rev", metadata.get_rev());
         }
-
-        resultMap.keySet().stream().forEach((key) -> {
-            resultDoc.put(key, resultMap.get(key).toString());
-        });
-        return resultDoc;
+        return ((ObjectNode) doc).set("metadata", metadataNode);
     }
 
     @Override

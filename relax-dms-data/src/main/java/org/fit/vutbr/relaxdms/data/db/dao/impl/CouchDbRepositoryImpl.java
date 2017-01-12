@@ -16,11 +16,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.Set;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import org.apache.commons.io.IOUtils;
@@ -30,7 +28,6 @@ import org.ektorp.Revision;
 import org.ektorp.UpdateConflictException;
 import org.ektorp.ViewQuery;
 import org.ektorp.ViewResult;
-import org.ektorp.ViewResult.Row;
 import org.ektorp.http.HttpResponse;
 import org.ektorp.support.CouchDbRepositorySupport;
 import org.ektorp.support.ShowFunction;
@@ -66,6 +63,8 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
     @Inject
     private DocumentService documentService;
     
+    private final ObjectMapper mapper;
+    
     private final Logger logger = Logger.getLogger(this.getClass().getName());
     
     private final RestTemplate restTemplate;
@@ -74,6 +73,9 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
     public CouchDbRepositoryImpl(DBConnectorFactory dbFactory) {
         super(JsonNode.class, dbFactory.get());
         
+        mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        
         // generates standart views
         initStandardDesignDocument();
 
@@ -81,7 +83,7 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
     }
 
     @Override
-    @View(name = "all", map = "function(doc) { if (doc.author && doc.name ) emit(doc.author, doc.name)}")
+    @View(name = "all", map = "function(doc) { if (!doc.doc_template) emit(doc.metadata.author, doc.name)}")
     public List<JsonNode> getAllDocuments() {
         return queryView("all");
     }
@@ -106,7 +108,7 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
     }
     
     @Override
-    @View(name = "by_author", map = "function(doc) { emit(doc.author, doc)}")
+    @View(name = "by_author", map = "function(doc) { emit(doc.metadata.author, doc)}")
     public List<JsonNode> findByAuthor(String author) {
         ViewQuery q = new ViewQuery()
                 .viewName("by_author")
@@ -129,8 +131,8 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
     
     @Override
     @View(name = "get_metadata", map = "function(doc) { emit(doc._id, "
-            + "{author:doc.author, creationDate:doc.creationDate, "
-            + "lastModifiedDate:doc.lastModifiedDate, lastModifiedBy:doc.lastModifiedBy})}")
+            + "{author:doc.metadata.author, creationDate:doc.metadata.creationDate, "
+            + "lastModifiedDate:doc.metadata.lastModifiedDate, lastModifiedBy:doc.metadata.lastModifiedBy})}")
     public Map<String, String> getMetadataFromDoc(String id) {
         ViewQuery q = new ViewQuery()
                 .viewName("get_metadata")
@@ -180,8 +182,7 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
 
     @Override
     public void storeDocument(JsonNode json, Document docData) {
-        Set<String> skipFields = new HashSet<>(Arrays.asList("author", "id", "rev"));
-        JsonNode doc = documentService.addMetadataToJson(json, updateDocMetadata(docData.getMetadata()), skipFields);
+        JsonNode doc = documentService.addMetadataToJson(json, updateDocMetadata(docData.getMetadata()));
         doc = workflowService.addWorkflowToDoc(doc, new Workflow());
         db.create(doc);
     }
@@ -193,9 +194,8 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
     
     @Override
     public JsonNode updateDoc(JsonNode json, Document docData) {
-        Set<String> skipFields = new HashSet<>(Arrays.asList("author"));
         DocumentMetadata metadata = docData.getMetadata();
-        JsonNode doc = documentService.addMetadataToJson(json, updateDocMetadata(metadata), skipFields);
+        JsonNode doc = documentService.addMetadataToJson(json, updateDocMetadata(metadata));
         doc = workflowService.addWorkflowToDoc(doc, docData.getWorkflow());
         
         try {
@@ -209,7 +209,7 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
         } catch (UpdateConflictException ex) {
             String id = json.get("_id").textValue();
             JsonNode diff = JsonDiff.asJson(find(id), json);
-            
+  
             return removeMetadataFromDiff(diff);
         }
     }
@@ -295,7 +295,7 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
     
     private JsonNode removeMetadataFromDiff(JsonNode doc) {
         ArrayNode result = JsonNodeFactory.instance.arrayNode();
-        List<String> skipList = Arrays.asList("/_rev", "/lastModifiedDate", "/lastModifiedBy");
+        List<String> skipList = Arrays.asList("/_rev", "/metadata/lastModifiedDate", "/metadata/lastModifiedBy");
 
         for (JsonNode node : doc) {
             String path = node.get("path").textValue();
@@ -313,16 +313,13 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
 
     @Override
     @View(name = "get_all_metadata", map = "function(doc) { if (!doc.doc_template) {"
-    + "emit(doc._id, [{_id:doc._id, _rev:doc._rev, schemaId:doc.schemaId, schemaRev:doc.schemaRev, author:doc.author,"
-            + "creationDate:doc.creationDate, lastModifiedDate:doc.lastModifiedDate, lastModifiedBy:doc.lastModifiedBy}, "
+    + "emit(doc._id, [{_id:doc._id, _rev:doc._rev, schemaId:doc.metadata.schemaId, schemaRev:doc.metadata.schemaRev, author:doc.metadata.author,"
+            + "creationDate:doc.metadata.creationDate, lastModifiedDate:doc.metadata.lastModifiedDate, lastModifiedBy:doc.metadata.lastModifiedBy}, "
             + "doc.workflow])}}")
     public List<Document> getAllDocumentsMetadata() {
         ViewQuery q = new ViewQuery()
                 .viewName("get_all_metadata")
                 .designDocId("_design/JsonNode");
-        
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
         
         ViewResult result = db.queryView(q);
         List<Document> resultList = new ArrayList<>();

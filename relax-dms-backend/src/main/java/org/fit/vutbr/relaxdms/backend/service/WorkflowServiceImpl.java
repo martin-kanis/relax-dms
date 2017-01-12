@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -72,7 +71,7 @@ public class WorkflowServiceImpl implements WorkflowService {
         // set approvalBy
         String user = docData.getMetadata().getLastModifiedBy();
         docData.getWorkflow().getState().setApprovalBy(user);
-        
+
         fireWorkflow(docData);
         
         repo.updateDoc(doc, docData);

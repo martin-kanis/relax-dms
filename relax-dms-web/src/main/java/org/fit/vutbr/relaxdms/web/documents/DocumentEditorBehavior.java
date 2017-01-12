@@ -84,13 +84,14 @@ public class DocumentEditorBehavior extends AbstractDefaultAjaxBehavior {
         if (metadata.get_id() == null) {
             metadata.setAuthor(user);
             metadata.setLastModifiedBy(user);
+
             documentService.storeDocument(document, docData);
         // update document
         } else {
             metadata.setLastModifiedBy(user);
             docData.getWorkflow().getState().setCurrentState(StateEnum.IN_PROGRESS);
             JsonNode diff = documentService.updateDocument(document, docData);
-            
+
             Map<String, String> diffMap = new HashMap<>();
             if(!diff.isNull()) {
                 for (JsonNode node : diff) {

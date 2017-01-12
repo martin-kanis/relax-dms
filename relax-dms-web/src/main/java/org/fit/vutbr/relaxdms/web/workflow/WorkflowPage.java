@@ -28,10 +28,10 @@ public class WorkflowPage extends BasePage implements Serializable {
     public WorkflowPage(PageParameters parameters) {
         super(parameters);
         
-        createSignWorkflowButton(true);
+        createUnfreezeWorkflowButton(true);
     }
     
-    private void createSignWorkflowButton(boolean visible) {
+    private void createUnfreezeWorkflowButton(boolean visible) {
         unfreezeWorkflowButton = new AjaxLink("unfreeze") {
             @Override
             public void onClick(AjaxRequestTarget target) {

@@ -68,7 +68,6 @@ rule "Sign"
         modify($document) {
             getWorkflow().getAssignment().setAssignee("manager")
         };
-        docSet.add($document);
         System.out.println("Sign rule fired");
 end
 

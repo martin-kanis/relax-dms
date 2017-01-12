@@ -82,7 +82,6 @@ if (editButton) {
     }
     editButton.addEventListener('click',function() {
         editor.enable();
-        editor.getEditor('root.author').disable();
         
         saveButton.style.cssText = "display:inline;"
         editButton.style.cssText = "display:none;"
@@ -112,22 +111,12 @@ editor.on('change',function() {
     // Get an array of errors from the validator    
     editor.root.showValidationErrors(window.errors);
     window.errors = editor.validate();
-
-    // set default author based on the logged user
-    var author = editor.getEditor('root.author');
-
-    if (author.getValue() == "")
-      author.setValue('${author}');
-    else
-      author.disable();
 });
 
 function clear() {
     var values = editor.getValue();
     for (value in values) {
-        if (value != "author") {
-            editor.getEditor("root." + value).setValue("");
-        }
+        editor.getEditor("root." + value).setValue("");
     }
     
     document.getElementById('feedback1').classList.add("hide");

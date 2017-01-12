@@ -151,10 +151,9 @@ public interface DocumentService {
      * Adds metadata to provided json document.
      * @param doc Json where metadata will be added
      * @param metadata Metadata to be added
-     * @param skipFields Field that will be skipped while adding
      * @return JsonNode with metadata
      */
-    public JsonNode addMetadataToJson(JsonNode doc, DocumentMetadata metadata, Set<String> skipFields);
+    public JsonNode addMetadataToJson(JsonNode doc, DocumentMetadata metadata);
     
     /**
      * Returns metadata and workflow from all documents

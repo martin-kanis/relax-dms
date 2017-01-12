@@ -29,7 +29,7 @@ public class DocumentList extends BasePage implements Serializable {
         List<DocumentListData> docList = documentService.getAll().stream().map(e -> new DocumentListData(
                 e.get("_id").textValue(), 
                 e.get("name").textValue(), 
-                e.get("author").textValue())).collect(Collectors.toList());
+                e.get("metadata").get("author").textValue())).collect(Collectors.toList());
 
         createDocumentList(docList);
     }

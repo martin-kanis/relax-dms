@@ -68,7 +68,7 @@ public class DocumentPage extends Panel implements Serializable {
     
     private void prepareEditor(Map diffMap) {
         JsonNode json = documentService.getDocumentById(docId);
-        JsonNode schema = documentService.getSchema(json.get("schemaId").textValue(), json.get("schemaRev").textValue());
+        JsonNode schema = documentService.getSchema(json.get("metadata").get("schemaId").textValue(), json.get("metadata").get("schemaRev").textValue());
         String doc = convert.jsonNodeToString(json);
         
         DocumentMetadata metadata = documentService.getMetadataFromJson(json);
