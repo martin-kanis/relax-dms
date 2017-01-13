@@ -1,6 +1,7 @@
 package org.fit.vutbr.relaxdms.web.documents.tabs;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
@@ -68,13 +69,14 @@ public class DocumentPage extends Panel implements Serializable {
     
     private void prepareEditor(Map diffMap) {
         JsonNode json = documentService.getDocumentById(docId);
-        JsonNode schema = documentService.getSchema(json.get("metadata").get("schemaId").textValue(), json.get("metadata").get("schemaRev").textValue());
         String doc = convert.jsonNodeToString(json);
         
+        byte[] data = documentService.getDataFromJson(json);
         DocumentMetadata metadata = documentService.getMetadataFromJson(json);
         Workflow workflow = workflowService.getWorkflowFromJson(json);
-
-        AbstractAjaxBehavior ajaxSaveBehaviour = new DocumentEditorBehavior(new Document(metadata, workflow), this);
+        
+        JsonNode schema = documentService.getSchema(metadata.getSchemaId(), metadata.getSchemaRev());
+        AbstractAjaxBehavior ajaxSaveBehaviour = new DocumentEditorBehavior(new Document(data, metadata, workflow), this);
         add(ajaxSaveBehaviour);
         
         DocumentEditorData editorData = new DocumentEditorData(schema, EditorUseCase.UPDATE);

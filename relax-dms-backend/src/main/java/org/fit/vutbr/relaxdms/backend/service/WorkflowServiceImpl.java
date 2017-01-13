@@ -64,8 +64,7 @@ public class WorkflowServiceImpl implements WorkflowService {
     }
 
     @Override
-    public void approveDoc(String docId, Document docData) {
-        JsonNode doc = documentService.getDocumentById(docId);
+    public void approveDoc(Document docData) {
         docData.getWorkflow().getState().setApproval(ApprovalEnum.APPROVED);
         
         // set approvalBy
@@ -74,12 +73,11 @@ public class WorkflowServiceImpl implements WorkflowService {
 
         fireWorkflow(docData);
         
-        repo.updateDoc(doc, docData);
+        repo.updateDoc(docData);
     }
 
     @Override
-    public void declineDoc(String docId, Document docData) {
-        JsonNode doc = documentService.getDocumentById(docId);
+    public void declineDoc(Document docData) {
         docData.getWorkflow().getState().setApproval(ApprovalEnum.DECLINED);
         
         // set approvalBy
@@ -88,7 +86,7 @@ public class WorkflowServiceImpl implements WorkflowService {
         
         fireWorkflow(docData);
         
-        repo.updateDoc(doc, docData);
+        repo.updateDoc(docData);
     }
 
     @Override
@@ -134,8 +132,7 @@ public class WorkflowServiceImpl implements WorkflowService {
     }
 
     @Override
-    public void changeState(String docId, Document docData, StateEnum expectedState) {
-        JsonNode doc = documentService.getDocumentById(docId);
+    public void changeState(Document docData, StateEnum expectedState) {
         docData.getWorkflow().getState().setCurrentState(expectedState);
         
         // if doc is not assigned, assign it to user who performed change of state
@@ -155,33 +152,30 @@ public class WorkflowServiceImpl implements WorkflowService {
             fireWorkflow(docData);
         }
 
-        repo.updateDoc(doc, docData);
+        repo.updateDoc(docData);
     }
 
     @Override
-    public void assignDocument(String docId, Document docData, String assignee) {   
-        JsonNode doc = documentService.getDocumentById(docId);
+    public void assignDocument(Document docData, String assignee) {   
         docData.getWorkflow().getAssignment().setAssignee(assignee);
 
-        repo.updateDoc(doc, docData);
+        repo.updateDoc(docData);
     }
     
     @Override
-    public void addLabel(String docId, Document docData, LabelEnum labelType) {
-        JsonNode doc = documentService.getDocumentById(docId);
+    public void addLabel(Document docData, LabelEnum labelType) {
         Label label = new Label(labelType, docData.getMetadata().getLastModifiedBy());
         docData.getWorkflow().getLabels().add(label);
         
-        repo.updateDoc(doc, docData);
+        repo.updateDoc(docData);
     }
     
     @Override
-    public void removeLabel(String docId, Document docData, LabelEnum labelType) {
-        JsonNode doc = documentService.getDocumentById(docId);
+    public void removeLabel(Document docData, LabelEnum labelType) {
         Label label = new Label(labelType);
         docData.getWorkflow().getLabels().remove(label);
         
-        repo.updateDoc(doc, docData);
+        repo.updateDoc(docData);
     }
     
     @Override

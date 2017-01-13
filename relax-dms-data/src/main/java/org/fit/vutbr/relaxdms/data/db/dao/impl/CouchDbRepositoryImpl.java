@@ -197,7 +197,15 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
     }
     
     @Override
-    public JsonNode updateDoc(JsonNode json, Document docData) {
+    public JsonNode updateDoc(Document docData) {
+        final ObjectReader reader = mapper.reader();
+        JsonNode json;
+        try {
+            json = reader.readTree(new ByteArrayInputStream(docData.getData()));
+        } catch (IOException ex) {
+            logger.error(ex);
+            return null;
+        }
         // if wrapper is already there, don't add it again
         if (json.get("data") == null)
             json = addWrapperAroundData(json);
@@ -215,7 +223,7 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
             
             return (JsonNode) JsonNodeFactory.instance.nullNode();
         } catch (UpdateConflictException ex) {
-            String id = json.get("_id").textValue();
+            String id = metadata.getId();
             JsonNode diff = JsonDiff.asJson(find(id), json);
   
             return removeMetadataFromDiff(diff);
@@ -337,7 +345,8 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
 
     @Override
     @View(name = "get_all_metadata", map = "function(doc) { if (!doc.doc_template) {"
-    + "emit(doc._id, [{_id:doc._id, _rev:doc._rev, schemaId:doc.metadata.schemaId, schemaRev:doc.metadata.schemaRev, author:doc.metadata.author,"
+    + "emit(doc._id, [doc.data, "
+            + "{_id:doc._id, _rev:doc._rev, schemaId:doc.metadata.schemaId, schemaRev:doc.metadata.schemaRev, author:doc.metadata.author,"
             + "creationDate:doc.metadata.creationDate, lastModifiedDate:doc.metadata.lastModifiedDate, lastModifiedBy:doc.metadata.lastModifiedBy}, "
             + "doc.workflow])}}")
     public List<Document> getAllDocumentsMetadata() {
@@ -349,9 +358,10 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
         List<Document> resultList = new ArrayList<>();
         result.getRows().stream().map((row) -> (ArrayNode) row.getValueAsNode()).forEach((docAsNode) -> {
             try {
-                DocumentMetadata metadata = mapper.treeToValue(docAsNode.get(0), DocumentMetadata.class);
-                Workflow workflow = mapper.treeToValue(docAsNode.get(1), Workflow.class);
-                Document docData = new Document(metadata, workflow);
+                byte[] data = mapper.writeValueAsBytes(docAsNode.get(0));
+                DocumentMetadata metadata = mapper.treeToValue(docAsNode.get(1), DocumentMetadata.class);
+                Workflow workflow = mapper.treeToValue(docAsNode.get(2), Workflow.class);
+                Document docData = new Document(data, metadata, workflow);
                 resultList.add(docData);
             } catch (JsonProcessingException ex) {
                 logger.error(ex);

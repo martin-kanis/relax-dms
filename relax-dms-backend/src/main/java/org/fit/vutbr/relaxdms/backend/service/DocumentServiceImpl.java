@@ -1,5 +1,6 @@
 package org.fit.vutbr.relaxdms.backend.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -45,8 +46,8 @@ public class DocumentServiceImpl implements DocumentService {
     }
     
     @Override
-    public JsonNode updateDocument(JsonNode document, Document docData) {
-        return repo.updateDoc(document, docData);
+    public JsonNode updateDocument(Document docData) {
+        return repo.updateDoc(docData);
     }
 
     @Override
@@ -161,5 +162,16 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     public List<Document> getAllDocumentsMetadata() {
         return repo.getAllDocumentsMetadata();
+    }
+
+    @Override
+    public byte[] getDataFromJson(JsonNode doc) {
+        try {
+            return new ObjectMapper().writeValueAsBytes(doc.get("data"));
+        } catch (JsonProcessingException ex) {
+            logger.error(ex);
+        }
+        
+        return null;
     }
 }

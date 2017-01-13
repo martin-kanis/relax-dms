@@ -92,12 +92,11 @@ public interface CouchDbRepository {
     
     /**
      * Updates document to the database
-     * @param json Document to be updated as JsonNode
      * @param docData Metadata and workflow to be added to the document
      * @return Diff between previous and actual version of the document.
      If there is no updateDoc conflict returns empty json.
      */
-    public JsonNode updateDoc(JsonNode json, Document docData);
+    public JsonNode updateDoc(Document docData);
     
     /**
      * Deletes document from the database

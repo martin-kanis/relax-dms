@@ -1,5 +1,6 @@
 package org.fit.vutbr.relaxdms.web.documents.tabs.workflow;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import java.io.Serializable;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -26,8 +27,6 @@ import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Workflow;
 public class DocumentWorkflow extends Panel implements Serializable {
 
     private final String user;
-
-    private final String id;
     
     private final Workflow workflow;
     
@@ -82,7 +81,6 @@ public class DocumentWorkflow extends Panel implements Serializable {
     
     public DocumentWorkflow(String id, String docId) {
         super(id);
-        this.id = docId;
         
         HttpServletRequest req = (HttpServletRequest) getRequest().getContainerRequest();
         user = auth.getUserName(req);
@@ -90,10 +88,12 @@ public class DocumentWorkflow extends Panel implements Serializable {
         isAdmin = auth.isAdminAuthorized(req);
         isManager = auth.isManagerAuthorized(req);
         
-        workflow = workflowService.getWorkflowFromDoc(docId);
-        metadata = documentService.getMetadataFromJson(documentService.getDocumentById(docId));
+        JsonNode doc = documentService.getDocumentById(docId);
+        byte[] data = documentService.getDataFromJson(doc);
+        workflow = workflowService.getWorkflowFromJson(doc);
+        metadata = documentService.getMetadataFromJson(doc);
         metadata.setLastModifiedBy(user);
-        docData = new Document(metadata, workflow);
+        docData = new Document(data, metadata, workflow);
         
         approvedLabel = new Label("approvedLabel", "Approved");
         declinedLabel = new Label("declinedLabel", "Declined");
@@ -169,7 +169,7 @@ public class DocumentWorkflow extends Panel implements Serializable {
         approveLink = new AjaxLink("approve") {       
             @Override
             public void onClick(AjaxRequestTarget target) {
-                workflowService.approveDoc(id, docData);
+                workflowService.approveDoc(docData);
 
                 setVisibility(false, approveLink, declineLink, declinedLabel, noneLabel,
                         documentLabels.getSubmitedlabel());
@@ -200,7 +200,7 @@ public class DocumentWorkflow extends Panel implements Serializable {
         declineLink = new AjaxLink("decline") {       
             @Override
             public void onClick(AjaxRequestTarget target) {
-                workflowService.declineDoc(id, docData);
+                workflowService.declineDoc(docData);
                 
                 setVisibility(false, approvedLabel, noneLabel, declineLink, approveLink,
                         documentLabels.getSubmitedlabel());
@@ -227,8 +227,8 @@ public class DocumentWorkflow extends Panel implements Serializable {
         submitLink = new AjaxLink("submit") {
             @Override
             public void onClick(AjaxRequestTarget target) {
-                workflowService.changeState(id, docData, StateEnum.SUBMITED);
-                workflowService.removeLabel(id, docData, LabelEnum.FREEZED);
+                workflowService.changeState(docData, StateEnum.SUBMITED);
+                workflowService.removeLabel(docData, LabelEnum.FREEZED);
 
                 stateLabel.setDefaultModel(new Model(workflow.getState().getCurrentState().getName()));
                 assigneeLabel.setDefaultModel(new Model(workflow.getAssignment().getAssignee()));
@@ -256,8 +256,8 @@ public class DocumentWorkflow extends Panel implements Serializable {
         startProgressLink = new AjaxLink("startProgress") {
             @Override
             public void onClick(AjaxRequestTarget target) {
-                workflowService.changeState(id, docData, StateEnum.IN_PROGRESS);
-                workflowService.removeLabel(id, docData, LabelEnum.FREEZED);
+                workflowService.changeState(docData, StateEnum.IN_PROGRESS);
+                workflowService.removeLabel(docData, LabelEnum.FREEZED);
                 stateLabel.setDefaultModel(new Model(workflow.getState().getCurrentState().getName()));
                 
                 setVisibility(false, startProgressLink, documentLabels.getFreezedLabel());
@@ -273,8 +273,8 @@ public class DocumentWorkflow extends Panel implements Serializable {
         closeLink = new AjaxLink("close") {
             @Override
             public void onClick(AjaxRequestTarget target) {
-                workflowService.changeState(id, docData, StateEnum.CLOSED);
-                workflowService.removeLabel(id, docData, LabelEnum.FREEZED);
+                workflowService.changeState(docData, StateEnum.CLOSED);
+                workflowService.removeLabel(docData, LabelEnum.FREEZED);
                 stateLabel.setDefaultModel(new Model(workflow.getState().getCurrentState().getName()));
                 
                 setVisibility(false, closeLink, submitLink, startProgressLink, 
@@ -293,9 +293,9 @@ public class DocumentWorkflow extends Panel implements Serializable {
         reopenLink = new AjaxLink("reopen") {
             @Override
             public void onClick(AjaxRequestTarget target) {
-                workflowService.changeState(id, docData, StateEnum.OPEN);
-                workflowService.removeLabel(id, docData, LabelEnum.SIGNED);
-                workflowService.removeLabel(id, docData, LabelEnum.FREEZED);
+                workflowService.changeState(docData, StateEnum.OPEN);
+                workflowService.removeLabel(docData, LabelEnum.SIGNED);
+                workflowService.removeLabel(docData, LabelEnum.FREEZED);
                 stateLabel.setDefaultModel(new Model(workflow.getState().getCurrentState().getName()));
                 
                 setVisibility(true, closeLink, submitLink, startProgressLink, 
@@ -316,7 +316,7 @@ public class DocumentWorkflow extends Panel implements Serializable {
         signLink = new AjaxLink("sign") {
             @Override
             public void onClick(AjaxRequestTarget target) {
-                workflowService.addLabel(id, docData, LabelEnum.SIGNED);
+                workflowService.addLabel(docData, LabelEnum.SIGNED);
                 
                 setVisibility(true, documentLabels.getSignedLabel());
                 setVisibility(false, signLink);
@@ -331,7 +331,7 @@ public class DocumentWorkflow extends Panel implements Serializable {
         freezeLink = new AjaxLink("freeze") {
             @Override
             public void onClick(AjaxRequestTarget target) {
-                workflowService.addLabel(id, docData, LabelEnum.FREEZED);
+                workflowService.addLabel(docData, LabelEnum.FREEZED);
                 
                 setVisibility(false, freezeLink);
                 setVisibility(true, documentLabels.getFreezedLabel());

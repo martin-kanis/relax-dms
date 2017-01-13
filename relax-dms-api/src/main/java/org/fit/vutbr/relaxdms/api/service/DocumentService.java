@@ -3,7 +3,6 @@ package org.fit.vutbr.relaxdms.api.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.ektorp.Revision;
 import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 import org.fit.vutbr.relaxdms.data.db.dao.model.DocumentMetadata;
@@ -31,12 +30,11 @@ public interface DocumentService {
     
     /**
      * Updates document to the database
-     * @param json Document to be updated as JsonNode
      * @param docData Metadata and workflow to be added to the document
      @return Diff between previous and actual version of the document.
      If there is no updateDoc conflict returns empty json.
      */
-    public JsonNode updateDocument(JsonNode json, Document docData);
+    public JsonNode updateDocument(Document docData);
     
     /**
      * Delete document from the database
@@ -138,6 +136,13 @@ public interface DocumentService {
      * @return Metadata from json
      */
     public DocumentMetadata getMetadataFromJson(JsonNode doc);
+    
+    /**
+     * Returns data from provided json document.
+     * @param doc JsonNode
+     * @return byte[] data from json
+     */
+    public byte[] getDataFromJson(JsonNode doc);
     
     /**
      * Removes all data we don't want to show in JSON editor.

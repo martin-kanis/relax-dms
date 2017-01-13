@@ -90,7 +90,7 @@ public class DocumentEditorBehavior extends AbstractDefaultAjaxBehavior {
         } else {
             metadata.setLastModifiedBy(user);
             docData.getWorkflow().getState().setCurrentState(StateEnum.IN_PROGRESS);
-            JsonNode diff = documentService.updateDocument(document, docData);
+            JsonNode diff = documentService.updateDocument(docData);
 
             Map<String, String> diffMap = new HashMap<>();
             if(!diff.isNull()) {

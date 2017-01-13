@@ -14,6 +14,8 @@ import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Workflow;
 @AllArgsConstructor
 public class Document implements Serializable {
     
+    private byte[] data;
+    
     private DocumentMetadata metadata;
     
     private Workflow workflow;
@@ -36,6 +38,14 @@ public class Document implements Serializable {
 
     public void setWorkflow(Workflow workflow) {
         this.workflow = workflow;
+    }
+
+    public byte[] getData() {
+        return data;
+    }
+
+    public void setData(byte[] data) {
+        this.data = data;
     }
 
     @Override

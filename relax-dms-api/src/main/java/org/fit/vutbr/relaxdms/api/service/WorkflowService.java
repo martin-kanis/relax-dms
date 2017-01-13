@@ -29,17 +29,15 @@ public interface WorkflowService {
     
     /**
      * Approves document by setting property in workflow
-     * @param docId String Id of document to be approved
      * @param docData Metadata and workflow of the document
      */
-    public void approveDoc(String docId, Document docData);
+    public void approveDoc(Document docData);
     
     /**
      * Declines document by setting property in workflow
-     * @param docId String Id of document to be declined
      * @param docData Metadata and workflow of the document
      */
-    public void declineDoc(String docId, Document docData);
+    public void declineDoc(Document docData);
     
     /**
      * Checks if document is approved 
@@ -73,19 +71,17 @@ public interface WorkflowService {
     
     /**
      * Changes state of provided document to expected state
-     * @param docId Id of document that state to be changed
      * @param docData Document metadata
      * @param expectedState StateEnum  
      */
-    public void changeState(String docId, Document docData, StateEnum expectedState);
+    public void changeState(Document docData, StateEnum expectedState);
     
     /**
      * Assigns document to given user.
-     * @param docId Id of document to be updated
      * @param docData Document metadata
      * @param assignee Assignee of document
      */
-    public void assignDocument(String docId, Document docData, String assignee);
+    public void assignDocument(Document docData, String assignee);
     
     /**
      * Adds workflow to the json document.
@@ -97,19 +93,17 @@ public interface WorkflowService {
     
     /**
      * Adds label of specified type to the document.
-     * @param docId Id of document where label will be added
      * @param docData Document metadata
      * @param labelType Type of label
      */
-    public void addLabel(String docId, Document docData, LabelEnum labelType); 
+    public void addLabel(Document docData, LabelEnum labelType); 
     
     /**
      * Removes label of specified type from the document.
-     * @param docId Id of document where label will be removed
      * @param docData Document metadata
      * @param labelType Type of label
      */
-    public void removeLabel(String docId, Document docData, LabelEnum labelType);
+    public void removeLabel(Document docData, LabelEnum labelType);
     
     /**
      * Checks if the document can be signed.

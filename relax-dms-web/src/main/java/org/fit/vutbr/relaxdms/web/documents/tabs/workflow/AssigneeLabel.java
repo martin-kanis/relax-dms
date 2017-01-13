@@ -63,7 +63,7 @@ public class AssigneeLabel extends AjaxEditableLabel {
         // check if assignee was changed
         if (!assignee.equals(docData.getWorkflow().getAssignment().getAssignee())) {
             // persist
-            workflowService.assignDocument(docId, docData, assignee);
+            workflowService.assignDocument(docData, assignee);
             setDefaultModel(new Model(assignee));
             
             target.add(this);
