@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Set;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import org.fit.vutbr.relaxdms.api.service.DocumentService;
 import org.fit.vutbr.relaxdms.api.service.WorkflowService;
 import org.fit.vutbr.relaxdms.data.db.dao.api.CouchDbRepository;
 import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
@@ -39,9 +38,6 @@ public class WorkflowServiceImpl implements WorkflowService {
     
     @Inject 
     private CouchDbRepository repo;
-    
-    @Inject
-    private DocumentService documentService;
     
     @Inject
     @KSession("ksession1")
@@ -224,7 +220,6 @@ public class WorkflowServiceImpl implements WorkflowService {
         // retract the async fact
         kSession.retract(handle);
         
-        // TODO update documents to the DB
-        System.out.println(modifiedFacts);
+        repo.updateDocs(modifiedFacts);
     }    
 }

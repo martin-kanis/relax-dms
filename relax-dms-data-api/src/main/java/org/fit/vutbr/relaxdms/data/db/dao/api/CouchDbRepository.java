@@ -3,6 +3,7 @@ package org.fit.vutbr.relaxdms.data.db.dao.api;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.ektorp.Revision;
 import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Workflow;
@@ -97,6 +98,12 @@ public interface CouchDbRepository {
      If there is no updateDoc conflict returns empty json.
      */
     public JsonNode updateDoc(Document docData);
+    
+    /**
+     * Updates set of documents.
+     * @param docsData Set of documents
+     */
+    public void updateDocs(Set<Document> docsData);
     
     /**
      * Deletes document from the database

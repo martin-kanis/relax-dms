@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Scanner;
+import java.util.Set;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import org.apache.commons.io.IOUtils;
@@ -228,6 +229,17 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
   
             return removeMetadataFromDiff(diff);
         }
+    }
+    
+    @Override
+    public void updateDocs(Set<Document> docsData) {
+        docsData.stream().forEach((doc) -> {
+            JsonNode result = updateDoc(doc);
+            
+            if (!result.isNull()) {
+                logger.warn("There is a conflict during batch update");
+            }
+        });
     }
 
     @Override
