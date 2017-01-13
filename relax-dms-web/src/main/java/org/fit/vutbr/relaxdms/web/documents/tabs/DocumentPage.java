@@ -78,7 +78,7 @@ public class DocumentPage extends Panel implements Serializable {
         add(ajaxSaveBehaviour);
         
         DocumentEditorData editorData = new DocumentEditorData(schema, EditorUseCase.UPDATE);
-        editorData.setDocument(json);
+        editorData.setDocument(json.get("data"));
         editorData.setDiffMap(diffMap);
         
         StateEnum state = workflow.getState().getCurrentState();

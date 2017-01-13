@@ -85,7 +85,7 @@ public class User extends BasePage implements Serializable {
     private List<DocumentListData> createListData(List<JsonNode> data) {
         return data.stream().map(e -> new DocumentListData(
                 e.get("_id").textValue(), 
-                e.get("name").textValue(), 
+                e.get("data").get("name").textValue(), 
                 e.get("metadata").get("author").textValue())).collect(Collectors.toList());
     }
     

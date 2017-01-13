@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.flipkart.zjsonpatch.JsonDiff;
 import java.io.ByteArrayInputStream;
@@ -16,8 +17,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Scanner;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -83,7 +86,7 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
     }
 
     @Override
-    @View(name = "all", map = "function(doc) { if (!doc.doc_template) emit(doc.metadata.author, doc.name)}")
+    @View(name = "all", map = "function(doc) { if (!doc.doc_template) emit(doc.metadata.author, doc.data.name)}")
     public List<JsonNode> getAllDocuments() {
         return queryView("all");
     }
@@ -96,7 +99,7 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
     
     @Override
     @ShowFunction(name = "getSchemaId",  function = "(function getSchemaId(doc, req) {"
-            + "return doc.schemaId; })")
+            + "return doc.metadata.schemaId; })")
     public String getSchemaIdFromDocument(String docId) {
         return getHttpRequest("getSchemaId", docId);
     }
@@ -182,6 +185,7 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
 
     @Override
     public void storeDocument(JsonNode json, Document docData) {
+        json = addWrapperAroundData(json);
         JsonNode doc = documentService.addMetadataToJson(json, updateDocMetadata(docData.getMetadata()));
         doc = workflowService.addWorkflowToDoc(doc, new Workflow());
         db.create(doc);
@@ -194,6 +198,10 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
     
     @Override
     public JsonNode updateDoc(JsonNode json, Document docData) {
+        // if wrapper is already there, don't add it again
+        if (json.get("data") == null)
+            json = addWrapperAroundData(json);
+        
         DocumentMetadata metadata = docData.getMetadata();
         JsonNode doc = documentService.addMetadataToJson(json, updateDocMetadata(metadata));
         doc = workflowService.addWorkflowToDoc(doc, docData.getWorkflow());
@@ -278,6 +286,22 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
             }
             return schema;
         }
+    }
+    
+    private JsonNode addWrapperAroundData(JsonNode json) {
+        ObjectNode result = new ObjectNode(JsonNodeFactory.instance);
+        result.set("data", JsonNodeFactory.instance.objectNode());
+        ObjectNode data = (ObjectNode) result.get("data");
+        
+        // copy data
+        Iterator<Entry<String, JsonNode>> nodes = json.fields();
+        while (nodes.hasNext()) {
+            Map.Entry<String, JsonNode> entry = (Map.Entry<String, JsonNode>) nodes.next();
+
+            data.set(entry.getKey(), entry.getValue());
+        }
+
+        return result;
     }
 
     private DocumentMetadata updateDocMetadata(DocumentMetadata metadata) { 

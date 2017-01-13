@@ -48,9 +48,9 @@ public class DocumentEditor extends WebMarkupContainer {
             map.put("readonly", false);
         // document update / show
         } else {
-            JsonNode document = documentService.removeMetadataFromJson(editorData.getDocument());
+            //JsonNode document = documentService.removeMetadataFromJson(editorData.getDocument());
             
-            map.put("startval", document);
+            map.put("startval", editorData.getDocument());
             map.put("usecase", EditorUseCase.UPDATE);
             map.put("readonly", editorData.isReadonly());
             try {
