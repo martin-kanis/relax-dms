@@ -156,7 +156,7 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public void storeSchema(JsonNode schema) {
-        
+        repo.storeSchema(schema);
     }
 
     @Override

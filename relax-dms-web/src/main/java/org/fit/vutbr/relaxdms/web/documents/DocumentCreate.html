@@ -12,20 +12,25 @@
             <script src="data/js/json-editor.js"></script>
             
             <div class="row">
-                <span wicket:id="listView">
-                    <a wicket:id="templateLink"><span wicket:id="label">label</span></a><br/>
-                </span>
+                <div class="span9">
+                    <h4>Available templates:</h4>
+                    <ul class="inline">
+                        <li wicket:id="listView">
+                            <a wicket:id="templateLink"><span wicket:id="label">label</span></a><br/>
+                        </li>
+                    </ul>
+                </div>
             </div>
 
             <div class='row'>
-                <div id='editor_holder' class='medium-12 columns'></div>
-            </div>
-            <div class='row'>
-                <div class='medium-12-columns'>
-                    <button id='save' class='tiny'>Save</button>
-                    <button id='clear' class='secondary tiny'>Clear</button>
-                    <span id='feedback1' class="label label-success hide">Document saved</span>
-                    <span id='feedback2' class="label label-danger hide">Error</span>
+                <div class="span9">
+                    <div id='editor_holder' class='medium-12 columns'></div>
+                    <div class='medium-12-columns'>
+                        <button id='save' class='tiny'>Save</button>
+                        <button id='clear' class='secondary tiny'>Clear</button>
+                        <span id='feedback1' class="label label-success hide">Document saved</span>
+                        <span id='feedback2' class="label label-danger hide">Error</span>
+                    </div>
                 </div>
             </div>
 

@@ -5,20 +5,25 @@
 </head>
 <body>
     <wicket:extend>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Id</th>
-                    <th>Name</th>
-                    <th>Author</th>
-                </tr>
-            </thead>
-            <tr wicket:id="listView">
-                <td><a wicket:id="docLink"><span wicket:id="id"/></a></td>
-                <td><span wicket:id="name"></span></td>
-                <td><span wicket:id="author"></span></td>
-            </tr>
-        </table>
+        <div class="row">
+            <div class="span9">
+                <h4>All documents: </h4>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Name</th>
+                            <th>Author</th>
+                        </tr>
+                    </thead>
+                    <tr wicket:id="listView">
+                        <td><a wicket:id="docLink"><span wicket:id="id"/></a></td>
+                        <td><span wicket:id="name"></span></td>
+                        <td><span wicket:id="author"></span></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
     </wicket:extend>
 </body>
 </html>

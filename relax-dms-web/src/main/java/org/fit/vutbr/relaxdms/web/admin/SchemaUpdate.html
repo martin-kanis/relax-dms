@@ -5,25 +5,36 @@
     <title>Admin Page</title>
 </head>
 <body>
-<wicket:extend>
-    <h3>Update document template</h3>
-    
-    <div class="row">
-        <span wicket:id="listView">
-            <a wicket:id="templateLink"><span wicket:id="label">label</span></a><br/>
-        </span>
-    </div>
-    
-    <form wicket:id="userForm" role="form">
-        <div class="form-group">
-            <label for="textarea">JSON Schema:</label>
-            <textarea wicket:id="area" id="textarea" class="field span8" rows="20"></textarea>
+    <wicket:extend>
+        <div class="row">
+            <h3>Update document template</h3>
         </div>
-        
-        <div wicket:id="feedback"></div>
-        
-        <input wicket:id="update" type="submit" class="btn btn-default" value="Update" />
-    </form>
-</wicket:extend>
+
+        <div class="row">
+            <div class="span9">
+                <h4>Available templates:</h4>
+                <ul class="inline">
+                    <li wicket:id="listView">
+                        <a wicket:id="templateLink"><span wicket:id="label">label</span></a><br/>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="span9">
+                <form wicket:id="userForm" role="form">
+                    <div class="form-group">
+                        <label for="textarea"><h4>JSON Schema:</h4></label>
+                        <textarea wicket:id="area" id="textarea" class="field span8" rows="20"></textarea>
+                    </div>
+
+                    <div wicket:id="feedback"></div>
+
+                    <input wicket:id="update" type="submit" class="btn btn-default" value="Update" />
+                </form>
+            </div>
+        </div>
+    </wicket:extend>
 </body>
 </html>
