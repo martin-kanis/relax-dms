@@ -5,9 +5,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.tabs.AjaxTabbedPanel;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -27,6 +30,9 @@ public class DocumentTabs extends BasePage implements Serializable {
     private final String id;
     
     private Map diffMap;
+    
+    public static final String script = "var el = document.getElementsByClassName('navigationTabs');"
+            + "var list = el[0].firstElementChild; list.className += 'nav nav-tabs';";
 
     public DocumentTabs(PageParameters parameters) {
         super(parameters);
@@ -48,6 +54,7 @@ public class DocumentTabs extends BasePage implements Serializable {
             public Panel getPanel(String panelId) {
                 return (diffMap == null) ?  new DocumentPage(panelId, id) :  new DocumentPage(panelId, id, diffMap);
             }
+           
         });
 
         tabs.add(new AbstractTab(new Model<>("Metadata")) {
@@ -72,7 +79,18 @@ public class DocumentTabs extends BasePage implements Serializable {
 
             @Override
             protected String getTabContainerCssClass() {
-                return "nav nav-tabs";
+                return "navigationTabs";
+            }
+            
+            @Override
+            protected void onAjaxUpdate(final AjaxRequestTarget target) {
+                target.appendJavaScript(script);
+            }
+            
+            @Override
+            public void renderHead(IHeaderResponse response) {
+                super.renderHead(response);
+                response.render(JavaScriptHeaderItem.forScript("window.onload = function () {" + script + "}", null));
             }
         };
         add(ajaxTabbedPanel);
