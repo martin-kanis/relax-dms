@@ -28,7 +28,7 @@ public class DocumentServiceImpl implements DocumentService {
     @Inject 
     private CouchDbRepository repo;
     
-    private final Logger logger = Logger.getLogger(this.getClass().getName()); ;
+    private final Logger logger = Logger.getLogger(this.getClass().getName());
 
     @Override
     public void storeDocument(JsonNode document, Document docData) {

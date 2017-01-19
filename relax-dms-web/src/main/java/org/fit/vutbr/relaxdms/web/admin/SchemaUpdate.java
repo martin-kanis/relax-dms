@@ -13,7 +13,6 @@ import javax.inject.Inject;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
-import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextArea;
@@ -86,7 +85,9 @@ public class SchemaUpdate extends BasePage implements Serializable {
         // save id, rev and attachment
         String id = schema.get("_id").textValue();
         String rev = schema.get("_rev").textValue();
-        String attachment = convert.jsonNodeToString(schema.get("_attachments"));
+        final JsonNode existingAttachment = schema.get("_attachments");
+        final String attachment = convert.jsonNodeToString(existingAttachment);
+        
         String oldSchema = convert.jsonNodeToString(schema);
         
         // remove id, rev and attachment from oldSchema to avoid users to modify it
@@ -117,8 +118,11 @@ public class SchemaUpdate extends BasePage implements Serializable {
                     JsonNode newSchema = convert.stringToJsonNode(schema);
                     // remove id, rev and attachment for case, that user add it
                     ((ObjectNode) newSchema).remove(Arrays.asList("_id", "_rev", "_attachments"));
-                    // put id, rev and attachment back
-                    ((ObjectNode) newSchema).put("_id", id).put("_rev", rev).put("_attachments", convert.stringToJsonNode(attachment));
+                    // put id, rev back
+                    ((ObjectNode) newSchema).put("_id", id).put("_rev", rev);
+                    
+                    if (existingAttachment != null)
+                        ((ObjectNode) newSchema).put("_attachments", convert.stringToJsonNode(attachment));
 
                     documentService.updateSchema(convert.stringToJsonNode(oldSchema), newSchema);
 

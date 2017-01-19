@@ -76,7 +76,8 @@ public class DocumentEditorBehavior extends AbstractDefaultAjaxBehavior {
         WebRequest webRequest = (WebRequest) cycle.getRequest();
         StringValue json = webRequest.getQueryParameters().getParameterValue("data");
 
-        JsonNode document = convert.stringToJsonNode(json.toString());
+        String docString = json.toString();
+        JsonNode document = convert.stringToJsonNode(docString);
         HttpServletRequest req = (HttpServletRequest) component.getRequest().getContainerRequest();
         String user = auth.getUserName(req);
 
@@ -90,6 +91,7 @@ public class DocumentEditorBehavior extends AbstractDefaultAjaxBehavior {
         } else {
             metadata.setLastModifiedBy(user);
             docData.getWorkflow().getState().setCurrentState(StateEnum.IN_PROGRESS);
+            docData.setData(docString.getBytes());
             JsonNode diff = documentService.updateDocument(docData);
 
             Map<String, String> diffMap = new HashMap<>();

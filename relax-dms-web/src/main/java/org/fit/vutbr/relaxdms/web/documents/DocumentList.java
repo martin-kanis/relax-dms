@@ -28,7 +28,7 @@ public class DocumentList extends BasePage implements Serializable {
         
         List<DocumentListData> docList = documentService.getAll().stream().map(e -> new DocumentListData(
                 e.get("_id").textValue(), 
-                e.get("data").get("name").textValue(), 
+                e.get("data").get("Title").textValue(), 
                 e.get("metadata").get("author").textValue())).collect(Collectors.toList());
 
         createDocumentList(docList);
@@ -45,7 +45,7 @@ public class DocumentList extends BasePage implements Serializable {
                 
                 BookmarkablePageLink<Void> docLink = new BookmarkablePageLink("docLink", DocumentTabs.class, pp);
                 item.add(docLink.add(new Label("id", doc.getId())));
-                item.add(new Label("name", doc.getName()));
+                item.add(new Label("title", doc.getTitle()));
                 item.add(new Label("author", doc.getAuthor()));
             }
         };

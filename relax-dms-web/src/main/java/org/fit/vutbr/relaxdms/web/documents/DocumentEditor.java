@@ -1,16 +1,13 @@
 package org.fit.vutbr.relaxdms.web.documents;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;
 import java.util.Map;
-import javax.inject.Inject;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.template.PackageTextTemplate;
-import org.fit.vutbr.relaxdms.api.service.DocumentService;
 import org.fit.vutbr.relaxdms.web.documents.DocumentEditorData.EditorUseCase;
 import org.jboss.logging.Logger;
 
@@ -20,10 +17,7 @@ import org.jboss.logging.Logger;
  */
 public class DocumentEditor extends WebMarkupContainer {
     
-    @Inject
-    private DocumentService documentService;
-    
-    private Logger log;
+    private final Logger logger = Logger.getLogger(this.getClass().getName());
     
     private Label myScript;
     
@@ -57,7 +51,7 @@ public class DocumentEditor extends WebMarkupContainer {
                 String jsonMap = new ObjectMapper().writeValueAsString(editorData.getDiffMap());
                 map.put("diffData", jsonMap);
             } catch (JsonProcessingException ex) {
-                log.error(ex);
+                logger.error(ex);
             }
             
         }

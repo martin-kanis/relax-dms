@@ -76,7 +76,7 @@ public class User extends BasePage implements Serializable {
                 
                 BookmarkablePageLink<Void> docLink = new BookmarkablePageLink("docLink", DocumentTabs.class, pp);
                 item.add(docLink.add(new Label("id", doc.getId())));
-                item.add(new Label("name", doc.getName()));
+                item.add(new Label("title", doc.getTitle()));
             }
         };
         add(listview);
@@ -85,13 +85,13 @@ public class User extends BasePage implements Serializable {
     private List<DocumentListData> createListData(List<JsonNode> data) {
         return data.stream().map(e -> new DocumentListData(
                 e.get("_id").textValue(), 
-                e.get("data").get("name").textValue(), 
+                e.get("data").get("Title").textValue(), 
                 e.get("metadata").get("author").textValue())).collect(Collectors.toList());
     }
     
-    private void createTableHeaders(String docId, String docName, int docsCount) {
+    private void createTableHeaders(String docId, String docTitle, int docsCount) {
         Label idLabel = new Label(docId, "Id");
-        Label nameLabel = new Label(docName, "Name");
+        Label nameLabel = new Label(docTitle, "Title");
         
         if (docsCount == 0) {
             idLabel.setVisible(false);

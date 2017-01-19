@@ -14,7 +14,7 @@ public class DocumentListData implements Serializable {
     
     private final String id;
     
-    private final String name;
+    private final String title;
     
     private final String author; 
 }
