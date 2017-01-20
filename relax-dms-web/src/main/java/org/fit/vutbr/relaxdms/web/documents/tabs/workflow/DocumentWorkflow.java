@@ -228,7 +228,6 @@ public class DocumentWorkflow extends Panel implements Serializable {
             @Override
             public void onClick(AjaxRequestTarget target) {
                 workflowService.changeState(docData, StateEnum.SUBMITED);
-                workflowService.removeLabel(docData, LabelEnum.FREEZED);
 
                 stateLabel.setDefaultModel(new Model(workflow.getState().getCurrentState().getName()));
                 assigneeLabel.setDefaultModel(new Model(workflow.getAssignment().getAssignee()));
@@ -257,7 +256,7 @@ public class DocumentWorkflow extends Panel implements Serializable {
             @Override
             public void onClick(AjaxRequestTarget target) {
                 workflowService.changeState(docData, StateEnum.IN_PROGRESS);
-                workflowService.removeLabel(docData, LabelEnum.FREEZED);
+                
                 stateLabel.setDefaultModel(new Model(workflow.getState().getCurrentState().getName()));
                 
                 setVisibility(false, startProgressLink, documentLabels.getFreezedLabel());
@@ -274,7 +273,7 @@ public class DocumentWorkflow extends Panel implements Serializable {
             @Override
             public void onClick(AjaxRequestTarget target) {
                 workflowService.changeState(docData, StateEnum.CLOSED);
-                workflowService.removeLabel(docData, LabelEnum.FREEZED);
+
                 stateLabel.setDefaultModel(new Model(workflow.getState().getCurrentState().getName()));
                 
                 setVisibility(false, closeLink, submitLink, startProgressLink, 
@@ -294,8 +293,7 @@ public class DocumentWorkflow extends Panel implements Serializable {
             @Override
             public void onClick(AjaxRequestTarget target) {
                 workflowService.changeState(docData, StateEnum.OPEN);
-                workflowService.removeLabel(docData, LabelEnum.SIGNED);
-                workflowService.removeLabel(docData, LabelEnum.FREEZED);
+
                 stateLabel.setDefaultModel(new Model(workflow.getState().getCurrentState().getName()));
                 
                 setVisibility(true, closeLink, submitLink, startProgressLink, 

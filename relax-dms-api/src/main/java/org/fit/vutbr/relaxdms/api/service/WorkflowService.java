@@ -99,13 +99,6 @@ public interface WorkflowService {
     public void addLabel(Document docData, LabelEnum labelType); 
     
     /**
-     * Removes label of specified type from the document.
-     * @param docData Document metadata
-     * @param labelType Type of label
-     */
-    public void removeLabel(Document docData, LabelEnum labelType);
-    
-    /**
      * Checks if the document can be signed.
      * @param docData Document metadata
      * @param isManager Boolean Is logged user manager

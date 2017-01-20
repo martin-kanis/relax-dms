@@ -141,10 +141,20 @@ public class WorkflowServiceImpl implements WorkflowService {
         if (expectedState == StateEnum.OPEN) {
             cancelApproval(docData);
         }
+        
+        if (expectedState == StateEnum.OPEN) {
+            removeLabel(docData, LabelEnum.FREEZED);
+            removeLabel(docData, LabelEnum.SIGNED);
+        }
+        
+        if (expectedState == StateEnum.CLOSED) {
+            removeLabel(docData, LabelEnum.FREEZED);
+        }
 
         // document was submited, fire drools rules to perform steps
         if (expectedState == StateEnum.SUBMITED) {
             cancelApproval(docData);
+            removeLabel(docData, LabelEnum.FREEZED);
             fireWorkflow(docData);
         }
 
@@ -165,15 +175,7 @@ public class WorkflowServiceImpl implements WorkflowService {
         
         repo.updateDoc(docData);
     }
-    
-    @Override
-    public void removeLabel(Document docData, LabelEnum labelType) {
-        Label label = new Label(labelType);
-        docData.getWorkflow().getLabels().remove(label);
-        
-        repo.updateDoc(docData);
-    }
-    
+
     @Override
     public boolean checkLabel(Workflow workflow, LabelEnum expectedLabel) {
         Label label = new Label(expectedLabel);
@@ -191,19 +193,6 @@ public class WorkflowServiceImpl implements WorkflowService {
         return isManager && isApproved && isCorrectState && !signed;
     }
     
-    private void cancelApproval(Document docData) {
-        docData.getWorkflow().getState().setApproval(ApprovalEnum.NONE);
-        docData.getWorkflow().getState().setApprovalBy(null);
-    }
-    
-    private void queryWorkingMemory() {
-        QueryResults results = kSession.getQueryResults( "Document" ); 
-        for (QueryResultsRow row : results) {
-            Document doc = (Document) row.get("$result");
-            System.out.println(doc);
-        }
-    }
-
     @Override
     public void insertAllFacts(List<Document> docDataList) {
         // Insert a fact for async start of rule and get a handle on to it
@@ -221,5 +210,23 @@ public class WorkflowServiceImpl implements WorkflowService {
         kSession.retract(handle);
         
         repo.updateDocs(modifiedFacts);
-    }    
+    }   
+    
+    private void removeLabel(Document docData, LabelEnum labelType) {
+        Label label = new Label(labelType);
+        docData.getWorkflow().getLabels().remove(label);
+    }
+    
+    private void cancelApproval(Document docData) {
+        docData.getWorkflow().getState().setApproval(ApprovalEnum.NONE);
+        docData.getWorkflow().getState().setApprovalBy(null);
+    }
+    
+    private void queryWorkingMemory() {
+        QueryResults results = kSession.getQueryResults( "Document" ); 
+        for (QueryResultsRow row : results) {
+            Document doc = (Document) row.get("$result");
+            System.out.println(doc);
+        }
+    }
 }
