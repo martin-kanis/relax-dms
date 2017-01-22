@@ -16,6 +16,8 @@ public class Document implements Serializable {
     
     private byte[] data;
     
+    private byte[] attachments;
+    
     private DocumentMetadata metadata;
     
     private Workflow workflow;
@@ -46,6 +48,14 @@ public class Document implements Serializable {
 
     public void setData(byte[] data) {
         this.data = data;
+    }
+
+    public byte[] getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(byte[] attachments) {
+        this.attachments = attachments;
     }
 
     @Override

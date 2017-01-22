@@ -17,14 +17,13 @@ import org.apache.wicket.util.string.Strings;
 import org.fit.vutbr.relaxdms.api.service.WorkflowService;
 import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 import org.fit.vutbr.relaxdms.web.client.keycloak.api.KeycloakAdminClient;
+import org.fit.vutbr.relaxdms.web.documents.tabs.DocumentTabs;
 
 /**
  *
  * @author Martin Kanis
  */
 public class AssigneeLabel extends AjaxEditableLabel {
-
-    private String docId;
     
     private Document docData;
     
@@ -35,11 +34,13 @@ public class AssigneeLabel extends AjaxEditableLabel {
     private KeycloakAdminClient authClient;
     
     private AutoCompleteBehavior autocomplete;
+    
+    private final DocumentTabs tabs;
 
-    public AssigneeLabel(String id, String docId, Document docData) {
+    public AssigneeLabel(String id, String docId, Document docData, DocumentTabs tabs) {
         super(id, new Model(docData.getWorkflow().getAssignment().getAssignee()));
 
-        this.docId = docId;
+        this.tabs = tabs;
         this.docData = docData;
         
         setAutocomplete();
@@ -66,7 +67,9 @@ public class AssigneeLabel extends AjaxEditableLabel {
             workflowService.assignDocument(docData, assignee);
             setDefaultModel(new Model(assignee));
             
-            target.add(this);
+            tabs.refreshTabs(docData.getMetadata().getRev());
+            
+            target.add(this, tabs);
         }
     }
     

@@ -1,15 +1,11 @@
 package org.fit.vutbr.relaxdms.web.documents.tabs;
 
 import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.fit.vutbr.relaxdms.api.service.DocumentService;
+import org.fit.vutbr.relaxdms.data.db.dao.model.DocumentMetadata;
 
 /**
  *
@@ -20,21 +16,18 @@ public class DocumentInfo extends Panel implements Serializable {
     @Inject
     private DocumentService documentService;
 
-    public DocumentInfo(String id, String docId) {
+    public DocumentInfo(String id, String docId, String docRev) {
         super(id);
  
-        Map<String, String> metadata = documentService.getMetadataFromDoc(docId);
-        List<String> keyList = metadata.keySet().stream().collect(Collectors.toList());
+        DocumentMetadata metadata = documentService.getMetadataFromDoc(docId, docRev);
         
-        ListView listview = new ListView("listView", keyList) {
-            @Override
-            protected void populateItem(ListItem item) {
-                String key = (String) item.getModelObject();
-                
-                item.add(new Label("property", key));
-                item.add(new Label("value", metadata.get(key)));
-            }
-        };
-        add(listview);
+        add(new Label("id", metadata.getId()));
+        add(new Label("rev", metadata.getRev()));
+        add(new Label("schemaId", metadata.getSchemaId()));
+        add(new Label("schemaRev", metadata.getSchemaRev()));
+        add(new Label("author", metadata.getAuthor()));
+        add(new Label("lastModifiedBy", metadata.getLastModifiedBy()));
+        add(new Label("creationTime", metadata.getCreationDate()));
+        add(new Label("lastModified", metadata.getLastModifiedDate()));
     }
 }

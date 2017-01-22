@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import org.ektorp.Revision;
@@ -91,8 +90,8 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public JsonNode getSchema(String id, String rev) {
-        return repo.getSchema(id, rev);
+    public JsonNode getDocumentByIdAndRev(String id, String rev) {
+        return repo.getDocumentByIdAndRev(id, rev);
     }
 
     @Override
@@ -106,8 +105,8 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public Map<String, String> getMetadataFromDoc(String id) {
-        return repo.getMetadataFromDoc(id);
+    public DocumentMetadata getMetadataFromDoc(String id, String rev) {
+        return repo.getMetadataFromDoc(id, rev);
     }
 
     @Override
@@ -173,5 +172,31 @@ public class DocumentServiceImpl implements DocumentService {
         }
         
         return null;
+    }
+
+    @Override
+    public byte[] getAttachmentsFromJson(JsonNode doc) {
+        try {
+            return new ObjectMapper().writeValueAsBytes(doc.get("_attachments"));
+        } catch (JsonProcessingException ex) {
+            logger.error(ex);
+        }
+        
+        return null;
+    }
+
+    @Override
+    public int countDocumentVersions(String id) {
+        return repo.countDocumentVersions(id);
+    }
+    
+    @Override
+    public int getRevisionIndex(String id, String rev) {
+        return repo.getRevisionIndex(id, rev);
+    }
+
+    @Override
+    public List<String> getAttachmentRevisions(String id) {
+        return repo.getAttachmentRevisions(id);
     }
 }

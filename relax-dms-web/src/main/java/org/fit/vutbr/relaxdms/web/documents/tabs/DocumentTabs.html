@@ -1,4 +1,37 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<wicket:extend xmlns:wicket="http://wicket.apache.org">
-    <div wicket:id="tabs" class="tabpanel">[tabbed panel will be here]</div>
-</wicket:extend>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+    <head>
+        <title>Document Tabs</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+        <wicket:head>
+            <style>
+                footer.row {
+                    font-family: monospace;
+                    margin-top: 20px;
+                }
+                a:link, a:active, a:hover, a:visited {
+                    text-decoration: none;
+                }
+            </style>
+        </wicket:head>
+    </head>
+    <body>
+        <wicket:extend xmlns:wicket="http://wicket.apache.org">
+            <div wicket:id="tabs" class="tabpanel">[tabbed panel will be here]</div>
+
+            <footer class="row">
+                <div class="pull-left">
+                    Showing revision <span wicket:id="currentRevision"></span> of <span wicket:id="revisionCount"></span>
+                </div>
+
+                <div class="pull-right">
+                    <a wicket:id="previousLink"><span><i class="icon-arrow-left"></i> <code>Previous Version</code></span></a>
+                    <span> | </span>
+                    <a wicket:id="nextLink"><span><code>Next Version</code> <i class="icon-arrow-right"></i></span></a>
+                </div>
+                <div class="clearfix"></div>
+            </footer>
+        </wicket:extend>
+    </body>
+</html>

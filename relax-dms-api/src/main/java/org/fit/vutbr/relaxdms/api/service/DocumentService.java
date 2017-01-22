@@ -2,7 +2,6 @@ package org.fit.vutbr.relaxdms.api.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.List;
-import java.util.Map;
 import org.ektorp.Revision;
 import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 import org.fit.vutbr.relaxdms.data.db.dao.model.DocumentMetadata;
@@ -116,19 +115,20 @@ public interface DocumentService {
     public void storeSchema(JsonNode schema);
     
     /**
-     * Get schema specified by Id and revision. If revision is older than current revision it is retrieve from attachment.
-     * @param id Id of schema as string
-     * @param rev Revision of schema as string
-     * @return Schema as JsonNode
+     * Get document specified by Id and revision. If revision is older than current revision it is retrieve from attachment.
+     * @param id Id of document as string
+     * @param rev Revision of document as string
+     * @return document as JsonNode
      */
-    public JsonNode getSchema(String id, String rev);
+    public JsonNode getDocumentByIdAndRev(String id, String rev);
     
     /**
-     * Returns metadata from document specified by Id.
+     * Returns metadata from document specified by Id and Rev.
      * @param id String Id of document
-     * @return Map<String, String> Metadata of the document specified by Id
+     * @param rev String Rev of document
+     * @return DocumentMetadata Metadata of the document specified by Id and rev
      */
-    public Map<String, String> getMetadataFromDoc(String id);
+    public DocumentMetadata getMetadataFromDoc(String id, String rev);
     
     /**
      * Returns metadata from provided json document.
@@ -143,6 +143,13 @@ public interface DocumentService {
      * @return byte[] data from json
      */
     public byte[] getDataFromJson(JsonNode doc);
+    
+    /**
+     * Returns attachments from provided json document.
+     * @param doc JsonNode
+     * @return byte[] attachments from json
+     */
+    public byte[] getAttachmentsFromJson(JsonNode doc);
     
     /**
      * Removes all data we don't want to show in JSON editor.
@@ -165,4 +172,26 @@ public interface DocumentService {
      * @return List of Documents
      */
     public List<Document> getAllDocumentsMetadata();
+    
+    /**
+     * Returns count of document's versions. 
+     * @param id Id of document
+     * @return int number of versions of document
+     */
+    public int countDocumentVersions(String id);
+    
+    /**
+     * Returns index of version specified by rev parameter.
+     * @param id Id of document
+     * @param rev Revision of document
+     * @return Index of version
+     */
+    public int getRevisionIndex(String id, String rev);
+    
+    /**
+     * Returns all revisions of document's attachments.
+     * @param id od document
+     * @return List of revisions
+     */
+    public List<String> getAttachmentRevisions(String id);
 }

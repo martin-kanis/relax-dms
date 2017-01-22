@@ -32,6 +32,8 @@ import org.fit.vutbr.relaxdms.web.documents.DocumentList;
 public class DocumentPage extends Panel implements Serializable {
     
     private final String docId;
+    
+    private final String docRev;
 
     @Inject
     private DocumentService documentService;
@@ -42,15 +44,17 @@ public class DocumentPage extends Panel implements Serializable {
     @Inject
     private Convert convert;
     
-    public DocumentPage(String id, String docId) {
+    public DocumentPage(String id, String docId, String docRev) {
         super(id);
         this.docId = docId;
+        this.docRev = docRev;
         prepareEditor(Collections.EMPTY_MAP);
     }
 
-    public DocumentPage(String id, String docId, Map diffMap) {
+    public DocumentPage(String id, String docId, String docRev, Map diffMap) {
         super(id);
         this.docId = docId;
+        this.docRev = docRev;
         prepareEditor(diffMap);
     }
     
@@ -68,15 +72,21 @@ public class DocumentPage extends Panel implements Serializable {
     }
     
     private void prepareEditor(Map diffMap) {
-        JsonNode json = documentService.getDocumentById(docId);
+        JsonNode json;
+        if (docRev == null) {
+            json = documentService.getDocumentById(docId);
+        } else {
+            json = documentService.getDocumentByIdAndRev(docId, docRev);
+        }
         String doc = convert.jsonNodeToString(json);
         
         byte[] data = documentService.getDataFromJson(json);
+        byte[] attachments = documentService.getAttachmentsFromJson(json);
         DocumentMetadata metadata = documentService.getMetadataFromJson(json);
         Workflow workflow = workflowService.getWorkflowFromJson(json);
         
-        JsonNode schema = documentService.getSchema(metadata.getSchemaId(), metadata.getSchemaRev());
-        AbstractAjaxBehavior ajaxSaveBehaviour = new DocumentEditorBehavior(new Document(data, metadata, workflow), this);
+        JsonNode schema = documentService.getDocumentByIdAndRev(metadata.getSchemaId(), metadata.getSchemaRev());
+        AbstractAjaxBehavior ajaxSaveBehaviour = new DocumentEditorBehavior(new Document(data, attachments, metadata, workflow), this);
         add(ajaxSaveBehaviour);
         
         DocumentEditorData editorData = new DocumentEditorData(schema, EditorUseCase.UPDATE);
@@ -85,6 +95,10 @@ public class DocumentPage extends Panel implements Serializable {
         
         StateEnum state = workflow.getState().getCurrentState();
         boolean readonly = !((state == StateEnum.OPEN) || (state == StateEnum.IN_PROGRESS));
+        
+        // if not current version, disable editing
+        if (docRev != null && !docRev.equals(documentService.getCurrentRevision(docId)))
+            readonly = true;
         editorData.setReadonly(readonly);
         
         createDeleteButton(doc, readonly);

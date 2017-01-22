@@ -19,6 +19,7 @@ import org.fit.vutbr.relaxdms.data.db.dao.model.DocumentMetadata;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.LabelEnum;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.StateEnum;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Workflow;
+import org.fit.vutbr.relaxdms.web.documents.tabs.DocumentTabs;
 
 /**
  *
@@ -77,10 +78,13 @@ public class DocumentWorkflow extends Panel implements Serializable {
     
     private final DocumentLabels documentLabels;
     
+    private final DocumentTabs tabs;
+    
     private final Document docData;
     
-    public DocumentWorkflow(String id, String docId) {
+    public DocumentWorkflow(String id, String docId, String docRev, DocumentTabs tabs) {
         super(id);
+        this.tabs = tabs;
         
         HttpServletRequest req = (HttpServletRequest) getRequest().getContainerRequest();
         user = auth.getUserName(req);
@@ -88,12 +92,18 @@ public class DocumentWorkflow extends Panel implements Serializable {
         isAdmin = auth.isAdminAuthorized(req);
         isManager = auth.isManagerAuthorized(req);
         
-        JsonNode doc = documentService.getDocumentById(docId);
+        JsonNode doc;
+        if (docRev == null) {
+            doc = documentService.getDocumentById(docId);
+        } else {
+            doc = documentService.getDocumentByIdAndRev(docId, docRev);
+        }
         byte[] data = documentService.getDataFromJson(doc);
+        byte[] attachments = documentService.getAttachmentsFromJson(doc);
         workflow = workflowService.getWorkflowFromJson(doc);
         metadata = documentService.getMetadataFromJson(doc);
         metadata.setLastModifiedBy(user);
-        docData = new Document(data, metadata, workflow);
+        docData = new Document(data, attachments, metadata, workflow);
         
         approvedLabel = new Label("approvedLabel", "Approved");
         declinedLabel = new Label("declinedLabel", "Declined");
@@ -102,7 +112,7 @@ public class DocumentWorkflow extends Panel implements Serializable {
         approvalByLabel = new Label("approvalBy");
         approvalByValue = new Label("approvalByValue");
 
-        assigneeLabel = new AssigneeLabel("assignee", docId, docData);
+        assigneeLabel = new AssigneeLabel("assignee", docId, docData, tabs);
 
         prepareComonents();
         prepareApprovalComponents();
@@ -110,6 +120,12 @@ public class DocumentWorkflow extends Panel implements Serializable {
         documentLabels = new DocumentLabels("labels", docData);
         documentLabels.setOutputMarkupId(true);
         add(documentLabels);
+        
+        // disable components if we have older version
+        if (docRev != null && !docRev.equals(documentService.getCurrentRevision(docId))) {
+            disableComponents(approveLink, declineLink, submitLink, startProgressLink, 
+                    closeLink, reopenLink, signLink, freezeLink, assigneeLabel);
+        }
     }
     
     private void prepareApprovalComponents() {
@@ -188,9 +204,11 @@ public class DocumentWorkflow extends Panel implements Serializable {
                 stateLabel.setDefaultModel(new Model(workflow.getState().getCurrentState().getName()));
                 assigneeLabel.setDefaultModel(new Model(workflow.getAssignment().getAssignee()));
                 
+                tabs.refreshTabs(docData.getMetadata().getRev());
+                
                 target.add(approveLink, declineLink, approvedLabel, declinedLabel, closeLink,
                         noneLabel, approvalByValue, approvalByLabel, stateLabel, assigneeLabel, 
-                        documentLabels, signLink);
+                        documentLabels, signLink, tabs);
             }
         };
         addComponent(approveLink, visible);
@@ -215,7 +233,9 @@ public class DocumentWorkflow extends Panel implements Serializable {
                 stateLabel.setDefaultModel(new Model(workflow.getState().getCurrentState().getName()));
                 assigneeLabel.setDefaultModel(new Model(workflow.getAssignment().getAssignee()));
                 
-                target.add(submitLink, declineLink, approveLink, declinedLabel, 
+                tabs.refreshTabs(docData.getMetadata().getRev());
+                
+                target.add(submitLink, declineLink, approveLink, declinedLabel, tabs,
                         approvedLabel, noneLabel, approvalByValue, approvalByLabel, 
                         stateLabel, startProgressLink, assigneeLabel, documentLabels);
             }
@@ -242,10 +262,12 @@ public class DocumentWorkflow extends Panel implements Serializable {
                 approveLink.setVisible(approvalVisible);
                 declineLink.setVisible(approvalVisible);
 
+                tabs.refreshTabs(docData.getMetadata().getRev());
+                
                 target.add(stateLabel, assigneeLabel, submitLink, startProgressLink, 
                         approveLink, declineLink, approvedLabel, declinedLabel, 
                         approvalByLabel, approvalByValue, noneLabel, documentLabels,
-                        freezeLink);
+                        freezeLink, tabs);
             }
         };
         addComponent(submitLink, visible);
@@ -262,7 +284,9 @@ public class DocumentWorkflow extends Panel implements Serializable {
                 setVisibility(false, startProgressLink, documentLabels.getFreezedLabel());
                 setVisibility(true, freezeLink);
                 
-                target.add(stateLabel, startProgressLink, documentLabels, freezeLink);
+                tabs.refreshTabs(docData.getMetadata().getRev());
+                
+                target.add(stateLabel, startProgressLink, documentLabels, freezeLink, tabs);
             }
         };
         addComponent(startProgressLink, visible);
@@ -281,8 +305,10 @@ public class DocumentWorkflow extends Panel implements Serializable {
                         documentLabels.getFreezedLabel());
                 reopenLink.setVisible(true);
                 
+                tabs.refreshTabs(docData.getMetadata().getRev());
+                
                 target.add(stateLabel, closeLink, submitLink, startProgressLink,
-                        reopenLink, approveLink, declineLink, documentLabels);
+                        reopenLink, approveLink, declineLink, documentLabels, tabs);
             }
         };
         addComponent(closeLink, visible);
@@ -302,9 +328,11 @@ public class DocumentWorkflow extends Panel implements Serializable {
                         approvalByValue, reopenLink, documentLabels.getApprovedlabel(),
                         documentLabels.getSignedLabel(), documentLabels.getFreezedLabel());
                 
+                tabs.refreshTabs(docData.getMetadata().getRev());
+                
                 target.add(stateLabel, closeLink, submitLink, startProgressLink, 
                         reopenLink, approvedLabel, declinedLabel, approvalByLabel,
-                        approvalByValue, noneLabel, documentLabels, freezeLink);
+                        approvalByValue, noneLabel, documentLabels, freezeLink, tabs);
             }
         };
         addComponent(reopenLink, visible);
@@ -319,7 +347,9 @@ public class DocumentWorkflow extends Panel implements Serializable {
                 setVisibility(true, documentLabels.getSignedLabel());
                 setVisibility(false, signLink);
                 
-                target.add(documentLabels, signLink);
+                tabs.refreshTabs(docData.getMetadata().getRev());
+                
+                target.add(documentLabels, signLink, tabs);
             }
         };
         addComponent(signLink, visible);
@@ -334,7 +364,9 @@ public class DocumentWorkflow extends Panel implements Serializable {
                 setVisibility(false, freezeLink);
                 setVisibility(true, documentLabels.getFreezedLabel());
                 
-                target.add(freezeLink, documentLabels);
+                tabs.refreshTabs(docData.getMetadata().getRev());
+                
+                target.add(freezeLink, documentLabels, tabs);
             }
         };
         addComponent(freezeLink, visible);
@@ -350,5 +382,10 @@ public class DocumentWorkflow extends Panel implements Serializable {
     private void setVisibility(boolean visible, Component... components) {
         for (Component c: components)
             c.setVisible(visible);
+    }
+    
+    private void disableComponents(Component... components) {
+        for (Component c: components)
+            c.setEnabled(false);
     }
 }

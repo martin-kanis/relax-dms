@@ -52,7 +52,9 @@ public class DocumentRestImpl implements DocumentRest {
     public Response create(String json) {
         try {
             JsonNode jsonNode = new ObjectMapper().readValue(json, JsonNode.class);
-            Document docData = new Document(documentService.getDataFromJson(jsonNode), new DocumentMetadata(), new Workflow());
+            byte[] data = documentService.getDataFromJson(jsonNode);
+            byte[] attachments = documentService.getAttachmentsFromJson(jsonNode);
+            Document docData = new Document(data, attachments, new DocumentMetadata(), new Workflow());
             documentService.storeDocument(jsonNode, docData);
         } catch (IOException ex) {
             return Response.status(500).entity("Jackson error: Could not serialize provided object!").build();

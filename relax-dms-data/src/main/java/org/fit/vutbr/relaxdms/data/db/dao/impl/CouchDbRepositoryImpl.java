@@ -12,11 +12,9 @@ import com.flipkart.zjsonpatch.JsonDiff;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +40,6 @@ import org.fit.vutbr.relaxdms.data.system.configuration.ConfigurationService;
 import org.ektorp.http.RestTemplate;
 import org.fit.vutbr.relaxdms.api.service.DocumentService;
 import org.fit.vutbr.relaxdms.api.service.WorkflowService;
-import org.fit.vutbr.relaxdms.api.system.Convert;
 import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 import org.fit.vutbr.relaxdms.data.db.dao.model.DocumentMetadata;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Workflow;
@@ -57,9 +54,6 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
 
     @Inject
     private ConfigurationService config;
-    
-    @Inject
-    private Convert convert;
     
     @Inject
     private WorkflowService workflowService;
@@ -134,25 +128,35 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
     }
     
     @Override
-    @View(name = "get_metadata", map = "function(doc) { emit(doc._id, "
-            + "{author:doc.metadata.author, creationDate:doc.metadata.creationDate, "
-            + "lastModifiedDate:doc.metadata.lastModifiedDate, lastModifiedBy:doc.metadata.lastModifiedBy})}")
-    public Map<String, String> getMetadataFromDoc(String id) {
-        ViewQuery q = new ViewQuery()
-                .viewName("get_metadata")
-                .designDocId("_design/JsonNode")
-                .key(id);
-        
-        ViewResult result = db.queryView(q);
-        String json = result.getRows().get(0).getValue();
-        
-        Map<String, String> resultMap = new HashMap<>();
-        try {
-            resultMap = new ObjectMapper().readValue(json, HashMap.class);
-        } catch (IOException ex) {
-            logger.error(ex);
+    @View(name = "get_metadata", map = "function(doc) { emit(doc._id, doc.metadata)}")
+    public DocumentMetadata getMetadataFromDoc(String id, String rev) {
+        if (rev == null) {
+            ViewQuery q = new ViewQuery()
+                    .viewName("get_metadata")
+                    .designDocId("_design/JsonNode")
+                    .key(id);
+
+            ViewResult result = db.queryView(q);
+            try {
+                DocumentMetadata metadata = mapper.treeToValue(result.getRows().get(0).getValueAsNode(), DocumentMetadata.class);
+                metadata.setId(id);
+                metadata.setRev(getCurrentRevision(id));
+                return metadata;
+            } catch (JsonProcessingException ex) {
+                logger.error(ex);
+            }
+        } else {
+            JsonNode doc = getDocumentByIdAndRev(id, rev);
+            try {
+                DocumentMetadata metadata = mapper.treeToValue(doc.get("metadata"), DocumentMetadata.class);
+                metadata.setId(id);
+                metadata.setRev(rev);
+                return metadata;
+            } catch (JsonProcessingException ex) {
+                logger.error(ex);
+            }
         }
-        return resultMap;
+        return null;
     }
     
     @Override
@@ -167,6 +171,8 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
         String json = result.getRows().get(0).getValue();
         return workflowService.serialize(json);
     }
+    
+    
     
     /**
      * Sends HTTP request to perform specified show function to provided document
@@ -200,9 +206,10 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
     @Override
     public JsonNode updateDoc(Document docData) {
         final ObjectReader reader = mapper.reader();
-        JsonNode json;
+        JsonNode json, attachments;
         try {
             json = reader.readTree(new ByteArrayInputStream(docData.getData()));
+            attachments = reader.readTree(new ByteArrayInputStream(docData.getAttachments()));
         } catch (IOException ex) {
             logger.error(ex);
             return null;
@@ -211,20 +218,41 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
         if (json.get("data") == null)
             json = addWrapperAroundData(json);
         
+        // add attachments
+        if (!attachments.isNull()) {
+            ((ObjectNode) json).set("_attachments", attachments);
+        }
+        
         DocumentMetadata metadata = docData.getMetadata();
         JsonNode doc = documentService.addMetadataToJson(json, updateDocMetadata(metadata));
         doc = workflowService.addWorkflowToDoc(doc, docData.getWorkflow());
+        String id = metadata.getId();
         
+        // get old version of document
+        JsonNode oldDoc = find(id);
+        byte[] bytes = jsonNodeToBytes(oldDoc);
+        InputStream stream = new ByteArrayInputStream(bytes);
+        String oldRev = oldDoc.get("_rev").textValue();
+        AttachmentInputStream data = new AttachmentInputStream(oldRev, stream, "application/json");
+
         try {
             db.update(doc);
+
+            String rev = getCurrentRevision(id);
             
+            // store od version of document as attachment
+            rev = db.createAttachment(id, rev, data);
             // update revision in Document model
-            String rev = getCurrentRevision(metadata.get_id());
-            metadata.set_rev(rev);
+            metadata.setRev(rev);
+            docData.setAttachments(getAttachments(id));
             
+            try {
+                data.close();
+            } catch (IOException ex) {
+                logger.error(ex);
+            }
             return (JsonNode) JsonNodeFactory.instance.nullNode();
         } catch (UpdateConflictException ex) {
-            String id = metadata.getId();
             JsonNode diff = JsonDiff.asJson(find(id), json);
   
             return removeMetadataFromDiff(diff);
@@ -268,7 +296,7 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
         db.update(newSchema);
         
         // prepare old schema as stream
-        byte[] bytes = convert.jsonNodeToString(oldSchema).getBytes(StandardCharsets.UTF_8);
+        byte[] bytes = jsonNodeToBytes(oldSchema);
         InputStream stream = new ByteArrayInputStream(bytes);
         String oldRev = oldSchema.get("_rev").textValue();
         
@@ -277,7 +305,8 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
         // data will be stored as application/json content type
         // note that this also increment revision of the document
         AttachmentInputStream data = new AttachmentInputStream(oldRev, stream, "application/json");
-        db.createAttachment(newSchema.get("_id").textValue(), newSchema.get("_rev").textValue(), data);  
+        String id = newSchema.get("_id").textValue();
+        db.createAttachment(id, getCurrentRevision(id), data);  
         
         try {
             data.close();
@@ -287,7 +316,7 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
     }
 
     @Override
-    public JsonNode getSchema(String id, String rev) {
+    public JsonNode getDocumentByIdAndRev(String id, String rev) {
         String currentRev = getCurrentRevision(id);
         JsonNode schema = null;
         
@@ -307,6 +336,15 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
             return schema;
         }
     }
+    
+    private byte[] jsonNodeToBytes(JsonNode doc) {
+        try {
+            return mapper.writeValueAsBytes(doc);
+        } catch (JsonProcessingException ex) {
+            logger.error(ex);
+            return null;
+        }
+    } 
     
     private JsonNode addWrapperAroundData(JsonNode json) {
         ObjectNode result = new ObjectNode(JsonNodeFactory.instance);
@@ -357,7 +395,7 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
 
     @Override
     @View(name = "get_all_metadata", map = "function(doc) { if (!doc.doc_template) {"
-    + "emit(doc._id, [doc.data, "
+    + "emit(doc._id, [doc.data, doc._attachments, "
             + "{_id:doc._id, _rev:doc._rev, schemaId:doc.metadata.schemaId, schemaRev:doc.metadata.schemaRev, author:doc.metadata.author,"
             + "creationDate:doc.metadata.creationDate, lastModifiedDate:doc.metadata.lastModifiedDate, lastModifiedBy:doc.metadata.lastModifiedBy}, "
             + "doc.workflow])}}")
@@ -371,14 +409,75 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
         result.getRows().stream().map((row) -> (ArrayNode) row.getValueAsNode()).forEach((docAsNode) -> {
             try {
                 byte[] data = mapper.writeValueAsBytes(docAsNode.get(0));
-                DocumentMetadata metadata = mapper.treeToValue(docAsNode.get(1), DocumentMetadata.class);
-                Workflow workflow = mapper.treeToValue(docAsNode.get(2), Workflow.class);
-                Document docData = new Document(data, metadata, workflow);
+                byte[] attachments = mapper.writeValueAsBytes(docAsNode.get(1));
+                DocumentMetadata metadata = mapper.treeToValue(docAsNode.get(2), DocumentMetadata.class);
+                Workflow workflow = mapper.treeToValue(docAsNode.get(3), Workflow.class);
+                Document docData = new Document(data, attachments, metadata, workflow);
                 resultList.add(docData);
             } catch (JsonProcessingException ex) {
                 logger.error(ex);
             }
         });
         return resultList;
+    }
+    
+    @View(name = "get_attachments", map = "function(doc) {if (doc._attachments) {"
+            + "emit(doc._id, doc._attachments)}}")
+    public byte[] getAttachments(String id) {
+        ViewQuery q = new ViewQuery()
+                .viewName("get_attachments")
+                .designDocId("_design/JsonNode")
+                .key(id);
+
+        ViewResult result = db.queryView(q);
+        try {
+            return mapper.writeValueAsBytes(result.getRows().get(0).getValueAsNode());
+        } catch (JsonProcessingException ex) {
+            logger.error(ex);
+        }
+        return null;
+    }
+
+    @Override
+    @View(name = "count_versions", map = "function(doc) { var count = 1; if (doc._attachments) {"
+            + " for(var key in doc._attachments) {count += 1;}}"
+            + "emit(doc._id, count)}")
+    public int countDocumentVersions(String id) {
+        ViewQuery q = new ViewQuery()
+                .viewName("count_versions")
+                .designDocId("_design/JsonNode")
+                .key(id);
+        
+        ViewResult result = db.queryView(q);
+        return Integer.parseInt(result.getRows().get(0).getValue());
+    }
+    
+    @Override
+    @View(name = "get_attachments_revs", map = "function(doc) {if (doc._attachments) { var revs = [];"
+            + " for(var key in doc._attachments) {revs.push(key);}"
+            + "emit(doc._id, revs)}}")
+    public List<String> getAttachmentRevisions(String id) {
+        ViewQuery q = new ViewQuery()
+                .viewName("get_attachments_revs")
+                .designDocId("_design/JsonNode")
+                .key(id);
+
+        ViewResult result = db.queryView(q);
+        try {
+            return mapper.treeToValue(result.getRows().get(0).getValueAsNode(), List.class);
+        } catch (JsonProcessingException ex) {
+            logger.error(ex);
+        }
+        return null;
+    }
+
+    @Override
+    public int getRevisionIndex(String id, String rev) {
+        if (rev == null) {
+            return countDocumentVersions(id);
+        } else {
+            List<String> attachmentRevs = getAttachmentRevisions(id);
+            return attachmentRevs.size() - attachmentRevs.indexOf(rev);
+        }
     }
 }

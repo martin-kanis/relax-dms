@@ -2,10 +2,10 @@ package org.fit.vutbr.relaxdms.data.db.dao.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.ektorp.Revision;
 import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
+import org.fit.vutbr.relaxdms.data.db.dao.model.DocumentMetadata;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Workflow;
 
 /**
@@ -77,12 +77,12 @@ public interface CouchDbRepository {
     public void updateSchema(JsonNode oldSchema, JsonNode newSchema);
     
     /**
-     * Get schema specified by Id and revision. If revision is older than current revision it is retrieve from attachment.
-     * @param id Id of schema as string
-     * @param rev Revision of schema as string
-     * @return Schema as JsonNode
+     * Get document specified by Id and revision. If revision is older than current revision it is retrieve from attachment.
+     * @param id Id of document as string
+     * @param rev Revision of document as string
+     * @return document as JsonNode
      */
-    public JsonNode getSchema(String id, String rev);
+    public JsonNode getDocumentByIdAndRev(String id, String rev);
     
     /**
      * Finds document by provided ID
@@ -132,11 +132,12 @@ public interface CouchDbRepository {
     public List<Revision> getRevisions(String id);
     
     /**
-     * Returns metadata from document specified by Id.
+     * Returns metadata from document specified by Id and Rev.
      * @param id String Id of document
-     * @return Map<String, String> Metadata of the document specified by Id
+     * @param rev String Rev of document
+     * @return DocumentMetadata Metadata of the document specified by Id and rev
      */
-    public Map<String, String> getMetadataFromDoc(String id);
+    public DocumentMetadata getMetadataFromDoc(String id, String rev);
     
     /**
      * Returns workflow from document specified by Id.
@@ -150,4 +151,26 @@ public interface CouchDbRepository {
      * @return List of Documents
      */
     public List<Document> getAllDocumentsMetadata();
+    
+    /**
+     * Returns count of document's versions. 
+     * @param id Id of document
+     * @return int number of versions of document
+     */
+    public int countDocumentVersions(String id);
+    
+    /**
+     * Returns index of version specified by rev parameter.
+     * @param id Id of document
+     * @param rev Revision of document
+     * @return Index of version
+     */
+    public int getRevisionIndex(String id, String rev);
+    
+    /**
+     * Returns all revisions of document's attachments.
+     * @param id od document
+     * @return List of revisions
+     */
+    public List<String> getAttachmentRevisions(String id);
 }
