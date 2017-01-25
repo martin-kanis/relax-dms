@@ -24,6 +24,8 @@ public class DocumentLabels extends Panel {
     
     private Document docData;
     
+    private Label releasedLabel;
+    
     private Label signedLabel;
     
     private Label approvedlabel;
@@ -35,6 +37,9 @@ public class DocumentLabels extends Panel {
     public DocumentLabels(String id, Document docData) {
         super(id);
         this.docData = docData;
+        
+        releasedLabel = new Label("released", LabelEnum.RELEASED.getName());
+        releasedLabel.add(new AttributeModifier("title", LabelEnum.RELEASED.getDescription()));
         
         signedLabel = new Label("signed", LabelEnum.SIGNED.getName());
         signedLabel.add(new AttributeModifier("title", LabelEnum.SIGNED.getDescription()));
@@ -48,6 +53,9 @@ public class DocumentLabels extends Panel {
         freezedLabel = new Label("freezed", LabelEnum.FREEZED.getName());
         freezedLabel.add(new AttributeModifier("title", LabelEnum.FREEZED.getDescription()));
         
+        boolean isReleased = workflowService.checkLabel(docData.getWorkflow(), LabelEnum.RELEASED);
+        releasedLabel.setVisible(isReleased);
+        
         boolean isSigned = workflowService.checkLabel(docData.getWorkflow(), LabelEnum.SIGNED);
         signedLabel.setVisible(isSigned);
         
@@ -60,7 +68,7 @@ public class DocumentLabels extends Panel {
         boolean isFreezed = workflowService.checkLabel(docData.getWorkflow(), LabelEnum.FREEZED);
         freezedLabel.setVisible(isFreezed);
         
-        add(signedLabel, approvedlabel, submitedlabel, freezedLabel);
+        add(releasedLabel, signedLabel, approvedlabel, submitedlabel, freezedLabel);
     }
 
 }

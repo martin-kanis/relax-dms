@@ -2,6 +2,8 @@ package org.fit.vutbr.relaxdms.web.documents.tabs.workflow;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.wicket.Component;
@@ -62,6 +64,8 @@ public class DocumentWorkflow extends Panel implements Serializable {
     
     private AjaxLink freezeLink;
     
+    private AjaxLink releaseLink;
+    
     private final Label approvedLabel;
     
     private final Label declinedLabel;
@@ -113,6 +117,9 @@ public class DocumentWorkflow extends Panel implements Serializable {
         approvalByValue = new Label("approvalByValue");
 
         assigneeLabel = new AssigneeLabel("assignee", docId, docData, tabs);
+        if (workflowService.checkLabel(workflow, LabelEnum.RELEASED)) {
+            assigneeLabel.setEnabled(false);
+        }
 
         prepareComonents();
         prepareApprovalComponents();
@@ -123,8 +130,7 @@ public class DocumentWorkflow extends Panel implements Serializable {
         
         // disable components if we have older version
         if (docRev != null && !docRev.equals(documentService.getCurrentRevision(docId))) {
-            disableComponents(approveLink, declineLink, submitLink, startProgressLink, 
-                    closeLink, reopenLink, signLink, freezeLink, assigneeLabel);
+            disableComponents();
         }
     }
     
@@ -166,7 +172,8 @@ public class DocumentWorkflow extends Panel implements Serializable {
         boolean startProgressVisible = workflowService.checkState(workflow, StateEnum.OPEN);
         createStartProgressButton(startProgressVisible);
         
-        boolean closeVisible = !workflowService.checkState(workflow, StateEnum.CLOSED);
+        boolean closeVisible = !workflowService.checkState(workflow, StateEnum.CLOSED) &&
+                !workflowService.checkLabel(workflow, LabelEnum.RELEASED);
         createCloseButton(closeVisible);
         
         boolean reopenVisible = workflowService.checkState(workflow, StateEnum.CLOSED);
@@ -179,6 +186,10 @@ public class DocumentWorkflow extends Panel implements Serializable {
                 workflowService.checkState(workflow, StateEnum.IN_PROGRESS)) && 
                 !workflowService.checkLabel(workflow, LabelEnum.FREEZED);
         createFreezeButton(freezeVisible);
+        
+        boolean releaseVisible = workflowService.checkLabel(workflow, LabelEnum.SIGNED) &&
+                !workflowService.checkLabel(workflow, LabelEnum.RELEASED);
+        createReleaseButton(releaseVisible);
     }
     
     private void createApproveButton(boolean visible) {
@@ -344,12 +355,12 @@ public class DocumentWorkflow extends Panel implements Serializable {
             public void onClick(AjaxRequestTarget target) {
                 workflowService.addLabel(docData, LabelEnum.SIGNED);
                 
-                setVisibility(true, documentLabels.getSignedLabel());
+                setVisibility(true, releaseLink, documentLabels.getSignedLabel());
                 setVisibility(false, signLink);
                 
                 tabs.refreshTabs(docData.getMetadata().getRev());
                 
-                target.add(documentLabels, signLink, tabs);
+                target.add(documentLabels, signLink, releaseLink, tabs);
             }
         };
         addComponent(signLink, visible);
@@ -372,6 +383,24 @@ public class DocumentWorkflow extends Panel implements Serializable {
         addComponent(freezeLink, visible);
     }
     
+    private void createReleaseButton(boolean visible) {
+        releaseLink = new AjaxLink("release") {
+            @Override
+            public void onClick(AjaxRequestTarget target) {
+                workflowService.addLabel(docData, LabelEnum.RELEASED);
+                
+                setVisibility(false, releaseLink, closeLink);
+                setVisibility(true, documentLabels.getReleasedLabel());
+                assigneeLabel.setEnabled(false);
+                
+                tabs.refreshTabs(docData.getMetadata().getRev());
+                
+                target.add(releaseLink, documentLabels, closeLink, assigneeLabel, tabs);
+            }
+        };
+        addComponent(releaseLink, visible);
+    }
+    
     private void addComponent(Component c, boolean visible) {
         c.setVisible(visible);
         c.setOutputMarkupPlaceholderTag(true);
@@ -384,8 +413,11 @@ public class DocumentWorkflow extends Panel implements Serializable {
             c.setVisible(visible);
     }
     
-    private void disableComponents(Component... components) {
-        for (Component c: components)
+    private void disableComponents() {
+        List<Component> components = Arrays.asList(approveLink, declineLink, submitLink, 
+                startProgressLink, closeLink, reopenLink, releaseLink, signLink, freezeLink, assigneeLabel);
+        components.stream().forEach((c) -> {
             c.setEnabled(false);
+        });
     }
 }
