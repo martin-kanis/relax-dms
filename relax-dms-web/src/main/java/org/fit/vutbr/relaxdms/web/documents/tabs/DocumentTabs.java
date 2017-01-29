@@ -82,11 +82,15 @@ public class DocumentTabs extends BasePage implements Serializable {
         currentRevision.setDefaultModel(new Model(currentIndex));
         revisionCount.setDefaultModel(new Model(versionsCount));
         add(currentRevision, revisionCount);
-        
+
         if (currentIndex == 1)
             previousLink.setEnabled(false);
+        else 
+            previousLink.setEnabled(true);
         if (currentIndex == versionsCount)
             nextLink.setEnabled(false);
+        else 
+            nextLink.setEnabled(true);
         add(previousLink, nextLink);
     }
     
