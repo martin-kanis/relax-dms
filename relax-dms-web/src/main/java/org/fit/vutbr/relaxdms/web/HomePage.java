@@ -6,7 +6,7 @@ import org.fit.vutbr.relaxdms.web.cp.menu.MenuItemEnum;
 
 /**
  *
- * @author Martin Kanis
+ * @author Martin Kanis 
  */
 public class HomePage extends BasePage implements Serializable {
 

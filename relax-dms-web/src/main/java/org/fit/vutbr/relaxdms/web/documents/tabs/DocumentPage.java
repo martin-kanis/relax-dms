@@ -6,12 +6,14 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.behavior.AbstractAjaxBehavior;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
+import org.fit.vutbr.relaxdms.api.security.AuthController;
 import org.fit.vutbr.relaxdms.api.service.DocumentService;
 import org.fit.vutbr.relaxdms.api.service.WorkflowService;
 import org.fit.vutbr.relaxdms.api.system.Convert;
@@ -40,6 +42,9 @@ public class DocumentPage extends Panel implements Serializable {
     
     @Inject
     private WorkflowService workflowService;
+    
+    @Inject
+    private AuthController authControler;
     
     @Inject
     private Convert convert;
@@ -96,8 +101,10 @@ public class DocumentPage extends Panel implements Serializable {
         StateEnum state = workflow.getState().getCurrentState();
         boolean readonly = !((state == StateEnum.OPEN) || (state == StateEnum.IN_PROGRESS));
         
-        // if not current version, disable editing
-        if (docRev != null && !docRev.equals(documentService.getCurrentRevision(docId)))
+        HttpServletRequest req = (HttpServletRequest) getRequest().getContainerRequest();
+        // if not current version or user doesn't have writer rights, disable editing
+        if (docRev != null && !docRev.equals(documentService.getCurrentRevision(docId)) ||
+                !authControler.isUserAuthorized(req, "writer"))
             readonly = true;
         editorData.setReadonly(readonly);
         

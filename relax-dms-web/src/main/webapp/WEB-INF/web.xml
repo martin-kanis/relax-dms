@@ -25,13 +25,37 @@
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>app</web-resource-name>
+            <url-pattern>/</url-pattern>
+            <url-pattern>/user</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>app-admin</role-name>
+            <role-name>manager</role-name>
+            <role-name>writer</role-name>
+            <role-name>reader</role-name>
+        </auth-constraint>
+    </security-constraint>
+    
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>app</web-resource-name>
             <url-pattern>/user</url-pattern>
             <url-pattern>/create-document</url-pattern>
-            <url-pattern>/edit-document</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>app-admin</role-name>
+            <role-name>writer</role-name>
+            <role-name>manager</role-name>
+        </auth-constraint>
+    </security-constraint>
+    
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>app</web-resource-name>
             <url-pattern>/workflow</url-pattern>
         </web-resource-collection>
         <auth-constraint>
-            <role-name>user</role-name>
+            <role-name>manager</role-name>
         </auth-constraint>
     </security-constraint>
     
@@ -49,9 +73,17 @@
     <login-config>
         <auth-method>KEYCLOAK</auth-method>
     </login-config>
+    
+    <security-role>
+        <role-name>manager</role-name>
+    </security-role>
+    
+    <security-role>
+        <role-name>reader</role-name>
+    </security-role>
 
     <security-role>
-        <role-name>user</role-name>
+        <role-name>writer</role-name>
     </security-role>
     
     <security-role>

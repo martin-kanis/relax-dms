@@ -1,5 +1,8 @@
 package org.fit.vutbr.relaxdms.backend.security;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import javax.ejb.Stateless;
 import javax.servlet.ServletException;
@@ -20,9 +23,13 @@ import org.keycloak.representations.AccessToken;
 @Stateless
 public class AuthControllerImpl implements AuthController {
     
-    public static final String[] adminRoles = {"app-admin", "super-user"};
+    public static final Set<String> adminRoles = new HashSet<>(Arrays.asList("app-admin", "writer", "reader"));
     
-    public static final String[] managerRoles = {"manager"};
+    public static final Set<String> managerRoles = new HashSet<>(Arrays.asList("manager", "writer", "reader"));
+    
+    public static final Set<String> writerRoles = new HashSet<>(Arrays.asList("writer", "reader"));
+    
+    public static final Set<String> readerRoles = new HashSet<>(Arrays.asList("reader"));
     
     private final Logger logger = Logger.getLogger(this.getClass().getName());
 
@@ -74,24 +81,27 @@ public class AuthControllerImpl implements AuthController {
     }
 
     @Override
-    public boolean isAdminAuthorized(HttpServletRequest req) {
+    public boolean isUserAuthorized(HttpServletRequest req, String role) {
         Set<String> roles = getUserRoles(req);
 
-        for (String r: adminRoles) {
-            if (roles.contains(r))
-                return true;
+        String neededRole;
+        switch (role) {
+            case "admin":
+                neededRole = "app-admin";
+                break;
+            case "manager":
+                neededRole = role;
+                break;
+            case "writer":
+                neededRole = role;
+                break;
+            case "reader":
+                neededRole = role;
+                break;
+            default:
+                neededRole = "";
         }
-        return false;
+        
+        return roles.contains(neededRole);
     }
-
-    @Override
-    public boolean isManagerAuthorized(HttpServletRequest req) {
-        Set<String> roles = getUserRoles(req);
-
-        for (String r: managerRoles) {
-            if (roles.contains(r))
-                return true;
-        }
-        return false;
-    } 
  }

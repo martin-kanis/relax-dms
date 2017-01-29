@@ -93,8 +93,8 @@ public class DocumentWorkflow extends Panel implements Serializable {
         HttpServletRequest req = (HttpServletRequest) getRequest().getContainerRequest();
         user = auth.getUserName(req);
         
-        isAdmin = auth.isAdminAuthorized(req);
-        isManager = auth.isManagerAuthorized(req);
+        isAdmin = auth.isUserAuthorized(req, "admin");
+        isManager = auth.isUserAuthorized(req, "manager");
         
         JsonNode doc;
         if (docRev == null) {
@@ -128,8 +128,9 @@ public class DocumentWorkflow extends Panel implements Serializable {
         documentLabels.setOutputMarkupId(true);
         add(documentLabels);
         
-        // disable components if we have older version
-        if (docRev != null && !docRev.equals(documentService.getCurrentRevision(docId))) {
+        // disable components if we have older version or user don't have permissions to edit
+        if ((docRev != null && !docRev.equals(documentService.getCurrentRevision(docId))) ||
+                !auth.isUserAuthorized(req, "writer")) {
             disableComponents();
         }
     }

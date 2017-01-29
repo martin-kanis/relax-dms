@@ -1,8 +1,11 @@
 package org.fit.vutbr.relaxdms.web;
 
 import java.io.Serializable;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.fit.vutbr.relaxdms.api.security.AuthController;
 import org.fit.vutbr.relaxdms.web.admin.Schema;
 import org.fit.vutbr.relaxdms.web.admin.SchemaUpdate;
 import org.fit.vutbr.relaxdms.web.cp.menu.Menu;
@@ -18,17 +21,31 @@ import org.fit.vutbr.relaxdms.web.workflow.WorkflowPage;
  */
 public abstract class BasePage extends WebPage implements Serializable {
     
+    @Inject
+    private AuthController authController;
+    
     public BasePage(final PageParameters parameters) {
         super(parameters);
         
-        add(new Menu.Builder("navBar", HomePage.class, getActiveMenu())
-            .addMenuItemAsDropdown(MenuItemEnum.ADMIN, Schema.class, "Add Schema")
-            .addMenuItemAsDropdown(MenuItemEnum.ADMIN, SchemaUpdate.class, "Update Schema")
-            .addMenuItem(MenuItemEnum.USER, User.class)
-            .addMenuItemAsDropdown(MenuItemEnum.DOCUMENT, DocumentCreate.class, "Create Document")
-            .addMenuItemAsDropdown(MenuItemEnum.DOCUMENT, DocumentList.class, "Find Document")
-            .addMenuItem(MenuItemEnum.WORKFLOW, WorkflowPage.class)
-            .build());
+        HttpServletRequest req = (HttpServletRequest) getRequest().getContainerRequest();
+        
+        Menu.Builder menuBuilder = new Menu.Builder("navBar", HomePage.class, getActiveMenu());
+        
+        if (authController.isUserAuthorized(req, "admin")) {
+            menuBuilder.addMenuItemAsDropdown(MenuItemEnum.ADMIN, Schema.class, "Add Schema")
+            .addMenuItemAsDropdown(MenuItemEnum.ADMIN, SchemaUpdate.class, "Update Schema");
+        }
+        menuBuilder.addMenuItem(MenuItemEnum.USER, User.class);
+          
+        if (authController.isUserAuthorized(req, "writer")) {    
+            menuBuilder.addMenuItemAsDropdown(MenuItemEnum.DOCUMENT, DocumentCreate.class, "Create Document");
+        }
+        menuBuilder.addMenuItemAsDropdown(MenuItemEnum.DOCUMENT, DocumentList.class, "Find Document");
+                
+        if (authController.isUserAuthorized(req, "manager"))       
+            menuBuilder.addMenuItem(MenuItemEnum.WORKFLOW, WorkflowPage.class);
+        
+        add(menuBuilder.build());
     }
 
     public abstract MenuItemEnum getActiveMenu();
