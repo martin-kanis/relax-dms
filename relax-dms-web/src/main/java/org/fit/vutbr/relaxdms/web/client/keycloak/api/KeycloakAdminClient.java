@@ -28,4 +28,10 @@ public interface KeycloakAdminClient {
      * @return True if user exists, false otherwise
      */
     public boolean userExists(String user);
+    
+    /**
+     * Returns all users from managers group.
+     * @return List of usernames with manager role.
+     */
+    public List<String> getManagers();
 }

@@ -15,7 +15,7 @@ import org.fit.vutbr.relaxdms.data.db.dao.api.CouchDbRepository;
 import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.ApprovalEnum;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Assignment;
-import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Flag;
+import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Environment;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Label;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.LabelEnum;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.StateEnum;
@@ -151,13 +151,6 @@ public class WorkflowServiceImpl implements WorkflowService {
             removeLabel(docData, LabelEnum.FREEZED);
         }
 
-        // document was submited, fire drools rules to perform steps
-        if (expectedState == StateEnum.SUBMITED) {
-            cancelApproval(docData);
-            removeLabel(docData, LabelEnum.FREEZED);
-            fireWorkflow(docData);
-        }
-
         repo.updateDoc(docData);
     }
 
@@ -194,10 +187,8 @@ public class WorkflowServiceImpl implements WorkflowService {
     }
     
     @Override
-    public void insertAllFacts(List<Document> docDataList) {
-        // Insert a fact for async start of rule and get a handle on to it
-        Flag asyncFire = new Flag(true);
-        FactHandle handle = kSession.insert(asyncFire);
+    public void insertAllFacts(List<Document> docDataList, Environment env) {
+        FactHandle handle = kSession.insert(env);
 
         Set<Document> modifiedFacts = new HashSet<>();
         kSession.setGlobal("docSet", modifiedFacts);
@@ -208,9 +199,24 @@ public class WorkflowServiceImpl implements WorkflowService {
         
         // retract the async fact
         kSession.retract(handle);
-        
+
         repo.updateDocs(modifiedFacts);
-    }   
+    }  
+    
+    @Override
+    public void submitDocument(Document docData, Environment env) {
+        FactHandle handle = kSession.insert(env);
+        
+        cancelApproval(docData);
+        removeLabel(docData, LabelEnum.FREEZED);
+        
+        fireWorkflow(docData);
+        
+        // retract the async fact
+        kSession.retract(handle);
+        
+        repo.updateDoc(docData);
+    }
     
     private void removeLabel(Document docData, LabelEnum labelType) {
         Label label = new Label(labelType);

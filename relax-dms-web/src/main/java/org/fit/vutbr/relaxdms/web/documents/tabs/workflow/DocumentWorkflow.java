@@ -11,6 +11,8 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.AjaxEditableLabel;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.fit.vutbr.relaxdms.api.security.AuthController;
@@ -18,9 +20,11 @@ import org.fit.vutbr.relaxdms.api.service.DocumentService;
 import org.fit.vutbr.relaxdms.api.service.WorkflowService;
 import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 import org.fit.vutbr.relaxdms.data.db.dao.model.DocumentMetadata;
+import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Environment;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.LabelEnum;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.StateEnum;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Workflow;
+import org.fit.vutbr.relaxdms.web.client.keycloak.api.KeycloakAdminClient;
 import org.fit.vutbr.relaxdms.web.documents.tabs.DocumentTabs;
 
 /**
@@ -44,7 +48,8 @@ public class DocumentWorkflow extends Panel implements Serializable {
     @Inject
     private AuthController auth;
     
-    private final boolean isAdmin;
+    @Inject
+    private KeycloakAdminClient authClient;
     
     private final boolean isManager;
     
@@ -92,8 +97,7 @@ public class DocumentWorkflow extends Panel implements Serializable {
         
         HttpServletRequest req = (HttpServletRequest) getRequest().getContainerRequest();
         user = auth.getUserName(req);
-        
-        isAdmin = auth.isUserAuthorized(req, "admin");
+
         isManager = auth.isUserAuthorized(req, "manager");
         
         JsonNode doc;
@@ -155,7 +159,7 @@ public class DocumentWorkflow extends Panel implements Serializable {
         addComponent(approvalByValue, approved || declined);
         
         // approval buttons are visible if current user is admin and document is in submited state
-        boolean approvalVisible = isAdmin && workflowService.checkState(workflow, StateEnum.SUBMITED);
+        boolean approvalVisible = isManager && workflowService.checkState(workflow, StateEnum.SUBMITED);
         createApproveButton(approvalVisible && !approved);     
         createDeclineButton(approvalVisible && !declined);
     }
@@ -256,30 +260,52 @@ public class DocumentWorkflow extends Panel implements Serializable {
     }
     
     private void createSubmitButton(boolean visible) {
+        Environment env = new Environment();
+        
+        List<String> managerList = authClient.getManagers();
+        ListView listview = new ListView("dropdownView", managerList) {
+            @Override
+            protected void populateItem(ListItem item) {
+                String user = (String) item.getModelObject();
+                
+                AjaxLink link = new AjaxLink("userLink") {
+                    
+                    @Override
+                    public void onClick(AjaxRequestTarget target) {
+                        env.setValue(true);
+                        env.setAssignTo(user);
+                        workflowService.submitDocument(docData, env);
+
+                        stateLabel.setDefaultModel(new Model(workflow.getState().getCurrentState().getName()));
+                        assigneeLabel.setDefaultModel(new Model(workflow.getAssignment().getAssignee()));
+
+                        setVisibility(false, submitLink, startProgressLink, approvedLabel,
+                                declinedLabel, approvalByLabel, approvalByValue, 
+                                documentLabels.getApprovedlabel(), documentLabels.getFreezedLabel(),
+                                freezeLink);
+                        setVisibility(true, noneLabel, documentLabels.getSubmitedlabel());
+
+                        boolean approvalVisible = isManager && workflowService.checkState(workflow, StateEnum.SUBMITED);
+                        approveLink.setVisible(approvalVisible);
+                        declineLink.setVisible(approvalVisible);
+
+                        tabs.refreshTabs(docData.getMetadata().getRev());
+
+                        target.add(stateLabel, assigneeLabel, submitLink, startProgressLink, 
+                                approveLink, declineLink, approvedLabel, declinedLabel, 
+                                approvalByLabel, approvalByValue, noneLabel, documentLabels,
+                                freezeLink, tabs);
+                    }
+                };
+                link.add(new Label("linkLabel", user));
+                item.add(link);
+            }
+        };
+        add(listview);
         submitLink = new AjaxLink("submit") {
             @Override
             public void onClick(AjaxRequestTarget target) {
-                workflowService.changeState(docData, StateEnum.SUBMITED);
-
-                stateLabel.setDefaultModel(new Model(workflow.getState().getCurrentState().getName()));
-                assigneeLabel.setDefaultModel(new Model(workflow.getAssignment().getAssignee()));
                 
-                setVisibility(false, submitLink, startProgressLink, approvedLabel,
-                        declinedLabel, approvalByLabel, approvalByValue, 
-                        documentLabels.getApprovedlabel(), documentLabels.getFreezedLabel(),
-                        freezeLink);
-                setVisibility(true, noneLabel, documentLabels.getSubmitedlabel());
-                
-                boolean approvalVisible = isAdmin && workflowService.checkState(workflow, StateEnum.SUBMITED);
-                approveLink.setVisible(approvalVisible);
-                declineLink.setVisible(approvalVisible);
-
-                tabs.refreshTabs(docData.getMetadata().getRev());
-                
-                target.add(stateLabel, assigneeLabel, submitLink, startProgressLink, 
-                        approveLink, declineLink, approvedLabel, declinedLabel, 
-                        approvalByLabel, approvalByValue, noneLabel, documentLabels,
-                        freezeLink, tabs);
             }
         };
         addComponent(submitLink, visible);
@@ -312,15 +338,15 @@ public class DocumentWorkflow extends Panel implements Serializable {
 
                 stateLabel.setDefaultModel(new Model(workflow.getState().getCurrentState().getName()));
                 
-                setVisibility(false, closeLink, submitLink, startProgressLink, 
+                setVisibility(false, closeLink, submitLink, startProgressLink, signLink, releaseLink, 
                         approveLink, declineLink, documentLabels.getSubmitedlabel(),
                         documentLabels.getFreezedLabel());
                 reopenLink.setVisible(true);
                 
                 tabs.refreshTabs(docData.getMetadata().getRev());
                 
-                target.add(stateLabel, closeLink, submitLink, startProgressLink,
-                        reopenLink, approveLink, declineLink, documentLabels, tabs);
+                target.add(stateLabel, closeLink, submitLink, startProgressLink, signLink,
+                        reopenLink, approveLink, declineLink, documentLabels, releaseLink, tabs);
             }
         };
         addComponent(closeLink, visible);
@@ -337,13 +363,13 @@ public class DocumentWorkflow extends Panel implements Serializable {
                 setVisibility(true, closeLink, submitLink, startProgressLink, 
                         noneLabel, freezeLink);
                 setVisibility(false, approvedLabel, declinedLabel, approvalByLabel, 
-                        approvalByValue, reopenLink, documentLabels.getApprovedlabel(),
+                        approvalByValue, reopenLink, signLink, releaseLink, documentLabels.getApprovedlabel(),
                         documentLabels.getSignedLabel(), documentLabels.getFreezedLabel());
                 
                 tabs.refreshTabs(docData.getMetadata().getRev());
                 
-                target.add(stateLabel, closeLink, submitLink, startProgressLink, 
-                        reopenLink, approvedLabel, declinedLabel, approvalByLabel,
+                target.add(stateLabel, closeLink, submitLink, startProgressLink, releaseLink,
+                        reopenLink, approvedLabel, declinedLabel, approvalByLabel, signLink,
                         approvalByValue, noneLabel, documentLabels, freezeLink, tabs);
             }
         };

@@ -30,7 +30,7 @@ public class KeycloakAdminClientImpl implements KeycloakAdminClient {
     @Override
     public List<String> getUsers(String criteria) {
         RealmResource realm = connectToRealm();
-        
+
         List<UserRepresentation> users = realm.users().search(criteria, 0, 10);
         return users.stream().map(u -> u.getUsername()).collect(Collectors.toList());
     }  
@@ -43,5 +43,13 @@ public class KeycloakAdminClientImpl implements KeycloakAdminClient {
         Set<String> usersSet = users.stream().map(u -> u.getUsername()).collect(Collectors.toSet());
 
         return usersSet.contains(user);
+    }
+    
+    @Override
+    public List<String> getManagers() {
+        RealmResource realm = connectToRealm();
+        
+        List<UserRepresentation> users = realm.groups().group("9454b12a-37e3-4919-a5f2-6cadbb25416b").members(0, 10);
+        return users.stream().map(u -> u.getUsername()).collect(Collectors.toList());
     }
 }

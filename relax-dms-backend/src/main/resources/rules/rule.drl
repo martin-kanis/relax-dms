@@ -1,7 +1,7 @@
 package org.fit.vutbr.relaxdms;
 
 import java.util.List;
-import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Flag;
+import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Environment;
 import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Workflow;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.State;
@@ -16,11 +16,17 @@ dialect "java"
 
 rule "Submit"
     when
-        $document : Document(workflow.state.currentState == StateEnum.SUBMITED &&
-            workflow.assignment.assignee != "user")
+        $env : Environment(isTrue() == true, getAssignTo() != null, $assignTo : getAssignTo())
+        $document : Document(workflow.state.currentState != StateEnum.SUBMITED && 
+            (workflow.state.currentState == StateEnum.OPEN || 
+            workflow.state.currentState == StateEnum.IN_PROGRESS))
     then
         modify($document) {
-            getWorkflow().getAssignment().setAssignee("user")
+            getWorkflow().getState().setCurrentState(StateEnum.SUBMITED),
+            getWorkflow().getAssignment().setAssignee($assignTo)
+        };
+        modify($env) {
+            setValue(false)
         };
         System.out.println("Submit rule fired");
 end
@@ -59,28 +65,36 @@ rule "Decline"
         System.out.println("Decline rule fired");
 end
 
-rule "Sign"
-    when 
-        $document : Document(workflow.state.approval == ApprovalEnum.APPROVED &&
-            workflow.assignment.assignee != "manager" && 
-            !workflow.labels.contains(new Label(LabelEnum.SIGNED)))
-    then
-        modify($document) {
-            getWorkflow().getAssignment().setAssignee("manager")
-        };
-        System.out.println("Sign rule fired");
-end
-
 rule "Unfreeze"
     when 
-        Flag(isTrue() == true)
+        $env : Environment(isTrue() == true)
         $document : Document(workflow.labels.contains(new Label(LabelEnum.FREEZED)))
     then      
         modify($document) {
             getWorkflow().getLabels().remove(new Label(LabelEnum.FREEZED))
         };
+        modify($env) {
+            setValue(false)
+        };
+        
         docSet.add($document);
         System.out.println("Unfreeze rule fired");
+end
+
+rule "Release"
+    when 
+        $env : Environment(isTrue() == true, $fireBy : getFireBy())
+        $document : Document(workflow.labels.contains(new Label(LabelEnum.SIGNED)) &&
+            workflow.labels not contains new Label(LabelEnum.RELEASED))
+    then      
+        modify($document) {
+            getWorkflow().getLabels().add(new Label(LabelEnum.RELEASED, $fireBy))
+        };
+        modify($env) {
+            setValue(false)
+        };
+        docSet.add($document);
+        System.out.println("Release rule fired");
 end
 
 query "Document"

@@ -33,7 +33,17 @@
                         <input wicket:id='approve' type="button" class="tiny btn btn-success" value="Approve" />
                         <input wicket:id='decline' type="button" class="tiny btn btn-danger" value="Decline"/>
 
-                        <input wicket:id='submit' type="button" class="tiny btn btn-primary" value="Submit"/>
+                        <div class="btn-group">
+                            <a wicket:id='submit' class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#">
+                              Submit to
+                              <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li wicket:id="dropdownView">
+                                   <a href="#" wicket:id="userLink"><span wicket:id="linkLabel"></span></a>
+                                </li>
+                            </ul>
+                        </div>
                         <input wicket:id='startProgress' type="button" class="tiny btn btn-primary" value="Start Progress"/>
                         <input wicket:id='close' type="button" class="tiny btn btn-primary" value="Close"/>
                         <input wicket:id='reopen' type="button" class="tiny btn btn-primary" value="Reopen"/>

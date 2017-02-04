@@ -3,6 +3,7 @@ package org.fit.vutbr.relaxdms.api.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.List;
 import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
+import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Environment;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.LabelEnum;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.StateEnum;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Workflow;
@@ -109,8 +110,9 @@ public interface WorkflowService {
     /**
      * Inserts metadata and workflow from all documents to the drools engine as facts.
      * @param docDataList List of Documents
+     * @param env Additional data for drools engine
      */
-    public void insertAllFacts(List<Document> docDataList);
+    public void insertAllFacts(List<Document> docDataList, Environment env);
     
     /**
      * Serialize provided json to workflow object.
@@ -118,4 +120,11 @@ public interface WorkflowService {
      * @return Workflow
      */
     public Workflow serialize(String json);
+    
+    /**
+     * Submits document to manager via Drools.
+     * @param docData Document
+     * @param env Additional data for drools engine
+     */
+    public void submitDocument(Document docData, Environment env);
 }
