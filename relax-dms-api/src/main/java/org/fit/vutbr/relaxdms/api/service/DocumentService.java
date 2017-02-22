@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.util.List;
 import org.ektorp.Revision;
 import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
+import org.fit.vutbr.relaxdms.data.db.dao.model.DocumentListData;
 import org.fit.vutbr.relaxdms.data.db.dao.model.DocumentMetadata;
 
 /**
@@ -49,24 +50,25 @@ public interface DocumentService {
     public JsonNode getDocumentById(String id);
     
     /**
-     * Return all documents with real data (no metadata documents) from database.
+     * Return all documents from database that user can see.
+     * @param user Logged user
      * @return List of documents
      */
-    public List<JsonNode> getAll();
+    public List<DocumentListData> getAllAuthorized(String user);
     
     /**
-     * Returns all documents from database created by specified user.
+     * Returns all documents list data from database created by specified user.
      * @param author Author of documents that will be returned
-     * @return List of documents
+     * @return List of documents data
      */
-    public List<JsonNode> getDocumentsByAuthor(String author);
+    public List<DocumentListData> getDocumentsByAuthor(String author);
     
     /**
      * Returns all documents from database assigned to specified user.
      * @param assignee Assignee of document
-     * @return List of documents
+     * @return List of documents data
      */
-    public List<JsonNode> getDocumentsByAssignee(String assignee);
+    public List<DocumentListData> getDocumentsByAssignee(String assignee);
     
     /**
      * Gets IDs of all documents in the database.
@@ -194,4 +196,12 @@ public interface DocumentService {
      * @return List of revisions
      */
     public List<String> getAttachmentRevisions(String id);
+    
+    /**
+     * Checks if user is authorized to see/write document.
+     * @param docData
+     * @param user User 
+     * @return boolean
+     */
+    public boolean isUserAuthorized(DocumentListData docData, String user);
 }

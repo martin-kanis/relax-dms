@@ -4,27 +4,35 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.AjaxEditableLabel;
+import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteSettings;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.basic.MultiLineLabel;
+import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
 import org.fit.vutbr.relaxdms.api.security.AuthController;
 import org.fit.vutbr.relaxdms.api.service.DocumentService;
 import org.fit.vutbr.relaxdms.api.service.WorkflowService;
+import org.fit.vutbr.relaxdms.api.system.Convert;
+import org.fit.vutbr.relaxdms.data.client.keycloak.api.KeycloakAdminClient;
 import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 import org.fit.vutbr.relaxdms.data.db.dao.model.DocumentMetadata;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Environment;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.LabelEnum;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.StateEnum;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Workflow;
-import org.fit.vutbr.relaxdms.web.client.keycloak.api.KeycloakAdminClient;
 import org.fit.vutbr.relaxdms.web.documents.tabs.DocumentTabs;
 
 /**
@@ -50,6 +58,9 @@ public class DocumentWorkflow extends Panel implements Serializable {
     
     @Inject
     private KeycloakAdminClient authClient;
+    
+    @Inject
+    private Convert convert;
     
     private final boolean isManager;
     
@@ -91,6 +102,10 @@ public class DocumentWorkflow extends Panel implements Serializable {
     
     private final Document docData;
     
+    private StringBuilder userValues;
+    
+    private TextField textField;
+    
     public DocumentWorkflow(String id, String docId, String docRev, DocumentTabs tabs) {
         super(id);
         this.tabs = tabs;
@@ -119,13 +134,14 @@ public class DocumentWorkflow extends Panel implements Serializable {
         stateLabel = new Label("stateLabel");
         approvalByLabel = new Label("approvalBy");
         approvalByValue = new Label("approvalByValue");
+        userValues = new StringBuilder();
 
         assigneeLabel = new AssigneeLabel("assignee", docId, docData, tabs);
         if (workflowService.checkLabel(workflow, LabelEnum.RELEASED)) {
             assigneeLabel.setEnabled(false);
         }
 
-        prepareComonents();
+        prepareComponents();
         prepareApprovalComponents();
         
         documentLabels = new DocumentLabels("labels", docData);
@@ -164,7 +180,7 @@ public class DocumentWorkflow extends Panel implements Serializable {
         createDeclineButton(approvalVisible && !declined);
     }
     
-    private void prepareComonents() {
+    private void prepareComponents() {
         stateLabel.setDefaultModel(new Model(workflow.getState().getCurrentState().getName()));
         addComponent(stateLabel, true);
 
@@ -195,7 +211,62 @@ public class DocumentWorkflow extends Panel implements Serializable {
         boolean releaseVisible = workflowService.checkLabel(workflow, LabelEnum.SIGNED) &&
                 !workflowService.checkLabel(workflow, LabelEnum.RELEASED);
         createReleaseButton(releaseVisible);
+        
+        createPermissionsForm();
     }
+    
+    private void createPermissionsForm() {
+        final Set<String> permissions = workflowService.getPermissionsFromDoc(docData);
+        userValues = convert.docPermissionsToString(permissions);
+        final IModel<String> model = new IModel<String>() {
+            private String value = null;
+
+            @Override
+            public String getObject() {
+                return value;
+            }
+
+            @Override
+            public void setObject(String object) {
+                value = object;
+                if (object != null) {
+                    if (!permissions.contains(value)) {
+                        userValues.append("\n");
+                        userValues.append(value);
+                    }
+                }
+            }
+
+            @Override
+            public void detach() {
+                
+            }
+        };
+        
+        textField = new TextField("users", model);
+        AutoCompleteSettings settings = new AutoCompleteSettings();		
+        settings.setThrottleDelay(400);
+        textField.add(new UserAutoCompleteBehavior(settings, permissions, false));
+        
+        final MultiLineLabel label = new MultiLineLabel("selectedUsers", new PropertyModel<>(this,
+            "userValues"));
+        label.setOutputMarkupId(true);
+        
+        Form<?> form = new Form<Void>("form") {
+            @Override
+            protected void onSubmit() {
+                if (textField.getModelObject() == null)
+                    return;
+                workflowService.addPermissionsToDoc(docData, textField.getModelObject().toString());
+
+                // clear the textfield
+                textField.setModelObject(null);
+            }
+        };
+        add(form);
+        form.add(textField);
+        form.add(label);
+    }   
     
     private void createApproveButton(boolean visible) {
         approveLink = new AjaxLink("approve") {       
@@ -305,7 +376,7 @@ public class DocumentWorkflow extends Panel implements Serializable {
         submitLink = new AjaxLink("submit") {
             @Override
             public void onClick(AjaxRequestTarget target) {
-                
+
             }
         };
         addComponent(submitLink, visible);
@@ -419,6 +490,7 @@ public class DocumentWorkflow extends Panel implements Serializable {
                 setVisibility(false, releaseLink, closeLink);
                 setVisibility(true, documentLabels.getReleasedLabel());
                 assigneeLabel.setEnabled(false);
+                textField.setEnabled(false);
                 
                 tabs.refreshTabs(docData.getMetadata().getRev());
                 
@@ -442,7 +514,8 @@ public class DocumentWorkflow extends Panel implements Serializable {
     
     private void disableComponents() {
         List<Component> components = Arrays.asList(approveLink, declineLink, submitLink, 
-                startProgressLink, closeLink, reopenLink, releaseLink, signLink, freezeLink, assigneeLabel);
+                startProgressLink, closeLink, reopenLink, releaseLink, signLink, 
+                freezeLink, assigneeLabel, textField);
         components.stream().forEach((c) -> {
             c.setEnabled(false);
         });

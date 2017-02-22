@@ -24,11 +24,15 @@ public class Workflow implements Serializable {
     
     @JsonProperty("labels")
     private Set<Label> labels;
+    
+    @JsonProperty("permissions")
+    private Set<String> permissions;
 
     public Workflow() {
         this.state = new State();
         this.assignment = new Assignment();
         this.labels = new HashSet<>();
+        this.permissions = new HashSet<>();
     }
 
     @JsonIgnore
@@ -57,5 +61,15 @@ public class Workflow implements Serializable {
     @JsonDeserialize(as=HashSet.class)
     public void setLabels(Set<Label> labels) {
         this.labels = labels;
+    }
+
+    @JsonIgnore
+    public Set<String> getPermissions() {
+        return permissions;
+    }
+
+    @JsonDeserialize(as=HashSet.class)
+    public void setPermissions(Set<String> permissions) {
+        this.permissions = permissions;
     }
 }

@@ -2,6 +2,7 @@ package org.fit.vutbr.relaxdms.api.system;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.List;
+import java.util.Set;
 import org.ektorp.Revision;
 
 /**
@@ -43,4 +44,6 @@ public interface Convert {
      * @return JsonNode A copy of document
      */
     public JsonNode makeDocCopy(JsonNode doc);
+    
+    public StringBuilder docPermissionsToString(Set<String> permissions);
 }

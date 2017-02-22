@@ -34,10 +34,7 @@
                         <input wicket:id='decline' type="button" class="tiny btn btn-danger" value="Decline"/>
 
                         <div class="btn-group">
-                            <a wicket:id='submit' class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#">
-                              Submit to
-                              <span class="caret"></span>
-                            </a>
+                            <input wicket:id='submit' type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" value="Submit to"/>
                             <ul class="dropdown-menu">
                                 <li wicket:id="dropdownView">
                                    <a href="#" wicket:id="userLink"><span wicket:id="linkLabel"></span></a>
@@ -103,10 +100,18 @@
                         
                     <h3>Description</h3>
                     <div class="row-fluid">
-                        <div class="span6">
-                        </div>
-                        <div class="span6"> 
-                        </div>
+                    </div>
+                    <hr>
+                        
+                    <h3>Permissions</h3>
+                    <div class="row-fluid">
+                        <form wicket:id="form" autocomplete="off">
+                            Choose users: <input type="text" wicket:id="users" size="50"/>
+                            <br/>
+                            Authorized users:
+                            <br/>
+                            <div wicket:id="selectedUsers"></div>
+                        </form>
                     </div>
                     <hr>
                 </div>

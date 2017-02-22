@@ -1,6 +1,7 @@
-package org.fit.vutbr.relaxdms.web.client.keycloak.api;
+package org.fit.vutbr.relaxdms.data.client.keycloak.api;
 
 import java.util.List;
+import java.util.Set;
 import org.keycloak.admin.client.resource.RealmResource;
 
 /**
@@ -18,9 +19,9 @@ public interface KeycloakAdminClient {
     /**
      * Returns first 10 users from realm that match given username criteria. 
      * @param criteria Username to be matched
-     * @return List of users that match given criteria
+     * @return Set of users that match given criteria
      */
-    public List<String> getUsers(String criteria);
+    public Set<String> getUsers(String criteria);
     
     /**
      * Checks if given user exists in the realm.

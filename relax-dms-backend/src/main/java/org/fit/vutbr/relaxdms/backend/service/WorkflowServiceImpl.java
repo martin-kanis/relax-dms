@@ -11,6 +11,7 @@ import java.util.Set;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import org.fit.vutbr.relaxdms.api.service.WorkflowService;
+import org.fit.vutbr.relaxdms.data.client.keycloak.api.KeycloakAdminClient;
 import org.fit.vutbr.relaxdms.data.db.dao.api.CouchDbRepository;
 import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.ApprovalEnum;
@@ -38,6 +39,9 @@ public class WorkflowServiceImpl implements WorkflowService {
     
     @Inject 
     private CouchDbRepository repo;
+    
+    @Inject
+    private KeycloakAdminClient authClient;
     
     @Inject
     @KSession("ksession1")
@@ -187,6 +191,33 @@ public class WorkflowServiceImpl implements WorkflowService {
     }
     
     @Override
+    public boolean isUserAuthorized(String docId, String user) {
+        Set<String> permissions = repo.getPermissionsFromDoc(docId);
+        
+        // empty set means, that document is available for anybody
+        if (permissions.isEmpty())
+            return true;
+        
+        // manager has rights to all documents
+        List<String> managers = authClient.getManagers();
+        if (managers.contains(user))
+            return true;
+        
+        // author has rights to his document
+        if (repo.getAuthor(docId).equals(user))
+            return true;
+        
+        return permissions.contains(user);
+    }
+    
+    @Override
+    public void addPermissionsToDoc(Document docData, String elligibleUser) {
+        if (docData.getWorkflow().getPermissions().add(elligibleUser)) {
+            repo.updateDoc(docData);
+        }
+    }
+    
+    @Override
     public void insertAllFacts(List<Document> docDataList, Environment env) {
         FactHandle handle = kSession.insert(env);
 
@@ -234,5 +265,18 @@ public class WorkflowServiceImpl implements WorkflowService {
             Document doc = (Document) row.get("$result");
             System.out.println(doc);
         }
+    }
+
+    @Override
+    public Set<String> getPermissionsFromDoc(Document docData) {
+        List<String> managers = authClient.getManagers();
+        Set<String> permissions = docData.getWorkflow().getPermissions();
+        
+        // add managers
+        permissions.addAll(managers);
+        // add author
+        permissions.add(docData.getMetadata().getAuthor());
+        
+        return permissions;
     }
 }

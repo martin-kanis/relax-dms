@@ -8,12 +8,16 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import org.ektorp.Revision;
 import org.fit.vutbr.relaxdms.api.service.DocumentService;
+import org.fit.vutbr.relaxdms.data.client.keycloak.api.KeycloakAdminClient;
 import org.fit.vutbr.relaxdms.data.db.dao.api.CouchDbRepository;
 import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
+import org.fit.vutbr.relaxdms.data.db.dao.model.DocumentListData;
 import org.fit.vutbr.relaxdms.data.db.dao.model.DocumentMetadata;
 import org.jboss.logging.Logger;
 
@@ -26,6 +30,9 @@ public class DocumentServiceImpl implements DocumentService {
     
     @Inject 
     private CouchDbRepository repo;
+    
+    @Inject
+    private KeycloakAdminClient authClient;
     
     private final Logger logger = Logger.getLogger(this.getClass().getName());
 
@@ -40,8 +47,16 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public List<JsonNode> getAll() {
-        return repo.getAllDocuments();
+    public List<DocumentListData> getAllAuthorized(String user) {
+        List<DocumentListData> allDocuments = repo.getAllDocuments();
+        
+        // manager has rights to all documents
+        List<String> managers = authClient.getManagers();
+        if (managers.contains(user))
+            return allDocuments;
+        
+        // user is not manager, filter documents
+        return allDocuments.stream().filter(doc -> isUserAuthorized(doc, user)).collect(Collectors.toList());
     }
     
     @Override
@@ -95,12 +110,12 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public List<JsonNode> getDocumentsByAuthor(String author) {
+    public List<DocumentListData> getDocumentsByAuthor(String author) {
         return repo.findByAuthor(author);
     }
     
     @Override
-    public List<JsonNode> getDocumentsByAssignee(String assignee) {
+    public List<DocumentListData> getDocumentsByAssignee(String assignee) {
         return repo.findByAssignee(assignee);
     }
 
@@ -198,5 +213,20 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     public List<String> getAttachmentRevisions(String id) {
         return repo.getAttachmentRevisions(id);
+    }
+
+    @Override
+    public boolean isUserAuthorized(DocumentListData docData, String user) {
+        Set<String> permissions = docData.getPermissions();
+        
+        // empty set means, that document is available for anybody
+        if (permissions.isEmpty())
+            return true;
+        
+        // author has rights to his document
+        if (docData.getAuthor().equals(user))
+            return true;
+        
+        return permissions.contains(user);
     }
 }

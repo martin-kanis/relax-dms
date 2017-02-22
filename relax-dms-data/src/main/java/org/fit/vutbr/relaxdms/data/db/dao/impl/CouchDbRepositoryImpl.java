@@ -41,6 +41,7 @@ import org.ektorp.http.RestTemplate;
 import org.fit.vutbr.relaxdms.api.service.DocumentService;
 import org.fit.vutbr.relaxdms.api.service.WorkflowService;
 import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
+import org.fit.vutbr.relaxdms.data.db.dao.model.DocumentListData;
 import org.fit.vutbr.relaxdms.data.db.dao.model.DocumentMetadata;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Workflow;
 import org.jboss.logging.Logger;
@@ -81,9 +82,28 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
     }
 
     @Override
-    @View(name = "all", map = "function(doc) { if (!doc.doc_template) emit(doc.metadata.author, doc.data.name)}")
-    public List<JsonNode> getAllDocuments() {
-        return queryView("all");
+    @View(name = "all", map = "function(doc) { if (!doc.doc_template) emit(doc._id, "
+            + "{id:doc._id, author:doc.metadata.author, title:doc.data.Title, permissions:doc.workflow.permissions})}")
+    public List<DocumentListData> getAllDocuments() {
+        ViewQuery q = new ViewQuery()
+                .viewName("all")
+                .designDocId("_design/JsonNode");
+        
+        return viewToDocListData(q);
+    }
+    
+    private List<DocumentListData> viewToDocListData(ViewQuery q) {
+        List<DocumentListData> resultList = new ArrayList<>();
+        ViewResult result = db.queryView(q);
+        result.getRows().stream().map((row) -> row.getValueAsNode()).forEach((docAsNode) -> {
+            try {
+                DocumentListData listData = mapper.treeToValue(docAsNode, DocumentListData.class);
+                resultList.add(listData);
+            } catch (JsonProcessingException ex) {
+                logger.error(ex);
+            }
+        });
+        return resultList;
     }
     
     @Override
@@ -106,25 +126,27 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
     }
     
     @Override
-    @View(name = "by_author", map = "function(doc) { emit(doc.metadata.author, doc)}")
-    public List<JsonNode> findByAuthor(String author) {
+    @View(name = "by_author", map = "function(doc) { if (!doc.doc_template) emit(doc.metadata.author, "
+            + "{id:doc._id, author:doc.metadata.author, title:doc.data.Title, permissions:doc.workflow.permissions})}")
+    public List<DocumentListData> findByAuthor(String author) {
         ViewQuery q = new ViewQuery()
                 .viewName("by_author")
                 .designDocId("_design/JsonNode")
                 .key(author);
         
-        return db.queryView(q, JsonNode.class);
+        return viewToDocListData(q);
     }
     
     @Override
-    @View(name = "by_assignee", map = "function(doc) { emit(doc.workflow.assignment.assignee, doc)}")
-    public List<JsonNode> findByAssignee(String assignee) {
+    @View(name = "by_assignee", map = "function(doc) { if (!doc.doc_template) emit(doc.workflow.assignment.assignee, "
+            + "{id:doc._id, author:doc.metadata.author, title:doc.data.Title, permissions:doc.workflow.permissions})}")
+    public List<DocumentListData> findByAssignee(String assignee) {
         ViewQuery q = new ViewQuery()
                 .viewName("by_assignee")
                 .designDocId("_design/JsonNode")
                 .key(assignee);
         
-        return db.queryView(q, JsonNode.class);
+        return viewToDocListData(q);
     }
     
     @Override
@@ -479,5 +501,35 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
             List<String> attachmentRevs = getAttachmentRevisions(id);
             return attachmentRevs.size() - attachmentRevs.indexOf(rev);
         }
+    }
+
+    @Override
+    @View(name = "get_permissions", map = "function(doc) {if (doc.workflow) { "
+            + "emit(doc._id, doc.workflow.permissions)}}")
+    public Set<String> getPermissionsFromDoc(String id) {
+        ViewQuery q = new ViewQuery()
+                .viewName("get_permissions")
+                .designDocId("_design/JsonNode")
+                .key(id);
+
+        ViewResult result = db.queryView(q);
+        try {
+            return mapper.treeToValue(result.getRows().get(0).getValueAsNode(), Set.class);
+        } catch (JsonProcessingException ex) {
+            logger.error(ex);
+        }
+        return null;
+    }
+
+    @Override
+    @View(name = "get_author", map = "function(doc) { emit(doc._id, doc.metadata.author)}")
+    public String getAuthor(String id) {
+        ViewQuery q = new ViewQuery()
+                .viewName("get_author")
+                .designDocId("_design/JsonNode")
+                .key(id);
+        
+        ViewResult result = db.queryView(q);
+        return result.getRows().get(0).getValue();
     }
 }

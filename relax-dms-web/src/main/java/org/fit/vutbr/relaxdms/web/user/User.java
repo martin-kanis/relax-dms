@@ -16,7 +16,7 @@ import org.fit.vutbr.relaxdms.api.security.AuthController;
 import org.fit.vutbr.relaxdms.api.service.DocumentService;
 import org.fit.vutbr.relaxdms.web.BasePage;
 import org.fit.vutbr.relaxdms.web.cp.menu.MenuItemEnum;
-import org.fit.vutbr.relaxdms.web.documents.DocumentListData;
+import org.fit.vutbr.relaxdms.data.db.dao.model.DocumentListData;
 import org.fit.vutbr.relaxdms.web.documents.tabs.DocumentTabs;
 
 /**
@@ -43,13 +43,13 @@ public class User extends BasePage implements Serializable {
         
         createRoleList(roles);
         
-        List<JsonNode> docsByAuthor = documentService.getDocumentsByAuthor(user);
+        List<DocumentListData> docsByAuthor = documentService.getDocumentsByAuthor(user);
         createTableHeaders("byAuthorId", "byAuthorName", docsByAuthor.size());
-        createDocumentList("docListView", createListData(docsByAuthor));
+        createDocumentList("docListView", docsByAuthor);
         
-        List<JsonNode> docsByAssignee = documentService.getDocumentsByAssignee(user);
+        List<DocumentListData> docsByAssignee = documentService.getDocumentsByAssignee(user);
         createTableHeaders("byAssigneeId", "byAssigneeName", docsByAssignee.size());
-        createDocumentList("docListViewByAssignee", createListData(docsByAssignee));
+        createDocumentList("docListViewByAssignee", docsByAssignee);
     }
     
     private void createRoleList(Set<String> roles) {  
@@ -80,13 +80,6 @@ public class User extends BasePage implements Serializable {
             }
         };
         add(listview);
-    }
-    
-    private List<DocumentListData> createListData(List<JsonNode> data) {
-        return data.stream().map(e -> new DocumentListData(
-                e.get("_id").textValue(), 
-                e.get("data").get("Title").textValue(), 
-                e.get("metadata").get("author").textValue())).collect(Collectors.toList());
     }
     
     private void createTableHeaders(String docId, String docTitle, int docsCount) {

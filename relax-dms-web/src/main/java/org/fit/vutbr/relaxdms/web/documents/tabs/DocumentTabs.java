@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -20,9 +21,12 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.StringValue;
+import org.fit.vutbr.relaxdms.api.security.AuthController;
 import org.fit.vutbr.relaxdms.api.service.DocumentService;
+import org.fit.vutbr.relaxdms.api.service.WorkflowService;
 import org.fit.vutbr.relaxdms.web.BasePage;
 import org.fit.vutbr.relaxdms.web.cp.menu.MenuItemEnum;
+import org.fit.vutbr.relaxdms.web.error.Forbidden;
 import org.jboss.logging.Logger;
 
 /**
@@ -33,6 +37,12 @@ public class DocumentTabs extends BasePage implements Serializable {
     
     @Inject
     private DocumentService documentService;
+    
+    @Inject
+    private WorkflowService workflowService;
+    
+    @Inject
+    private AuthController authControler;
     
     private final Logger log = Logger.getLogger(getClass());
     
@@ -64,14 +74,24 @@ public class DocumentTabs extends BasePage implements Serializable {
     public DocumentTabs(PageParameters parameters) {
         super(parameters);
         getDocIdAndRev(parameters);
+        checkAuthorization();
         prepareComponents(parameters);
     }
     
     public DocumentTabs(PageParameters parameters, Map diffMap) {
         super(parameters);
         getDocIdAndRev(parameters);
+        checkAuthorization();
         this.diffMap = diffMap;
         prepareComponents(parameters);
+    }
+    
+    private void checkAuthorization() {
+        HttpServletRequest req = (HttpServletRequest) getRequest().getContainerRequest();
+        String user = authControler.getUserName(req);
+        if (!workflowService.isUserAuthorized(id, user)) {
+            getRequestCycle().setResponsePage(Forbidden.class);
+        }
     }
     
     public void refreshTabs(String rev) {

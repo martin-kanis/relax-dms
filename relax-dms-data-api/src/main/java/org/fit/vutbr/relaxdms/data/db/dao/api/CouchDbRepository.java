@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 import org.ektorp.Revision;
 import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
+import org.fit.vutbr.relaxdms.data.db.dao.model.DocumentListData;
 import org.fit.vutbr.relaxdms.data.db.dao.model.DocumentMetadata;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Workflow;
 
@@ -32,21 +33,21 @@ public interface CouchDbRepository {
      * Returns all documents from database.
      * @return List of documents
      */
-    public List<JsonNode> getAllDocuments();
+    public List<DocumentListData> getAllDocuments();
     
     /**
      * Returns all documents from database created by specified user.
      * @param author Author of documents that will be returned
-     * @return List of documents
+     * @return List of document data
      */
-    public List<JsonNode> findByAuthor(String author);
+    public List<DocumentListData> findByAuthor(String author);
     
     /**
      * Returns all documents from database assigned to specified user.
      * @param assignee Assignee of document
-     * @return List of documents
+     * @return List of documents data
      */
-    public List<JsonNode> findByAssignee(String assignee);
+    public List<DocumentListData> findByAssignee(String assignee);
     
     /**
      * Returns all templates from database in JsonNode format.
@@ -173,4 +174,18 @@ public interface CouchDbRepository {
      * @return List of revisions
      */
     public List<String> getAttachmentRevisions(String id);
+    
+    /**
+     * Returns permissions from document specified by Id.
+     * @param id Id of document
+     * @return Set of usernames
+     */
+    public Set<String> getPermissionsFromDoc(String id);
+    
+    /**
+     * Returns document's author.
+     * @param id Id of document
+     * @return Author of document
+     */
+    public String getAuthor(String id);
 }

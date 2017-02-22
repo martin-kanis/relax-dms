@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.ejb.Stateless;
 import org.ektorp.Revision;
@@ -56,5 +57,20 @@ public class ConvertImpl implements Convert {
     public JsonNode makeDocCopy(JsonNode doc) {
         String tmp = jsonNodeToString(doc);
         return stringToJsonNode(tmp);
+    }
+
+    @Override
+    public StringBuilder docPermissionsToString(Set<String> permissions) {
+        StringBuilder result = new StringBuilder();
+        boolean isFirst = true;
+        for (String user: permissions) {
+            if (!isFirst) {
+                result.append("\n");
+            }
+            result.append(user);
+            isFirst = false;
+        }
+        
+        return result;
     }
 }

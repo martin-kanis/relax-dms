@@ -2,6 +2,7 @@ package org.fit.vutbr.relaxdms.api.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.List;
+import java.util.Set;
 import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Environment;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.LabelEnum;
@@ -127,4 +128,26 @@ public interface WorkflowService {
      * @param env Additional data for drools engine
      */
     public void submitDocument(Document docData, Environment env);
+    
+    /**
+     * Checks if user is authorized to see/write document.
+     * @param docId Id of document
+     * @param user User 
+     * @return boolean
+     */
+    public boolean isUserAuthorized(String docId, String user);
+    
+    /**
+     * Add provided user to the document permissions.
+     * @param docData Document
+     * @param elligibleUser User to be elligible to the document
+     */
+    public void addPermissionsToDoc(Document docData, String elligibleUser);
+    
+    /**
+     * Returns all permissions from document.
+     * @param docData Document
+     * @return Set of usernames
+     */
+    public Set<String> getPermissionsFromDoc(Document docData);
 }

@@ -1,7 +1,6 @@
 package org.fit.vutbr.relaxdms.backend.security;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import javax.ejb.Stateless;

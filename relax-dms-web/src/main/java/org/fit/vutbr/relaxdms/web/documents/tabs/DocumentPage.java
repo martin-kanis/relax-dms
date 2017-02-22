@@ -1,7 +1,6 @@
 package org.fit.vutbr.relaxdms.web.documents.tabs;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
@@ -52,7 +51,7 @@ public class DocumentPage extends Panel implements Serializable {
     public DocumentPage(String id, String docId, String docRev) {
         super(id);
         this.docId = docId;
-        this.docRev = docRev;
+        this.docRev = docRev;            
         prepareEditor(Collections.EMPTY_MAP);
     }
 

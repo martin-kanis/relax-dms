@@ -1,10 +1,10 @@
-package org.fit.vutbr.relaxdms.web.client.keycloak.impl;
+package org.fit.vutbr.relaxdms.data.client.keycloak.impl;
 
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.ejb.Stateless;
-import org.fit.vutbr.relaxdms.web.client.keycloak.api.KeycloakAdminClient;
+import org.fit.vutbr.relaxdms.data.client.keycloak.api.KeycloakAdminClient;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.representations.idm.UserRepresentation;
@@ -28,11 +28,11 @@ public class KeycloakAdminClientImpl implements KeycloakAdminClient {
     }
     
     @Override
-    public List<String> getUsers(String criteria) {
+    public Set<String> getUsers(String criteria) {
         RealmResource realm = connectToRealm();
 
         List<UserRepresentation> users = realm.users().search(criteria, 0, 10);
-        return users.stream().map(u -> u.getUsername()).collect(Collectors.toList());
+        return users.stream().map(u -> u.getUsername()).collect(Collectors.toSet());
     }  
 
     @Override

@@ -3,7 +3,7 @@ package org.fit.vutbr.relaxdms.web.documents.tabs.workflow;
 import org.apache.wicket.validation.IValidatable;
 import org.apache.wicket.validation.IValidator;
 import org.apache.wicket.validation.ValidationError;
-import org.fit.vutbr.relaxdms.web.client.keycloak.api.KeycloakAdminClient;
+import org.fit.vutbr.relaxdms.data.client.keycloak.api.KeycloakAdminClient;
 
 /**
  *

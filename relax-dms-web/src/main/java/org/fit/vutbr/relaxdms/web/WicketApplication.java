@@ -12,6 +12,7 @@ import org.fit.vutbr.relaxdms.web.documents.DocumentList;
 import org.fit.vutbr.relaxdms.web.documents.tabs.DocumentTabs;
 import org.fit.vutbr.relaxdms.web.user.User;
 import org.fit.vutbr.relaxdms.web.workflow.WorkflowPage;
+import org.fit.vutbr.relaxdms.web.error.Forbidden;
 import org.jboss.logging.Logger;
 
 /**
@@ -47,6 +48,7 @@ public class WicketApplication extends WebApplication implements Serializable {
         mountPage("/find-document", DocumentList.class);
         mountPage("/document", DocumentTabs.class);
         mountPage("/workflow", WorkflowPage.class);
+        mountPage("/forbidden", Forbidden.class);
         
         getMarkupSettings().setStripWicketTags(true);
     }
