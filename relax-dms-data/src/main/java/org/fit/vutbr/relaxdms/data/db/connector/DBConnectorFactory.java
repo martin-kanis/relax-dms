@@ -26,9 +26,16 @@ public class DBConnectorFactory {
     
     @PostConstruct
     private void init() {
-        HttpClient httpClient = new StdHttpClient.Builder().build();
+        HttpClient httpClient;
+        httpClient = new StdHttpClient.Builder()
+                .host("127.0.0.1")
+                .port(5984)
+                .username("admin")
+                .password("password")
+                .build();
         CouchDbInstance dbInstance = new StdCouchDbInstance(httpClient);
-        couchDBConnector = dbInstance.createConnector("relax-dms", true);
+        couchDBConnector = dbInstance.createConnector("relax-dms", false);
+
         restTemplate = new RestTemplate(httpClient);
     }
     
