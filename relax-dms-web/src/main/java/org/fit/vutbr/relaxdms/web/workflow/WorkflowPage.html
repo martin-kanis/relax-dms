@@ -11,6 +11,10 @@
         </div>
         
         <div class="row">
+            <h4>Built-in workflows</h4>
+        </div>
+        
+        <div class="row">
             <span>
                 Unfreeze workflow: 
                 <input wicket:id='unfreeze' type="button" class="tiny btn btn-primary" value="Fire"/>
@@ -21,6 +25,23 @@
                 Release all signed documents workflow: 
                 <input wicket:id='release' type="button" class="tiny btn btn-primary" value="Fire"/>
             </span>
+            
+            <hr>
+        </div>
+ 
+        <div class="row">
+            <h4>Custom workflows</h4>
+            
+            <p>You can create your own custom workflow. Create Drools rule for workflow in the Drools Workbench and then fire the rule from dropdown below.</p>
+            
+            <form wicket:id="form">
+		<p>
+                    <label>Select custom workflow to fire</label>
+                    <br />
+                    <select wicket:id="workflows"></select>
+		</p>
+		<input type="submit" class="tiny btn btn-primary" value="Fire" />
+            </form>
         </div>
     </wicket:extend>
 </body>

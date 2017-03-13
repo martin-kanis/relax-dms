@@ -5,7 +5,7 @@ This is my master thesis at BUT FIT. It's implementation of distributed document
 Setting CouchDB cluster
 -----------------------
 
-Cluster is available through Docker image ([klaemo/couchdb:2.0-dev](https://github.com/klaemo/docker-couchdb). There are 3 configured CouchDB nodes wiht HAProxy in front them.
+Cluster is available through Docker image [klaemo/couchdb:2.0-dev](https://github.com/klaemo/docker-couchdb). There are 3 configured CouchDB nodes wiht HAProxy in front them.
 All you need is Docker installed on your machine.
 
 1. Start Docker
@@ -42,6 +42,10 @@ Setting Keycloak server
 
 Setting EAP server
 ------------------
+
+Access BRMS server
+------------------
+Business central console is deployed on [http://localhost:8080/business-central](http://localhost:8080/business-central). Username is `bpmsAdmin` and password is `password`.
 
 Build application
 -----------------

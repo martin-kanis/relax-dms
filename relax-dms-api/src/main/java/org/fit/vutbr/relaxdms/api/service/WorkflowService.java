@@ -150,4 +150,10 @@ public interface WorkflowService {
      * @return Set of usernames
      */
     public Set<String> getPermissionsFromDoc(Document docData);
+    
+    /**
+     * Returns list of rules in the customWorflow.drl file.
+     * @return List of rule's names
+     */
+    public List<String> getCustomRules();
 }

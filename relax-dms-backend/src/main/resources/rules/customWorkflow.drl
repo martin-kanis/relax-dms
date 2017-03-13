@@ -1,0 +1,33 @@
+package org.fit.vutbr.relaxdms.custom;
+
+import java.util.List;
+import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Environment;
+import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
+import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Workflow;
+import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.State;
+import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.ApprovalEnum;
+import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.StateEnum;
+import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.LabelEnum;
+import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Label;
+
+dialect "java"
+
+rule "CustomExample"
+    when
+        $env : Environment(isTrue() == true, getRule() == "CustomExample", $fireBy : getFireBy())
+    then
+        modify($env) {
+            setValue(false)
+        };
+        System.out.println("CustomExample rule fired");
+end
+
+rule "CustomWorkflow"
+    when
+        $env : Environment(isTrue() == true, getRule() == "CustomWorkflow", $fireBy : getFireBy())
+    then
+        modify($env) {
+            setValue(false)
+        };
+        System.out.println("CustomWorkflow rule fired");
+end

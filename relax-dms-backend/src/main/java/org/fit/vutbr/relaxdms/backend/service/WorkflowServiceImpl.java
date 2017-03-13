@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import org.fit.vutbr.relaxdms.api.service.WorkflowService;
@@ -23,6 +24,7 @@ import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.StateEnum;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Workflow;
 import org.jboss.logging.Logger;
 import org.kie.api.cdi.KSession;
+import org.kie.api.definition.rule.Rule;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.rule.FactHandle;
 import org.kie.api.runtime.rule.QueryResults;
@@ -278,5 +280,11 @@ public class WorkflowServiceImpl implements WorkflowService {
         permissions.add(docData.getMetadata().getAuthor());
         
         return permissions;
+    }
+
+    @Override
+    public List<String> getCustomRules() {
+        return kSession.getKieBase().getKiePackage("org.fit.vutbr.relaxdms.custom")
+                .getRules().stream().map(r -> r.getName()).collect(Collectors.toList());
     }
 }

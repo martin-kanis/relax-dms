@@ -13,6 +13,8 @@ public class Environment implements Serializable {
     private String assignTo;
     
     private String fireBy;
+    
+    private String rule;
 
     public Environment() {
         this.value = true;
@@ -40,5 +42,13 @@ public class Environment implements Serializable {
 
     public void setFireBy(String fireBy) {
         this.fireBy = fireBy;
+    }
+
+    public String getRule() {
+        return rule;
+    }
+
+    public void setRule(String rule) {
+        this.rule = rule;
     }
 }
