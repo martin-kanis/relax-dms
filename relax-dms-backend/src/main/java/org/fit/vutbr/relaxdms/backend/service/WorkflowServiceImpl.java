@@ -86,6 +86,9 @@ public class WorkflowServiceImpl implements WorkflowService {
         String user = docData.getMetadata().getLastModifiedBy();
         docData.getWorkflow().getState().setApprovalBy(user);
         
+        Label submitLabel = new Label(LabelEnum.SUBMITED);
+        docData.getWorkflow().getLabels().remove(submitLabel);
+        
         fireWorkflow(docData);
         
         repo.updateDoc(docData);
@@ -148,7 +151,7 @@ public class WorkflowServiceImpl implements WorkflowService {
             cancelApproval(docData);
         }
         
-        if (expectedState == StateEnum.OPEN) {
+        if (expectedState == StateEnum.OPEN || expectedState == StateEnum.IN_PROGRESS) {
             removeLabel(docData, LabelEnum.FREEZED);
             removeLabel(docData, LabelEnum.SIGNED);
         }
@@ -242,6 +245,7 @@ public class WorkflowServiceImpl implements WorkflowService {
         
         cancelApproval(docData);
         removeLabel(docData, LabelEnum.FREEZED);
+        addLabel(docData, LabelEnum.SUBMITED);
         
         fireWorkflow(docData);
         
@@ -259,6 +263,11 @@ public class WorkflowServiceImpl implements WorkflowService {
     private void cancelApproval(Document docData) {
         docData.getWorkflow().getState().setApproval(ApprovalEnum.NONE);
         docData.getWorkflow().getState().setApprovalBy(null);
+        
+        Label label = new Label(LabelEnum.APPROVED);
+        docData.getWorkflow().getLabels().remove(label);
+        Label submitLabel = new Label(LabelEnum.SUBMITED);
+        docData.getWorkflow().getLabels().remove(submitLabel);
     }
     
     private void queryWorkingMemory() {

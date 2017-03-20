@@ -1,6 +1,5 @@
 package org.fit.vutbr.relaxdms.web.user;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Set;

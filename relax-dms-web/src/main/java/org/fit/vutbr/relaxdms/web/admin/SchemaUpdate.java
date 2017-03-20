@@ -126,7 +126,7 @@ public class SchemaUpdate extends BasePage implements Serializable {
 
                     documentService.updateSchema(convert.stringToJsonNode(oldSchema), newSchema);
 
-                    success("Template was update successfully");
+                    success("Template was updated successfully");
 
                     // clear text area
                     textArea.setModelObject("");

@@ -36,6 +36,7 @@ public class DocumentList extends BasePage implements Serializable {
 
         List<DocumentListData> docList = documentService.getAllAuthorized(user);
 
+        add(new Label("user", user));
         createDocumentList(docList);
     }
     

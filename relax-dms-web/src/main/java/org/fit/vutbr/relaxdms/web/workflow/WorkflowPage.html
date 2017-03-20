@@ -6,7 +6,7 @@
 </head>
 <body>
     <wicket:extend>
-        <div class="row">
+        <div class="row my-div-workflow">
             <h3>Workflow page</h3>
         </div>
         
@@ -20,13 +20,12 @@
                 <input wicket:id='unfreeze' type="button" class="tiny btn btn-primary" value="Fire"/>
             </span>
         </div>
-        <div class="row">
+        <div class="row my-div-workflow">
             <span>
                 Release all signed documents workflow: 
                 <input wicket:id='release' type="button" class="tiny btn btn-primary" value="Fire"/>
             </span>
-            
-            <hr>
+
         </div>
  
         <div class="row">
@@ -39,8 +38,8 @@
                     <label>Select custom workflow to fire</label>
                     <br />
                     <select wicket:id="workflows"></select>
+                    <input type="submit" class="tiny btn btn-primary fire-button" value="Fire" />
 		</p>
-		<input type="submit" class="tiny btn btn-primary" value="Fire" />
             </form>
         </div>
     </wicket:extend>

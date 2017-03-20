@@ -4,12 +4,14 @@ import javax.inject.Inject;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.fit.vutbr.relaxdms.api.service.WorkflowService;
 import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.LabelEnum;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.StateEnum;
+import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Workflow;
 
 /**
  *
@@ -33,6 +35,8 @@ public class DocumentLabels extends Panel {
     private Label submitedlabel;
     
     private Label freezedLabel;
+    
+    private Label noLabel;
     
     public DocumentLabels(String id, Document docData) {
         super(id);
@@ -68,7 +72,19 @@ public class DocumentLabels extends Panel {
         boolean isFreezed = workflowService.checkLabel(docData.getWorkflow(), LabelEnum.FREEZED);
         freezedLabel.setVisible(isFreezed);
         
-        add(releasedLabel, signedLabel, approvedlabel, submitedlabel, freezedLabel);
+        boolean isNoLabel = !isReleased && !isSigned && !isApproved && !isSubmited && !isFreezed;
+        noLabel = new Label("noLabel", "No labels yet.");
+        noLabel.setOutputMarkupId(true);
+        noLabel.setVisible(isNoLabel);
+        
+        add(releasedLabel, signedLabel, approvedlabel, submitedlabel, freezedLabel, noLabel);
     }
 
+    public void refreshLabels(Workflow workflow, AjaxRequestTarget target) {
+        if (workflow.getLabels().isEmpty())
+            noLabel.setVisible(true);
+        else 
+            noLabel.setVisible(false);
+        target.add(noLabel);
+    }
 }

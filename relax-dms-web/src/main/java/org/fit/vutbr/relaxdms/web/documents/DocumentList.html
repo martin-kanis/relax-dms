@@ -6,23 +6,25 @@
 <body>
     <wicket:extend>
         <div class="row">
-            <div class="span9">
-                <h4>All documents: </h4>
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Id</th>
-                            <th>Title</th>
-                            <th>Author</th>
-                        </tr>
-                    </thead>
-                    <tr wicket:id="listView">
-                        <td><a wicket:id="docLink"><span wicket:id="id"/></a></td>
-                        <td><span wicket:id="title"></span></td>
-                        <td><span wicket:id="author"></span></td>
+            <h3 class="my-h3">Find documents</h3>
+        </div>
+                
+         <div class="row">
+            <h4>Available documents for <span wicket:id="user">user</span></h4>
+            <table class="table table-striped my-table">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Title</th>
+                        <th>Author</th>
                     </tr>
-                </table>
-            </div>
+                </thead>
+                <tr wicket:id="listView">
+                    <td><a wicket:id="docLink"><span wicket:id="id"/></a></td>
+                    <td><span wicket:id="title"></span></td>
+                    <td><span wicket:id="author"></span></td>
+                </tr>
+            </table>
         </div>
     </wicket:extend>
 </body>

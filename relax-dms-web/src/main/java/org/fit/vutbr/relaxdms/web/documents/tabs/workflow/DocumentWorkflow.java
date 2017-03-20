@@ -292,6 +292,7 @@ public class DocumentWorkflow extends Panel implements Serializable {
                 assigneeLabel.setDefaultModel(new Model(workflow.getAssignment().getAssignee()));
                 
                 tabs.refreshTabs(docData.getMetadata().getRev());
+                documentLabels.refreshLabels(docData.getWorkflow(), target);
                 
                 target.add(approveLink, declineLink, approvedLabel, declinedLabel, closeLink,
                         noneLabel, approvalByValue, approvalByLabel, stateLabel, assigneeLabel, 
@@ -321,6 +322,7 @@ public class DocumentWorkflow extends Panel implements Serializable {
                 assigneeLabel.setDefaultModel(new Model(workflow.getAssignment().getAssignee()));
                 
                 tabs.refreshTabs(docData.getMetadata().getRev());
+                documentLabels.refreshLabels(docData.getWorkflow(), target);
                 
                 target.add(submitLink, declineLink, approveLink, declinedLabel, tabs,
                         approvedLabel, noneLabel, approvalByValue, approvalByLabel, 
@@ -361,6 +363,7 @@ public class DocumentWorkflow extends Panel implements Serializable {
                         declineLink.setVisible(approvalVisible);
 
                         tabs.refreshTabs(docData.getMetadata().getRev());
+                        documentLabels.refreshLabels(docData.getWorkflow(), target);
 
                         target.add(stateLabel, assigneeLabel, submitLink, startProgressLink, 
                                 approveLink, declineLink, approvedLabel, declinedLabel, 
@@ -394,6 +397,7 @@ public class DocumentWorkflow extends Panel implements Serializable {
                 setVisibility(true, freezeLink);
                 
                 tabs.refreshTabs(docData.getMetadata().getRev());
+                documentLabels.refreshLabels(docData.getWorkflow(), target);
                 
                 target.add(stateLabel, startProgressLink, documentLabels, freezeLink, tabs);
             }
@@ -415,6 +419,7 @@ public class DocumentWorkflow extends Panel implements Serializable {
                 reopenLink.setVisible(true);
                 
                 tabs.refreshTabs(docData.getMetadata().getRev());
+                documentLabels.refreshLabels(docData.getWorkflow(), target);
                 
                 target.add(stateLabel, closeLink, submitLink, startProgressLink, signLink,
                         reopenLink, approveLink, declineLink, documentLabels, releaseLink, tabs);
@@ -438,6 +443,7 @@ public class DocumentWorkflow extends Panel implements Serializable {
                         documentLabels.getSignedLabel(), documentLabels.getFreezedLabel());
                 
                 tabs.refreshTabs(docData.getMetadata().getRev());
+                documentLabels.refreshLabels(docData.getWorkflow(), target);
                 
                 target.add(stateLabel, closeLink, submitLink, startProgressLink, releaseLink,
                         reopenLink, approvedLabel, declinedLabel, approvalByLabel, signLink,
@@ -457,6 +463,7 @@ public class DocumentWorkflow extends Panel implements Serializable {
                 setVisibility(false, signLink);
                 
                 tabs.refreshTabs(docData.getMetadata().getRev());
+                documentLabels.refreshLabels(docData.getWorkflow(), target);
                 
                 target.add(documentLabels, signLink, releaseLink, tabs);
             }
@@ -474,6 +481,7 @@ public class DocumentWorkflow extends Panel implements Serializable {
                 setVisibility(true, documentLabels.getFreezedLabel());
                 
                 tabs.refreshTabs(docData.getMetadata().getRev());
+                documentLabels.refreshLabels(docData.getWorkflow(), target);
                 
                 target.add(freezeLink, documentLabels, tabs);
             }
@@ -493,6 +501,7 @@ public class DocumentWorkflow extends Panel implements Serializable {
                 textField.setEnabled(false);
                 
                 tabs.refreshTabs(docData.getMetadata().getRev());
+                documentLabels.refreshLabels(docData.getWorkflow(), target);
                 
                 target.add(releaseLink, documentLabels, closeLink, assigneeLabel, tabs);
             }

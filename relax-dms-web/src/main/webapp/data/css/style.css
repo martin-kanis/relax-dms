@@ -1,0 +1,107 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 19-Mar-2017, 15:46:55
+    Author     : mkanis
+*/
+
+.my-table {
+    
+}
+
+.my-table thead {
+    color:white;
+    background-color: #1b1b1b;
+}
+
+.my-table thead tr {
+    border: #1b1b1b solid 1px;
+    border-bottom: none;
+}
+
+.my-table tr {
+    border-right: #ccc solid 1px;
+    border-left: #ccc solid 1px;
+}
+
+.my-table tr:last-child {
+    border-bottom: #ccc solid 1px;
+}
+
+.my-table td {
+    width: 30%;
+}
+
+h3 {
+    font-family: "Trebuchet MS", Helvetica, sans-serif;
+    font-size: 30px;
+    padding: 10px 0 10px 0;
+    text-transform:capitalize;
+    margin-bottom: 0;  
+}
+
+.my-h3 {
+    border-bottom: #ccc solid 1px;
+}
+
+.my-div {
+    border-right: #ccc 1px solid;
+    padding-right: 25px;
+}
+
+.my-div-buttons {
+    margin-left: 0px;
+    margin-bottom: 10px;
+}
+
+.my-div-workflow {
+    border-bottom: solid 1px #ccc;
+    padding-bottom:10px;
+}
+
+.my-div-workflow:last-child {
+    border-bottom:none;
+}
+
+footer {
+    border-top: 1px solid #ccc;
+    padding-top: 20px;
+}
+
+.fire-button {
+    margin-bottom: 10px;
+}
+
+.my-textarea {
+    margin:0;
+    width:98.5%;
+}
+
+.form-group {
+    padding: 0;
+}
+
+.my-button-update {
+    margin-top: 20px;
+}
+
+ul.inline > li:first-child,
+ol.inline > li:first-child {
+  padding-right: 5px;
+  padding-left: 0px;
+
+}
+
+.well {
+    background-color: #fff;
+}
+
+.well h3 {
+    font-size:20px;
+}
+
+
+
