@@ -6,6 +6,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.github.fge.jsonschema.core.exceptions.ProcessingException;
+import com.github.fge.jsonschema.main.JsonSchema;
+import com.github.fge.jsonschema.main.JsonSchemaFactory;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -228,5 +231,23 @@ public class DocumentServiceImpl implements DocumentService {
             return true;
         
         return permissions.contains(user);
+    }
+
+    @Override
+    public boolean validateJsonDataWithSchema(JsonNode data, JsonNode schema) {
+        try {
+            JsonSchemaFactory factory = JsonSchemaFactory.byDefault();
+            // load the schema and validate
+            JsonSchema jsonSchema = factory.getJsonSchema(schema);
+            return jsonSchema.validInstance(data);
+        } catch (ProcessingException ex) {
+            logger.error(ex);
+        }
+        return false;
+    }
+
+    @Override
+    public byte[] getDataFromDoc(String id) {
+        return repo.getDataFromDoc(id);
     }
 }

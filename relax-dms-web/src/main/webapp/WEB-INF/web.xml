@@ -41,6 +41,7 @@
             <web-resource-name>app</web-resource-name>
             <url-pattern>/user</url-pattern>
             <url-pattern>/create-document</url-pattern>
+            <url-pattern>/rest/document/store</url-pattern>    
         </web-resource-collection>
         <auth-constraint>
             <role-name>app-admin</role-name>

@@ -1,6 +1,5 @@
 package org.fit.vutbr.relaxdms.rest.api;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import java.util.List;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -37,7 +36,7 @@ public interface DocumentRest {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public JsonNode read(@PathParam("id") String id);
+    public Response read(@PathParam("id") String id);
     
     @POST
     @Path("/store")
@@ -49,7 +48,23 @@ public interface DocumentRest {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response delete(String json);
     
-    @DELETE
-    @Path("/delete/{idRev}")
-    public Response deleteByIdAndRev(@PathParam("idRev") String idRev);
+    @POST
+    @Path("/update")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response update(String json);
+    
+    @GET
+    @Path("/templates")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllTemplates();
+    
+    @GET
+    @Path("/byAuthor")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getDocsHeadersByAuthor();
+    
+    @GET
+    @Path("/byAssignee")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getDocsHeadersByAssignee();
 }

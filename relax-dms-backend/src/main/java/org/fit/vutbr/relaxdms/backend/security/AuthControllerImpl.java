@@ -6,8 +6,10 @@ import java.util.Set;
 import javax.ejb.Stateless;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.SecurityContext;
 import org.fit.vutbr.relaxdms.api.security.AuthController;
 import org.jboss.logging.Logger;
+import org.keycloak.KeycloakPrincipal;
 import org.keycloak.KeycloakSecurityContext;
 import org.keycloak.adapters.AdapterDeploymentContext;
 import org.keycloak.adapters.KeycloakDeployment;
@@ -83,24 +85,37 @@ public class AuthControllerImpl implements AuthController {
     public boolean isUserAuthorized(HttpServletRequest req, String role) {
         Set<String> roles = getUserRoles(req);
 
+        return roles.contains(translateRole(role));
+    }
+    
+    @Override
+    public boolean isUserAuthorized(SecurityContext sc, String role) {
+        KeycloakPrincipal kp = (KeycloakPrincipal<KeycloakSecurityContext>) sc.getUserPrincipal();
+        Set<String> roles = kp.getKeycloakSecurityContext().getToken().getRealmAccess().getRoles();
+        
+        return roles.contains(translateRole(role));
+    }
+    
+    @Override
+    public String getUserName(SecurityContext sc) {
+        KeycloakPrincipal kp = (KeycloakPrincipal<KeycloakSecurityContext>) sc.getUserPrincipal();
+        return kp.getKeycloakSecurityContext().getToken().getPreferredUsername();
+    }
+    
+    private String translateRole(String role) {
         String neededRole;
         switch (role) {
             case "admin":
                 neededRole = "app-admin";
                 break;
             case "manager":
-                neededRole = role;
-                break;
             case "writer":
-                neededRole = role;
-                break;
             case "reader":
                 neededRole = role;
                 break;
             default:
                 neededRole = "";
         }
-        
-        return roles.contains(neededRole);
+        return neededRole;
     }
  }

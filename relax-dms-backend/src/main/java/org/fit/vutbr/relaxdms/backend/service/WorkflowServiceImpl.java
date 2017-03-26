@@ -24,7 +24,6 @@ import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.StateEnum;
 import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Workflow;
 import org.jboss.logging.Logger;
 import org.kie.api.cdi.KSession;
-import org.kie.api.definition.rule.Rule;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.rule.FactHandle;
 import org.kie.api.runtime.rule.QueryResults;
@@ -295,5 +294,13 @@ public class WorkflowServiceImpl implements WorkflowService {
     public List<String> getCustomRules() {
         return kSession.getKieBase().getKiePackage("org.fit.vutbr.relaxdms.custom")
                 .getRules().stream().map(r -> r.getName()).collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean isReadOnly(String docId) {
+        Workflow workflow = getWorkflowFromDoc(docId);
+        StateEnum state = workflow.getState().getCurrentState();
+        
+        return !((state == StateEnum.OPEN) || (state == StateEnum.IN_PROGRESS));
     }
 }

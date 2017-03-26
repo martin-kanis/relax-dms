@@ -154,6 +154,13 @@ public interface DocumentService {
     public byte[] getAttachmentsFromJson(JsonNode doc);
     
     /**
+     * Returns data from document specified by Id.
+     * @param id Id of document
+     * @return Byte array of document's data
+     */
+    public byte[] getDataFromDoc(String id);
+    
+    /**
      * Removes all data we don't want to show in JSON editor.
      * For example metadata and workflow.
      * @param doc Json from where data will be removed
@@ -204,4 +211,12 @@ public interface DocumentService {
      * @return boolean
      */
     public boolean isUserAuthorized(DocumentListData docData, String user);
+    
+    /**
+     * Validates provided JSON data with provided JSON schema.
+     * @param data JsonNode
+     * @param schema JsonNode
+     * @return True if JSON data matches provided schema.
+     */
+    public boolean validateJsonDataWithSchema(JsonNode data, JsonNode schema);
 }

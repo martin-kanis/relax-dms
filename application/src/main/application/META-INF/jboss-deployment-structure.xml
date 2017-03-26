@@ -2,6 +2,11 @@
 <jboss-deployment-structure>
     <deployment>
     </deployment>
+    <sub-deployment name="relax-dms-rest.jar">
+        <dependencies>
+            <module name="org.keycloak.keycloak-core"/> 
+        </dependencies>
+    </sub-deployment>
     <sub-deployment name="relax-dms-backend.jar">
         <dependencies>
             <module name="org.keycloak.keycloak-core"/> 

@@ -15,6 +15,7 @@
         <version.lombok>1.16.6</version.lombok>
         <version.keycloak>1.9.7.Final</version.keycloak>
         <version.zjsonpatch>0.2.4</version.zjsonpatch>
+        <version.json-schema-validator>2.2.6</version.json-schema-validator>
     </properties>
     
     <modules>
@@ -60,9 +61,19 @@
             <version>${version.lombok}</version>
         </dependency>
         <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>18.0</version>
+        </dependency>
+        <dependency>
             <groupId>com.flipkart.zjsonpatch</groupId>
             <artifactId>zjsonpatch</artifactId>
             <version>${version.zjsonpatch}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.fge</groupId>
+            <artifactId>json-schema-validator</artifactId>
+            <version>${version.json-schema-validator}</version>
         </dependency>
         <dependency>
             <groupId>org.keycloak</groupId>

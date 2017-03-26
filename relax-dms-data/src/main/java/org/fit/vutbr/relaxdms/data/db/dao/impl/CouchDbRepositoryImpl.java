@@ -459,6 +459,24 @@ public class CouchDbRepositoryImpl extends CouchDbRepositorySupport<JsonNode> im
         }
         return null;
     }
+    
+    @Override
+    @View(name = "get_data", map = "function(doc) {if (doc.data) {"
+            + "emit(doc._id, doc.data)}}")
+    public byte[] getDataFromDoc(String id) {
+        ViewQuery q = new ViewQuery()
+                .viewName("get_data")
+                .designDocId("_design/JsonNode")
+                .key(id);
+
+        ViewResult result = db.queryView(q);
+        try {
+            return mapper.writeValueAsBytes(result.getRows().get(0).getValueAsNode());
+        } catch (JsonProcessingException ex) {
+            logger.error(ex);
+        }
+        return null;
+    }
 
     @Override
     @View(name = "count_versions", map = "function(doc) { var count = 1; if (doc._attachments) {"

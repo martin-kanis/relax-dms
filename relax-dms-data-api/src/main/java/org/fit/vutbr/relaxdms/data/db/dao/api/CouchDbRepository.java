@@ -148,6 +148,13 @@ public interface CouchDbRepository {
     public Workflow getWorkflowFromDoc(String id);
     
     /**
+     * Returns data from document specified by Id.
+     * @param id Id of document
+     * @return Byte array of document's data
+     */
+    public byte[] getDataFromDoc(String id);
+    
+    /**
      * Returns metadata and workflow from all documents
      * @return List of Documents
      */

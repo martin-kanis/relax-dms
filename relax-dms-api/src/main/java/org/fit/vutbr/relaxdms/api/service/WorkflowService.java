@@ -156,4 +156,11 @@ public interface WorkflowService {
      * @return List of rule's names
      */
     public List<String> getCustomRules();
+    
+    /**
+     * Checks if document specified by Id is protected from editing.
+     * @param docId Id of document
+     * @return True if document can't be edited.
+     */
+    public boolean isReadOnly(String docId);
 }
