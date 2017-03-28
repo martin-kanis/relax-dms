@@ -10,7 +10,7 @@ import java.io.Serializable;
 public enum StateEnum implements Serializable {
     OPEN("Open"),
     IN_PROGRESS("In Progress"),
-    SUBMITED("Submited"),
+    SUBMITTED("Submitted"),
     DONE("Done"),
     CLOSED("Closed");
     

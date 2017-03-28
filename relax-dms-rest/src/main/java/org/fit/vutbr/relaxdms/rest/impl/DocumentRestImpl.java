@@ -37,7 +37,7 @@ public class DocumentRestImpl implements DocumentRest {
     private AuthController authController;
     
     @Context
-    SecurityContext sc;
+    private SecurityContext sc;
     
     @Inject 
     private Convert convert;

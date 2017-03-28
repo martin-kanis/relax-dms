@@ -11,7 +11,7 @@ public enum LabelEnum implements Serializable {
     RELEASED("Released", "Document is released to available to readers"),
     SIGNED("Signed", "Document is signed by signing authority"),
     APPROVED("Approved", "Document is approved by approval authority"),
-    SUBMITED("Submited", "Document is sent to admin for review"),
+    SUBMITTED("Submitted", "Document is sent to admin for review"),
     FREEZED("Freezed", "Document is freezed for later finishing");
     
     private final String name;

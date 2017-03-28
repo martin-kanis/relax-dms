@@ -50,3 +50,9 @@ Business central console is deployed on [http://localhost:8080/business-central]
 Build application
 -----------------
 
+Rest API
+--------
+For access REST endpoint you will need access token for authentication. You can obtain the access token for user `writer` with following command:
+
+`curl --data "grant_type=password&client_id=relax-dms&username=writer&password=password" http://localhost:8180/auth/realms/RelaxDMS/protocol/openid-connect/token`
+

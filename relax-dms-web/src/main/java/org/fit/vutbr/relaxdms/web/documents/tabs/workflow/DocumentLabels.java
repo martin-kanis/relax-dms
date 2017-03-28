@@ -32,7 +32,7 @@ public class DocumentLabels extends Panel {
     
     private Label approvedlabel;
     
-    private Label submitedlabel;
+    private Label submittedlabel;
     
     private Label freezedLabel;
     
@@ -51,8 +51,8 @@ public class DocumentLabels extends Panel {
         approvedlabel = new Label("approved", LabelEnum.APPROVED.getName());
         approvedlabel.add(new AttributeModifier("title", LabelEnum.APPROVED.getDescription()));
         
-        submitedlabel = new Label("submited", LabelEnum.SUBMITED.getName());
-        submitedlabel.add(new AttributeModifier("title", LabelEnum.SUBMITED.getDescription()));
+        submittedlabel = new Label("submitted", LabelEnum.SUBMITTED.getName());
+        submittedlabel.add(new AttributeModifier("title", LabelEnum.SUBMITTED.getDescription()));
         
         freezedLabel = new Label("freezed", LabelEnum.FREEZED.getName());
         freezedLabel.add(new AttributeModifier("title", LabelEnum.FREEZED.getDescription()));
@@ -66,8 +66,8 @@ public class DocumentLabels extends Panel {
         boolean isApproved = workflowService.isApproved(docData.getWorkflow());
         approvedlabel.setVisible(isApproved);
         
-        boolean isSubmited = workflowService.checkState(docData.getWorkflow(), StateEnum.SUBMITED);
-        submitedlabel.setVisible(isSubmited);
+        boolean isSubmited = workflowService.checkState(docData.getWorkflow(), StateEnum.SUBMITTED);
+        submittedlabel.setVisible(isSubmited);
         
         boolean isFreezed = workflowService.checkLabel(docData.getWorkflow(), LabelEnum.FREEZED);
         freezedLabel.setVisible(isFreezed);
@@ -77,7 +77,7 @@ public class DocumentLabels extends Panel {
         noLabel.setOutputMarkupId(true);
         noLabel.setVisible(isNoLabel);
         
-        add(releasedLabel, signedLabel, approvedlabel, submitedlabel, freezedLabel, noLabel);
+        add(releasedLabel, signedLabel, approvedlabel, submittedlabel, freezedLabel, noLabel);
     }
 
     public void refreshLabels(Workflow workflow, AjaxRequestTarget target) {

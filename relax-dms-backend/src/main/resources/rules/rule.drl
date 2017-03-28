@@ -17,12 +17,12 @@ dialect "java"
 rule "Submit"
     when
         $env : Environment(isTrue() == true, getAssignTo() != null, $assignTo : getAssignTo())
-        $document : Document(workflow.state.currentState != StateEnum.SUBMITED && 
+        $document : Document(workflow.state.currentState != StateEnum.SUBMITTED && 
             (workflow.state.currentState == StateEnum.OPEN || 
             workflow.state.currentState == StateEnum.IN_PROGRESS))
     then
         modify($document) {
-            getWorkflow().getState().setCurrentState(StateEnum.SUBMITED),
+            getWorkflow().getState().setCurrentState(StateEnum.SUBMITTED),
             getWorkflow().getAssignment().setAssignee($assignTo)
         };
         modify($env) {
@@ -34,7 +34,7 @@ end
 rule "Approve"
     when
         $document : Document(workflow.state.approval == ApprovalEnum.APPROVED &&
-            workflow.state.currentState == StateEnum.SUBMITED)
+            workflow.state.currentState == StateEnum.SUBMITTED)
     then
         List<String> assigneeList = $document.getWorkflow().getAssignment().getHistory();
         int size = assigneeList.size();
@@ -51,7 +51,7 @@ end
 rule "Decline"
     when
         $document : Document(workflow.state.approval == ApprovalEnum.DECLINED &&
-            workflow.state.currentState == StateEnum.SUBMITED)
+            workflow.state.currentState == StateEnum.SUBMITTED)
     then
         List<String> assigneeList = $document.getWorkflow().getAssignment().getHistory();
         int size = assigneeList.size();

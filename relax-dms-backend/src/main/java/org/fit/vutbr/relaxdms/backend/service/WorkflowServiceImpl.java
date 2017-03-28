@@ -65,12 +65,13 @@ public class WorkflowServiceImpl implements WorkflowService {
     }
 
     @Override
-    public void approveDoc(Document docData) {
+    public void approveDoc(Document docData, String user) {
         docData.getWorkflow().getState().setApproval(ApprovalEnum.APPROVED);
         
         // set approvalBy
-        String user = docData.getMetadata().getLastModifiedBy();
         docData.getWorkflow().getState().setApprovalBy(user);
+        removeLabel(docData, LabelEnum.SUBMITTED);
+        addLabel(docData, LabelEnum.APPROVED, user);
 
         fireWorkflow(docData);
         
@@ -78,14 +79,13 @@ public class WorkflowServiceImpl implements WorkflowService {
     }
 
     @Override
-    public void declineDoc(Document docData) {
+    public void declineDoc(Document docData, String user) {
         docData.getWorkflow().getState().setApproval(ApprovalEnum.DECLINED);
         
         // set approvalBy
-        String user = docData.getMetadata().getLastModifiedBy();
         docData.getWorkflow().getState().setApprovalBy(user);
         
-        Label submitLabel = new Label(LabelEnum.SUBMITED);
+        Label submitLabel = new Label(LabelEnum.SUBMITTED);
         docData.getWorkflow().getLabels().remove(submitLabel);
         
         fireWorkflow(docData);
@@ -136,13 +136,13 @@ public class WorkflowServiceImpl implements WorkflowService {
     }
 
     @Override
-    public void changeState(Document docData, StateEnum expectedState) {
+    public void changeState(Document docData, StateEnum expectedState, String user) {
         docData.getWorkflow().getState().setCurrentState(expectedState);
         
         // if doc is not assigned, assign it to user who performed change of state
         Assignment assignment = docData.getWorkflow().getAssignment();
         if ("Unassigned".equals(assignment.getAssignee())) {
-            assignment.setAssignee(docData.getMetadata().getLastModifiedBy());
+            assignment.setAssignee(user);
         }
         
         // cancel approval and approvalBy when reopen doc
@@ -170,8 +170,8 @@ public class WorkflowServiceImpl implements WorkflowService {
     }
     
     @Override
-    public void addLabel(Document docData, LabelEnum labelType) {
-        Label label = new Label(labelType, docData.getMetadata().getLastModifiedBy());
+    public void addLabel(Document docData, LabelEnum labelType, String user) {
+        Label label = new Label(labelType, user);
         docData.getWorkflow().getLabels().add(label);
         
         repo.updateDoc(docData);
@@ -244,7 +244,7 @@ public class WorkflowServiceImpl implements WorkflowService {
         
         cancelApproval(docData);
         removeLabel(docData, LabelEnum.FREEZED);
-        addLabel(docData, LabelEnum.SUBMITED);
+        addLabel(docData, LabelEnum.SUBMITTED, env.getFireBy());
         
         fireWorkflow(docData);
         
@@ -265,7 +265,7 @@ public class WorkflowServiceImpl implements WorkflowService {
         
         Label label = new Label(LabelEnum.APPROVED);
         docData.getWorkflow().getLabels().remove(label);
-        Label submitLabel = new Label(LabelEnum.SUBMITED);
+        Label submitLabel = new Label(LabelEnum.SUBMITTED);
         docData.getWorkflow().getLabels().remove(submitLabel);
     }
     
@@ -302,5 +302,10 @@ public class WorkflowServiceImpl implements WorkflowService {
         StateEnum state = workflow.getState().getCurrentState();
         
         return !((state == StateEnum.OPEN) || (state == StateEnum.IN_PROGRESS));
+    }
+
+    @Override
+    public boolean isSubmitted(Workflow workflow) {
+        return workflow.getState().getCurrentState() == StateEnum.SUBMITTED;
     }
 }

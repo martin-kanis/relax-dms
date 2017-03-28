@@ -32,14 +32,16 @@ public interface WorkflowService {
     /**
      * Approves document by setting property in workflow
      * @param docData Metadata and workflow of the document
+     * @param user User who approves document
      */
-    public void approveDoc(Document docData);
+    public void approveDoc(Document docData, String user);
     
     /**
      * Declines document by setting property in workflow
      * @param docData Metadata and workflow of the document
+     * @param user User who declines document
      */
-    public void declineDoc(Document docData);
+    public void declineDoc(Document docData, String user);
     
     /**
      * Checks if document is approved 
@@ -75,8 +77,9 @@ public interface WorkflowService {
      * Changes state of provided document to expected state
      * @param docData Document metadata
      * @param expectedState StateEnum  
+     * @param user Use who changes state
      */
-    public void changeState(Document docData, StateEnum expectedState);
+    public void changeState(Document docData, StateEnum expectedState, String user);
     
     /**
      * Assigns document to given user.
@@ -97,8 +100,9 @@ public interface WorkflowService {
      * Adds label of specified type to the document.
      * @param docData Document metadata
      * @param labelType Type of label
+     * @param user User who adds label to the document
      */
-    public void addLabel(Document docData, LabelEnum labelType); 
+    public void addLabel(Document docData, LabelEnum labelType, String user); 
     
     /**
      * Checks if the document can be signed.
@@ -128,6 +132,13 @@ public interface WorkflowService {
      * @param env Additional data for drools engine
      */
     public void submitDocument(Document docData, Environment env);
+    
+    /**
+     * Checks if document is submitted
+     * @param workflow
+     * @return boolean
+     */
+    public boolean isSubmitted(Workflow workflow);
     
     /**
      * Checks if user is authorized to see/write document.
