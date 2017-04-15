@@ -1,6 +1,9 @@
 package org.fit.vutbr.relaxdms.web.documents.tabs.workflow;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
@@ -16,12 +19,15 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.basic.MultiLineLabel;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
+import org.apache.wicket.util.resource.AbstractResourceStreamWriter;
 import org.fit.vutbr.relaxdms.api.security.AuthController;
 import org.fit.vutbr.relaxdms.api.service.DocumentService;
 import org.fit.vutbr.relaxdms.api.service.WorkflowService;
@@ -40,6 +46,8 @@ import org.fit.vutbr.relaxdms.web.documents.tabs.DocumentTabs;
  * @author Martin Kanis
  */
 public class DocumentWorkflow extends Panel implements Serializable {
+    
+    private final String docId;
 
     private final String user;
     
@@ -82,6 +90,8 @@ public class DocumentWorkflow extends Panel implements Serializable {
     
     private AjaxLink releaseLink;
     
+    private Link exportLink;
+    
     private final Label approvedLabel;
     
     private final Label declinedLabel;
@@ -108,6 +118,7 @@ public class DocumentWorkflow extends Panel implements Serializable {
     
     public DocumentWorkflow(String id, String docId, String docRev, DocumentTabs tabs) {
         super(id);
+        this.docId = docId;
         this.tabs = tabs;
         
         HttpServletRequest req = (HttpServletRequest) getRequest().getContainerRequest();
@@ -211,6 +222,8 @@ public class DocumentWorkflow extends Panel implements Serializable {
         boolean releaseVisible = workflowService.checkLabel(workflow, LabelEnum.SIGNED) &&
                 !workflowService.checkLabel(workflow, LabelEnum.RELEASED);
         createReleaseButton(releaseVisible);
+        
+        createExportButton(workflowService.checkLabel(workflow, LabelEnum.RELEASED));
         
         createPermissionsForm();
     }
@@ -497,17 +510,42 @@ public class DocumentWorkflow extends Panel implements Serializable {
                 workflowService.addLabel(docData, LabelEnum.RELEASED, user);
                 
                 setVisibility(false, releaseLink, closeLink);
-                setVisibility(true, documentLabels.getReleasedLabel());
+                setVisibility(true, documentLabels.getReleasedLabel(), exportLink);
                 assigneeLabel.setEnabled(false);
                 textField.setEnabled(false);
                 
                 tabs.refreshTabs(docData.getMetadata().getRev());
                 documentLabels.refreshLabels(docData.getWorkflow(), target);
                 
-                target.add(releaseLink, documentLabels, closeLink, assigneeLabel, tabs);
+                target.add(releaseLink, documentLabels, closeLink, assigneeLabel, tabs, exportLink);
             }
         };
         addComponent(releaseLink, visible);
+    }
+    
+    private void createExportButton(boolean visible) {
+        exportLink = new Link("export") {
+            @Override
+            public void onClick() {
+
+                JsonNode doc = documentService.getDocumentById(docId);
+                String filename = doc.get("data").get("Title").asText() + ".pdf";
+                final ByteArrayOutputStream baos = documentService.convertToPdf(doc);
+                AbstractResourceStreamWriter rstream = new AbstractResourceStreamWriter() {
+
+                    @Override
+                    public void write(OutputStream output) throws IOException {
+                        output.write(baos.toByteArray());
+                        baos.close();
+                        output.close();
+                    }
+                };
+
+                ResourceStreamRequestHandler handler = new ResourceStreamRequestHandler(rstream, filename);        
+                getRequestCycle().scheduleRequestHandlerAfterCurrent(handler);
+            }
+        };
+        addComponent(exportLink, visible);
     }
     
     private void addComponent(Component c, boolean visible) {

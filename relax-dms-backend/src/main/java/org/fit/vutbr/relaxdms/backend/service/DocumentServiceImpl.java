@@ -9,12 +9,29 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import com.github.fge.jsonschema.main.JsonSchema;
 import com.github.fge.jsonschema.main.JsonSchemaFactory;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.xml.transform.Result;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.sax.SAXResult;
+import javax.xml.transform.stream.StreamSource;
+import org.apache.fop.apps.FOPException;
+import org.apache.fop.apps.FOUserAgent;
+import org.apache.fop.apps.Fop;
+import org.apache.fop.apps.FopFactory;
+import org.apache.fop.apps.MimeConstants;
 import org.ektorp.Revision;
 import org.fit.vutbr.relaxdms.api.service.DocumentService;
 import org.fit.vutbr.relaxdms.data.client.keycloak.api.KeycloakAdminClient;
@@ -23,6 +40,8 @@ import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
 import org.fit.vutbr.relaxdms.data.db.dao.model.DocumentListData;
 import org.fit.vutbr.relaxdms.data.db.dao.model.DocumentMetadata;
 import org.jboss.logging.Logger;
+import org.json.JSONObject;
+import org.json.XML;
 
 /**
  *
@@ -249,5 +268,57 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     public byte[] getDataFromDoc(String id) {
         return repo.getDataFromDoc(id);
+    }
+
+    @Override
+    public String jsonToXml(JsonNode json) {
+        // remove attachments
+        ((ObjectNode) json).remove("_attachments");
+        
+        // convert to JSONObject and add root element
+        JSONObject jsonObject = new JSONObject(json.toString());
+        JSONObject rootObject= new JSONObject();
+        rootObject.put("document", jsonObject);
+
+        String xml = XML.toString(rootObject);
+        return xml;
+    }
+
+    @Override
+    public ByteArrayOutputStream convertToPdf(JsonNode json) {
+        String xmlDoc = jsonToXml(json);
+        
+        // load xslt template
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();  
+        InputStream is = classLoader.getResourceAsStream("xslt/pdfTemplate.xsl");
+        
+        FopFactory fopFactory = FopFactory.newInstance(new File(".").toURI());
+        FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try {
+            
+            InputStream in = new ByteArrayInputStream(xmlDoc.getBytes(StandardCharsets.UTF_8));
+            StreamSource xmlSource = new StreamSource(in);
+            // Construct fop with desired output format
+            Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, baos);
+
+            // Setup XSLT
+            TransformerFactory factory = TransformerFactory.newInstance();
+            Transformer transformer = factory.newTransformer(new StreamSource(is));
+            Result res = new SAXResult(fop.getDefaultHandler());
+
+            // Start XSLT transformation and FOP processing
+            transformer.transform(xmlSource, res);
+        } catch (FOPException | TransformerException ex) {
+            logger.error(ex);
+        } finally {
+            try {
+                baos.close();
+            } catch (IOException ex) {
+                logger.error(ex);
+            }
+        }
+        return baos;
     }
 }

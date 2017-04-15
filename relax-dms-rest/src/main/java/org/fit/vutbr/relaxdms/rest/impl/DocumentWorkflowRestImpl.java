@@ -2,11 +2,13 @@ package org.fit.vutbr.relaxdms.rest.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.SecurityContext;
 import org.fit.vutbr.relaxdms.api.security.AuthController;
 import org.fit.vutbr.relaxdms.api.service.DocumentService;
@@ -195,7 +197,7 @@ public class DocumentWorkflowRestImpl implements DocumentWorkflowRest {
             Document doc = jsonNodeToDocument(jsonNode);
             String user = authController.getUserName(sc);
             
-            if (authController.isUserAuthorized(sc, "manager")) {
+            if (authController.isUserAuthorized(sc, "writer")) {
                 if (workflowService.checkLabel(doc.getWorkflow(), LabelEnum.SIGNED) &&
                     !workflowService.checkLabel(doc.getWorkflow(), LabelEnum.RELEASED)) {
                     workflowService.addLabel(doc, LabelEnum.RELEASED, user);
@@ -307,5 +309,26 @@ public class DocumentWorkflowRestImpl implements DocumentWorkflowRest {
         DocumentMetadata metadata = documentService.getMetadataFromJson(jsonNode);
         Workflow workflow = workflowService.getWorkflowFromJson(jsonNode);
         return new Document(data, attachments, metadata, workflow);
+    }
+
+    @Override
+    public Response exportDoc(String docData) {
+        try {
+            JsonNode jsonNode = new ObjectMapper().readValue(docData, JsonNode.class);
+            Document doc = jsonNodeToDocument(jsonNode);
+            String filename = jsonNode.get("data").get("Title").asText() + ".pdf";
+            
+            if (workflowService.checkLabel(doc.getWorkflow(), LabelEnum.RELEASED)) {
+                ByteArrayOutputStream baos = documentService.convertToPdf(jsonNode);
+                ResponseBuilder response = Response.ok(baos.toByteArray());
+                response.type("application/pdf");
+                response.header("Content-Disposition", "filename=" + filename);
+                return response.build();
+            } else {
+                return Response.status(403).entity("Forbidden: Can't release document due wrong document's state!").build();
+            }   
+        } catch (IOException ex) {
+            return Response.status(400).entity("Jackson error: Could not serialize provided object!").build();
+        }
     }
 }

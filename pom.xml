@@ -16,6 +16,9 @@
         <version.keycloak>1.9.7.Final</version.keycloak>
         <version.zjsonpatch>0.2.4</version.zjsonpatch>
         <version.json-schema-validator>2.2.6</version.json-schema-validator>
+        <version.json>20160810</version.json>
+        <version.fop>2.2</version.fop>
+        <version.batik>1.9</version.batik>
     </properties>
     
     <modules>
@@ -96,6 +99,26 @@
             <version>6.4.0.GA-redhat-2</version>
             <type>pom</type>
             <scope>import</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>${version.json}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>fop</artifactId>
+            <version>${version.fop}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>xmlgraphics-commons</artifactId>
+            <version>${version.fop}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>batik-bridge</artifactId>
+            <version>${version.batik}</version>
         </dependency>
       </dependencies>
   </dependencyManagement>

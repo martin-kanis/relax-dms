@@ -1,6 +1,7 @@
 package org.fit.vutbr.relaxdms.api.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import java.io.ByteArrayOutputStream;
 import java.util.List;
 import org.ektorp.Revision;
 import org.fit.vutbr.relaxdms.data.db.dao.model.Document;
@@ -219,4 +220,19 @@ public interface DocumentService {
      * @return True if JSON data matches provided schema.
      */
     public boolean validateJsonDataWithSchema(JsonNode data, JsonNode schema);
+    
+    /**
+     * Converts provided Json to XML.
+     * Attachments are removed and XML root element called document is added.
+     * @param json JsonNode
+     * @return XML as string
+     */
+    public String jsonToXml(JsonNode json);
+    
+    /**
+     * Exports provided json document to pdf represented as ByteArrayOutputStream.
+     * @param json JsonNode
+     * @return ByteArrayOutputStream with created pdf
+     */
+    public ByteArrayOutputStream convertToPdf(JsonNode json);
 }
