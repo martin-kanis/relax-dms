@@ -12,16 +12,6 @@ import org.fit.vutbr.relaxdms.data.db.dao.model.workflow.Label;
 
 dialect "java"
 
-rule "CustomExample"
-    when
-        $env : Environment(isTrue() == true, getRule() == "CustomExample", $fireBy : getFireBy())
-    then
-        modify($env) {
-            setValue(false)
-        };
-        System.out.println("CustomExample rule fired");
-end
-
 rule "CustomWorkflow"
     when
         $env : Environment(isTrue() == true, getRule() == "CustomWorkflow", $fireBy : getFireBy())
@@ -30,4 +20,18 @@ rule "CustomWorkflow"
             setValue(false)
         };
         System.out.println("CustomWorkflow rule fired");
+end
+
+rule "AssignDocuments"
+    when
+        $env : Environment(isTrue(), getRule() == "AssignDocuments")
+        $document : Document(workflow.assignment.assignee == "Unassigned"  &&
+            workflow.state.currentState == StateEnum.OPEN)
+    then
+        String author = $document.getMetadata().getAuthor();
+        modify($document) {
+            getWorkflow().getAssignment().setAssignee(author)
+        };
+        docSet.add($document);
+        System.out.println("AssignDocuments rule fired");
 end
