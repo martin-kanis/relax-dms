@@ -39,6 +39,24 @@ To access node dirrecty in the Docker container do following:
 
 Setting Keycloak server
 -----------------------
+Download [Keycloak server 1.9.8.Final](https://downloads.jboss.org/keycloak/1.9.8.Final/keycloak-1.9.8.Final.zip) and unzip it. To import all needed settings, download [importKeycloak.json](https://github.com/martin-kanis/relax-dms/blob/master/importKeycloak.json) file and run this command from bin directory (specify path to `importKeycloak.json`):
+
+    ````
+    ./standalone.sh -Djboss.socket.binding.port-offset=100 -Dkeycloak.migration.action=import -Dkeycloak.migration.provider=singleFile -Dkeycloak.migration.file=importKeycloak.json -Dkeycloak.migration.strategy=OVERWRITE_EXISTING
+    ````
+
+To run Keycloak server without importing go to bin directory and run following command that starts Keycloak on port 8180:
+
+    ````
+    ./standalone.sh -Djboss.socket.binding.port-offset=100
+    ````
+
+Administration console is then available on following address (Username is `admin` and password is `admin`):
+
+    ````
+    http://localhost:8180/auth/admin/
+    ````
+
 
 Setting EAP server
 ------------------
