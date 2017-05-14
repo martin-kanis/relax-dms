@@ -1,0 +1,72 @@
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                              http://maven.apache.org/xsd/settings-1.0.0.xsd">
+  <profiles>
+    <!-- Profile with online repositories required by BRMS/BPMS -->
+    <profile>
+      <id>brms-bpms-online-profile</id>
+      <repositories>
+        <repository>
+          <id>jboss-ga-repository</id>
+          <url>https://maven.repository.redhat.com/ga/</url>
+          <releases>
+            <enabled>true</enabled>
+          </releases>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
+        </repository>
+      </repositories>
+      <pluginRepositories>
+        <pluginRepository>
+          <id>jboss-ga-plugin-repository</id>
+          <url>https://maven.repository.redhat.com/ga/</url>
+          <releases>
+            <enabled>true</enabled>
+          </releases>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
+        </pluginRepository>
+      </pluginRepositories>
+    </profile>
+  </profiles>
+
+  <servers>
+    <!-- Configuring pre-emptive authentication for the repository server -->
+    <server>
+      <id>brms-bpms-m2-repo</id>
+      <username>kieserver</username>
+      <password>password</password>
+      <configuration>
+        <wagonProvider>httpclient</wagonProvider>
+        <httpConfiguration>
+          <all>
+            <usePreemptive>true</usePreemptive>
+          </all>
+        </httpConfiguration>
+      </configuration>
+    </server>
+
+    <server>
+      <id>bpms-m2-repo</id>
+      <username>quickstartUser</username>
+      <password>password</password>
+      <configuration>
+        <wagonProvider>httpclient</wagonProvider>
+        <httpConfiguration>
+          <all>
+            <usePreemptive>true</usePreemptive>
+          </all>
+        </httpConfiguration>
+      </configuration>
+    </server>
+  </servers>
+
+  <activeProfiles>
+    <!-- Activation of the BRMS/BPMS profile -->
+    <activeProfile>brms-bpms-online-profile</activeProfile>
+  </activeProfiles>
+
+</settings>
