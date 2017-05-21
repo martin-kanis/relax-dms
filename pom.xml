@@ -4,7 +4,7 @@
     
     <groupId>org.fit.vutbr</groupId>
     <artifactId>relax-dms-parent</artifactId>
-    <version>0.9</version>
+    <version>1.0</version>
     <packaging>pom</packaging>
     
     <properties>
